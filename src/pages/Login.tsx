@@ -23,7 +23,7 @@ const Login: React.FC = () => {
 
       if (error) throw error;
 
-      navigate('/');
+      navigate('/admin');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

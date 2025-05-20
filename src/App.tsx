@@ -25,6 +25,7 @@ import { TaskProvider } from './context/TaskContext';
 import { UserProvider } from './context/UserContext';
 import { CartProvider } from './context/CartContext';
 import './App.css';
+import Login from './pages/Login';
 
 function App() {
   return (
@@ -77,6 +78,8 @@ function App() {
               </CartProvider>
             }
           />
+
+          <Route path='login' element={<Login />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
