@@ -65,17 +65,20 @@ export interface CartItem extends Product {
   quantity: number;
 }
 
-// Update existing Task interface
-export interface Task {
-  id: string;
+export interface TaskTemplate {
   title: string;
   description: string;
-  status: TaskStatus;
-  deadline: string;
   priority?: TaskPriority;
   category?: TaskCategory;
-  estimatedTime: number; // In minutes
-  dueDate?: string; //remove this later
+  estimatedTime?: number; // In minutes
+}
+
+// Update existing Task interface
+export interface Task extends TaskTemplate {
+  id: string;
+  status: TaskStatus;
+  deadline: string;
+  // dueDate?: string; //remove this later
   assignee?: string;
   ingredient_id?: string;
   order_id?: string;
@@ -105,11 +108,7 @@ export interface Ingredient {
   id_cabang: string;
   created_at: string;
   updated_at: string;
-  tasks?: Array<{
-    title: string;
-    description: string;
-    priority?: 'low' | 'medium' | 'high';
-  }>;
+  taskTemplates?: TaskTemplate[];
 }
 
 // export interface ProductWithExtras extends Product {

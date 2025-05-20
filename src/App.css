@@ -50,11 +50,53 @@
   }
 }
 
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-md font-medium transition-all duration-200 inline-flex items-center justify-center;
+  }
+
+  .btn-primary {
+    @apply bg-purple-500 text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply bg-teal-500 text-white hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2;
+  }
+
+  .btn-danger {
+    @apply bg-red-500 text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+  }
+
+  .btn-success {
+    @apply bg-green-500 text-white hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2;
+  }
+
+  .btn-warning {
+    @apply bg-amber-500 text-white hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2;
+  }
+
+  .btn-outline-primary {
+    @apply border-2 border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2;
+  }
+
+  .btn-outline-danger {
+    @apply border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-sm;
+  }
+
+  .btn-lg {
+    @apply px-6 py-3 text-lg;
+  }
+}
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Montserrat','Segoe UI', 'Roboto', 'Oxygen','Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Montserrat", "Segoe UI",
+    "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -85,8 +127,12 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .slide-in {
@@ -94,8 +140,14 @@ body {
 }
 
 @keyframes slideIn {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* Transitions */
@@ -116,8 +168,12 @@ body {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .add-task-btn {
@@ -138,30 +194,6 @@ body {
 
 .add-task-btn {
   @apply w-full text-sm flex items-center justify-center gap-1 py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors;
-}
-
-.btn {
-  @apply px-4 py-2 rounded-md font-medium transition-all duration-200;
-}
-
-.btn-primary {
-  @apply bg-purple-500 text-white hover:bg-purple-700;
-}
-
-.btn-secondary {
-  @apply bg-teal-500 text-white hover:bg-teal-600;
-}
-
-.btn-danger {
-  @apply bg-red-500 text-white hover:bg-red-600;
-}
-
-.btn-success {
-  @apply bg-green-500 text-white hover:bg-green-600;
-}
-
-.btn-warning {
-  @apply bg-amber-500 text-white hover:bg-amber-600;
 }
 
 .card {

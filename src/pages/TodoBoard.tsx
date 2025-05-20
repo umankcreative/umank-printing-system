@@ -208,7 +208,7 @@ const TaskBoard: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => handleOpenDialog()}
-              className="btn btn-primary items-center gap-2  flex items-center justify-center h-full m-auto"
+              className="btn btn-primary  gap-2  flex items-center justify-center h-full m-auto"
             >
               <Plus size={16} />
               <span>Add Task</span>

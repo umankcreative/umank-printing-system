@@ -67,15 +67,15 @@ const Orders: React.FC = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead>
               <tr>
-                <th className="table-header px-6 py-3 text-left">Order ID</th>
+                <th className="table-header px-6 py-3 text-left">ID Order</th>
                 <th className="table-header px-6 py-3 text-left">Customer</th>
-                <th className="table-header px-6 py-3 text-left">Date</th>
+                <th className="table-header px-6 py-3 text-left">Tanggal</th>
                 <th className="table-header px-6 py-3 text-left">
-                  Delivery Date
+                  Tanggal Kirim
                 </th>
                 <th className="table-header px-6 py-3 text-center">Status</th>
                 <th className="table-header px-6 py-3 text-right">Total</th>
-                <th className="table-header px-6 py-3 text-center">Tasks</th>
+                <th className="table-header px-6 py-3 text-center">Tugas</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">

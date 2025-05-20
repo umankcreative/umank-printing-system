@@ -7,8 +7,9 @@ interface ProductFiltersProps {
   onSearchChange: (value: string) => void;
   categoryFilter: string;
   onCategoryChange: (value: string) => void;
-  // statusFilter: string;
-  // onStatusChange: (value: string) => void;
+  statusFilter: string;
+  onStatusChange: (value: string) => void;
+  className?: string;
 }
 
 const ProductFilters: React.FC<ProductFiltersProps> = ({
@@ -16,13 +17,14 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   onSearchChange,
   categoryFilter,
   onCategoryChange,
-  // statusFilter,
-  // onStatusChange,
+  statusFilter,
+  onStatusChange,
+  className,
 }) => {
   return (
-    <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-4 ">
+    <div className={`bg-white shadow-sm rounded-lg border border-gray-200 p-4 ${className || ''}`}>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-        <div className="relative flex-grow max-w-md">
+        <div className="relative flex min-w-[400px] max-w-md">
           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
             <Search className="w-4 h-4 text-gray-500" />
           </div>
@@ -34,14 +36,14 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             placeholder="Search products..."
           />
         </div>
-
-        <div className="flex flex-col md:flex-row gap-2 md:gap-2">
+<div className="flex flex-col flex-grow  md:flex-row gap-2 md:gap-2"></div>
+        <div className="flex flex-col flex-grow  md:flex-row gap-2 md:gap-2">
           <select
             value={categoryFilter}
             onChange={(e) => onCategoryChange(e.target.value)}
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
+            className="bg-gray-50 border w-full border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
           >
-            <option value="">All Categories</option>
+            <option value="">Semua Kategori</option>
             {PRODUCT_CATEGORIES.map((category) => (
               <option key={category} value={category}>
                 {category}
@@ -49,15 +51,15 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             ))}
           </select>
 
-          {/* <select
+          <select
             value={statusFilter}
             onChange={(e) => onStatusChange(e.target.value)}
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
+            className="bg-gray-50 border  max-w-[500px] min-w-[200px] border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
           >
-            <option value="">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select> */}
+            <option value="">Semua Status</option>
+            <option value="true">Aktif</option>
+            <option value="false">Tidak Aktif</option>
+          </select>
         </div>
       </div>
     </div>

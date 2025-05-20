@@ -1,8 +1,8 @@
 import React from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Edit, CheckSquare, Clock, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Edit,  Clock } from 'lucide-react';
 import { useProductContext } from '../context/ProductContext';
-import { Task } from '../types';
+// import { TaskTemplate } from '../types';
 import { formatCurrency } from '../lib/utils';
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -25,28 +25,26 @@ const ProductDetail: React.FC = () => {
     );
   }
 
-  const getTaskStatusColor = (status: Task['status']) => {
-    switch (status) {
-      case 'todo':
-        return 'bg-gray-100 text-gray-800';
-      case 'in-progress':
-        return 'bg-blue-100 text-blue-800';
-      case 'review':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'completed':
-        return 'bg-green-100 text-green-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
+  // const getTaskStatusColor = (status: TaskTemplate['priority']) => {
+  //   switch (status) {
+  //     case 'high':
+  //       return 'bg-red-100 text-red-800';
+  //     case 'medium':
+  //       return 'bg-yellow-100 text-yellow-800';
+  //     case 'low':
+  //       return 'bg-blue-100 text-blue-800';
+  //     default:
+  //       return 'bg-gray-100 text-gray-800';
+  //   }
+  // };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
+  // const formatDate = (dateString: string) => {
+  //   return new Date(dateString).toLocaleDateString('en-US', {
+  //     year: 'numeric',
+  //     month: 'short',
+  //     day: 'numeric',
+  //   });
+  // };
 
   return (
     <div>
@@ -210,13 +208,13 @@ const ProductDetail: React.FC = () => {
         <div className="lg:col-span-2">
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
-              Related Tasks
+              Pre-defined Tasks
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {product.ingredients?.map((item) =>
-                item.ingredient.tasks?.map((task) => (
+                item.ingredient.taskTemplates?.map((task, index) => (
                   <div
-                    key={task.id}
+                    key={`${item.ingredient.id}-${index}`}
                     className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start justify-between mb-3">
@@ -228,40 +226,25 @@ const ProductDetail: React.FC = () => {
                           {task.description}
                         </p>
                       </div>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${getTaskStatusColor(
-                          task.status
-                        )}`}
-                      >
-                        {task.status}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between text-sm text-gray-500">
-                      <div className="flex items-center">
-                        <Clock size={16} className="mr-1" />
-                        <span>{formatDate(task.deadline)}</span>
-                      </div>
                       {task.priority && (
-                        <div className="flex items-center">
-                          <AlertCircle size={16} className="mr-1" />
-                          <span className="capitalize">{task.priority}</span>
-                        </div>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            task.priority === 'high'
+                              ? 'bg-red-100 text-red-800'
+                              : task.priority === 'medium'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-blue-100 text-blue-800'
+                          }`}
+                        >
+                          {task.priority}
+                        </span>
                       )}
                     </div>
 
-                    {task.subtasks && task.subtasks.length > 0 && (
-                      <div className="mt-3 pt-3 border-t border-gray-200">
-                        <div className="flex items-center text-sm text-gray-600">
-                          <CheckSquare size={16} className="mr-1" />
-                          <span>
-                            {
-                              task.subtasks.filter((st) => st.status === 'done')
-                                .length
-                            }{' '}
-                            of {task.subtasks.length} subtasks completed
-                          </span>
-                        </div>
+                    {task.estimatedTime && (
+                      <div className="flex items-center text-sm text-gray-500">
+                        <Clock size={16} className="mr-1" />
+                        <span>Est. {task.estimatedTime} minutes</span>
                       </div>
                     )}
                   </div>
@@ -269,10 +252,10 @@ const ProductDetail: React.FC = () => {
               )}
 
               {!product.ingredients?.some(
-                (item) => item.ingredient.tasks?.length > 0
+                (item) => (item.ingredient.taskTemplates?.length ?? 0) > 0
               ) && (
                 <div className="lg:col-span-3 text-center py-8 text-gray-500">
-                  No tasks found for this product's ingredients
+                  No pre-defined tasks found for this product's ingredients
                 </div>
               )}
             </div>

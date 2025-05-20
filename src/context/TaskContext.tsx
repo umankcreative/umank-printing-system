@@ -5,10 +5,8 @@ import React, {
   ReactNode,
   useEffect,
 } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import { Task, TimelineEvent, TaskResponse } from '../types';
 import { useOrderContext } from './OrderContext';
-import { toast } from 'sonner';
 
 interface TaskContextProps {
   tasks: Task[];
@@ -33,58 +31,12 @@ export const useTaskContext = () => {
   return context;
 };
 
-export const generateTaskForProduct = (
-  productId: string,
-  deadline: string
-): Task | undefined => {
-  const product = products.find((p) => p.id === productId);
-  if (!product) return undefined;
-
-  const now = new Date().toISOString();
-  const productRecipe = recipes.filter((r) => r.product_id === productId);
-
-  const subtasks: Task[] = productRecipe.map((recipe) => {
-    const ingredient = ingredients.find((i) => i.id === recipe.ingredient_id);
-
-    if (!ingredient || !ingredient.tasks) return [];
-
-    return {
-      id: uuidv4(),
-      title: `Siapkan ${ingredient?.NamaBahan} (${recipe.jumlah} unit${
-        recipe.jumlah !== '1' ? 's' : ''
-      })`,
-      description: `Sub-tugas untuk ingredient: ${ingredient?.NamaBahan}`,
-      status: 'todo',
-      deadline,
-      estimatedTime: 2,
-      created_at: now,
-      updated_at: now,
-      ingredient_id: ingredient?.id,
-    };
-  });
-
-  const task: Task = {
-    id: uuidv4(),
-    title: `Produksi ${product.NamaProduk}`,
-    description: `Tugas untuk produk: ${product.NamaProduk}`,
-    status: 'todo',
-    deadline,
-    estimatedTime: 2,
-    priority: 'high',
-    created_at: now,
-    updated_at: now,
-    subtasks,
-  };
-
-  return task;
-};
-
 export const TaskProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const [loading] = useState<boolean>(false);
+  const [error] = useState<string | null>(null);
   const { orders, updateOrder } = useOrderContext();
 
   // Sync tasks from orders
@@ -143,7 +95,6 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({
     setTasks((prev) => [...prev, task]);
     if (task.order_id) {
       updateOrderStatus(task.order_id);
-      // toast.success(`Task ditambahkan`);
     }
   };
 
@@ -200,9 +151,6 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({
             timeline: [...(task.timeline || []), event],
             updated_at: new Date().toISOString(),
           };
-          if (task.order_id) {
-            updateOrderStatus(task.order_id);
-          }
           return updatedTask;
         }
         return task;
@@ -214,33 +162,30 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({
     setTasks((prev) =>
       prev.map((task) => {
         if (task.id === taskId) {
-          return {
+          const updatedTask = {
             ...task,
             responses: [...(task.responses || []), response],
             updated_at: new Date().toISOString(),
           };
+          return updatedTask;
         }
         return task;
       })
     );
   };
 
-  return (
-    <TaskContext.Provider
-      value={{
-        tasks,
-        loading,
-        error,
-        addTask,
-        updateTask,
-        deleteTask,
-        updateTaskStatus,
-        getTaskEvents,
-        addTaskEvent,
-        addTaskResponse,
-      }}
-    >
-      {children}
-    </TaskContext.Provider>
-  );
+  const value = {
+    tasks,
+    loading,
+    error,
+    addTask,
+    updateTask,
+    deleteTask,
+    updateTaskStatus,
+    getTaskEvents,
+    addTaskEvent,
+    addTaskResponse,
+  };
+
+  return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;
 };

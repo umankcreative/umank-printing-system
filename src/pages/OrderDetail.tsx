@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Package, User, Calendar, Clock, FileText, Truck } from 'lucide-react';
+import { ArrowLeft, Package, User,  Clock, FileText, Truck } from 'lucide-react';
 import { useOrderContext } from '../context/OrderContext';
 import { formatCurrency } from '../lib/utils';
 
@@ -78,9 +78,9 @@ const OrderDetail: React.FC = () => {
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-3 px-4">Product</th>
-                    <th className="text-center py-3 px-4">Quantity</th>
-                    <th className="text-right py-3 px-4">Price</th>
+                    <th className="text-left py-3 px-4">Produk</th>
+                    <th className="text-center py-3 px-4">Jumlah</th>
+                    <th className="text-right py-3 px-4">Harga</th>
                     <th className="text-right py-3 px-4">Total</th>
                   </tr>
                 </thead>
