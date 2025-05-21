@@ -19,14 +19,14 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
   const [product, setProduct] = useState<Product>({
     id: initialProduct?.id || crypto.randomUUID(),
-    NamaProduk: initialProduct?.NamaProduk || '',
-    Deskripsi: initialProduct?.Deskripsi || '',
+    name: initialProduct?.name || '',
+    description: initialProduct?.description || '',
     category: initialProduct?.category || '',
-    thumbnail_id: initialProduct?.thumbnail_id || null,
-    HargaModal: initialProduct?.HargaModal || '0',
-    Harga: initialProduct?.Harga || '0',
-    minOrder: initialProduct?.minOrder || '1',
-    Stok: initialProduct?.Stok || '0',
+    thumbnail_id: initialProduct?.thumbnail_id || '',
+    cost_price: initialProduct?.cost_price || 0,
+    price: initialProduct?.price || 0,
+    minOrder: initialProduct?.minOrder || 1,
+    stock: initialProduct?.stock || 0,
     branch_id: initialProduct?.branch_id || '1',
     created_at: initialProduct?.created_at || new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -36,9 +36,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
   });
 
   const [markup, setMarkup] = useState(() => {
-    if (initialProduct && initialProduct.HargaModal !== '0') {
-      const modalPrice = parseFloat(initialProduct.HargaModal);
-      const sellingPrice = parseFloat(initialProduct.Harga);
+    if (initialProduct && initialProduct.cost_price !== 0) {
+      const modalPrice = initialProduct.cost_price;
+      const sellingPrice = initialProduct.price;
       return Math.round(((sellingPrice - modalPrice) / modalPrice) * 100);
     }
     return 50; // Default markup percentage
@@ -57,7 +57,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     const totalModalPrice = recipeIngredients.reduce((total, item) => {
       return (
         total +
-        parseInt(item.ingredient.HargaPerSatuan) * parseInt(item.quantity)
+        item.ingredient.price_per_unit * item.quantity
       );
     }, 0);
 
@@ -67,8 +67,8 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
     setProduct((prev) => ({
       ...prev,
-      HargaModal: newHargaModal,
-      Harga: newHarga,
+      cost_price: Number(newHargaModal),
+      price: Number(newHarga),
       ingredients: recipeIngredients,
     }));
   }, [recipeIngredients, markup]);
@@ -110,7 +110,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
       const newImage: ProductImage = {
         id: crypto.randomUUID(),
-        image: imageUrl,
+        url: imageUrl,
         product_id: product.id,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -152,7 +152,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
               {images.map((image) => (
                 <div key={image.id} className="relative group">
                   <img
-                    src={image.image}
+                    src={image.url}
                     alt="Product"
                     className="w-24 h-24 object-cover rounded-lg"
                   />
@@ -194,7 +194,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
               type="text"
               id="NamaProduk"
               name="NamaProduk"
-              value={product.NamaProduk}
+              value={product.name}
               onChange={handleChange}
               required
               className="input mt-1"
@@ -235,7 +235,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
             <textarea
               id="Deskripsi"
               name="Deskripsi"
-              value={product.Deskripsi}
+              value={product.description}
               onChange={handleChange}
               rows={3}
               className="input mt-1"
@@ -254,7 +254,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 type="text"
                 id="HargaModal"
                 name="HargaModal"
-                value={formatCurrency(product.HargaModal)}
+                value={formatCurrency(product.cost_price.toString())}
                 className="input mt-1 bg-gray-100"
                 readOnly
               />
@@ -289,7 +289,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 type="text"
                 id="Harga"
                 name="Harga"
-                value={formatCurrency(product.Harga)}
+                value={formatCurrency(product.price.toString())}
                 className="input mt-1 bg-purple-50 font-medium text-purple-700"
                 readOnly
               />
@@ -326,7 +326,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 type="number"
                 id="Stok"
                 name="Stok"
-                value={product.Stok}
+                value={product.stock}
                 onChange={handleChange}
                 min="0"
                 className="input mt-1"

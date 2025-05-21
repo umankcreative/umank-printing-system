@@ -92,20 +92,20 @@ const OrderDetail: React.FC = () => {
                           {item.product.thumbnail_id && (
                             <img
                               src={item.product.thumbnail_id}
-                              alt={item.product.NamaProduk}
+                              alt={item.product.name}
                               className="w-12 h-12 object-cover rounded-md mr-3"
                             />
                           )}
                           <div>
-                            <h3 className="font-medium">{item.product.NamaProduk}</h3>
-                            <p className="text-sm text-gray-500">{item.product.Deskripsi}</p>
+                            <h3 className="font-medium">{item.product.name}</h3>
+                            <p className="text-sm text-gray-500">{item.product.description}</p>
                           </div>
                         </div>
                       </td>
                       <td className="py-4 px-4 text-center">{item.quantity}</td>
                       <td className="py-4 px-4 text-right">{formatCurrency(item.price)}</td>
                       <td className="py-4 px-4 text-right font-medium">
-                        {formatCurrency((parseInt(item.price) * parseInt(item.quantity)).toString())}
+                        {formatCurrency((item.price * item.quantity).toString())}
                       </td>
                     </tr>
                   ))}

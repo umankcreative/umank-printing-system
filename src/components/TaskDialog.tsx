@@ -28,6 +28,8 @@ import {
 } from '../components/ui/form';
 import { useForm } from 'react-hook-form';
 import { v4 as uuidv4 } from 'uuid';
+import { useUserContext } from '../context/UserContext';
+
 interface TaskDialogProps {
   isOpen: boolean;
   onClose: () => void;
@@ -46,6 +48,9 @@ export function TaskDialog({
   onUpdateTask,
   onDeleteTask,
 }: TaskDialogProps) {
+  const { users } = useUserContext();
+  const activeUsers = users.filter(user => user.status === 'active');
+
   // Create form instance using react-hook-form
   const form = useForm({
     defaultValues: {
@@ -54,7 +59,7 @@ export function TaskDialog({
       status: 'todo' as TaskStatus,
       priority: 'medium' as TaskPriority,
       category: 'preparation' as TaskCategory,
-      estimatedTime: 30,
+      estimatedTime:2,
       dueDate: '',
       deadline: '',
       assignee: '',
@@ -70,7 +75,7 @@ export function TaskDialog({
         status: task.status,
         priority: task.priority || 'medium',
         category: task.category || 'preparation',
-        estimatedTime: task.estimatedTime || 30,
+        estimatedTime: task.estimatedTime || 2,
         dueDate: task.dueDate || '',
         deadline: task.deadline || '',
         assignee: task.assignee || '',
@@ -83,7 +88,7 @@ export function TaskDialog({
         status: 'todo',
         priority: 'medium',
         category: 'preparation',
-        estimatedTime: 30,
+        estimatedTime: 2,
         dueDate: '',
         deadline: '',
         assignee: '',
@@ -320,7 +325,21 @@ export function TaskDialog({
                 <FormItem>
                   <FormLabel>Assignee</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter assignee name..." {...field} />
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select assignee..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {activeUsers.map((user) => (
+                          <SelectItem key={user.id} value={user.id}>
+                            {user.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                 </FormItem>
               )}

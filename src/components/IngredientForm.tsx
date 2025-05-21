@@ -16,12 +16,12 @@ const IngredientForm: React.FC<IngredientFormProps> = ({
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [ingredient, setIngredient] = useState<Ingredient>({
     id: initialIngredient?.id || crypto.randomUUID(),
-    NamaBahan: initialIngredient?.NamaBahan || '',
-    Deskripsi: initialIngredient?.Deskripsi || '',
-    Satuan: initialIngredient?.Satuan || '',
-    HargaPerSatuan: initialIngredient?.HargaPerSatuan || '0',
-    Stok: initialIngredient?.Stok || '0',
-    id_cabang: initialIngredient?.id_cabang || '1',
+    name: initialIngredient?.name || '',
+    description: initialIngredient?.description || '',
+    unit: initialIngredient?.unit || '',
+    price_per_unit: initialIngredient?.price_per_unit || 0,
+    stock: initialIngredient?.stock || 0,
+    branch_id: initialIngredient?.branch_id || '1',
     created_at: initialIngredient?.created_at || new Date().toISOString(),
     updated_at: new Date().toISOString(),
     taskTemplates: initialIngredient?.taskTemplates || [],
@@ -80,16 +80,16 @@ const IngredientForm: React.FC<IngredientFormProps> = ({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label
-          htmlFor="NamaBahan"
+          htmlFor="name"
           className="block text-sm font-medium text-gray-700"
         >
-          Nama Bahan
+          Name
         </label>
         <input
           type="text"
-          id="NamaBahan"
-          name="NamaBahan"
-          value={ingredient.NamaBahan}
+          id="name"
+          name="name"
+          value={ingredient.name}
           onChange={handleChange}
           required
           className="input mt-1"
@@ -98,15 +98,15 @@ const IngredientForm: React.FC<IngredientFormProps> = ({
 
       <div>
         <label
-          htmlFor="Deskripsi"
+          htmlFor="description"
           className="block text-sm font-medium text-gray-700"
         >
-          Deskripsi
+          Description
         </label>
         <textarea
-          id="Deskripsi"
-          name="Deskripsi"
-          value={ingredient.Deskripsi}
+          id="description"
+          name="description"
+          value={ingredient.description}
           onChange={handleChange}
           rows={3}
           className="input mt-1"
@@ -116,16 +116,16 @@ const IngredientForm: React.FC<IngredientFormProps> = ({
       <div className="grid grid-cols-3 gap-4">
         <div>
           <label
-            htmlFor="Satuan"
+            htmlFor="unit"
             className="block text-sm font-medium text-gray-700"
           >
-            Satuan
+            Unit
           </label>
           <input
             type="text"
-            id="Satuan"
-            name="Satuan"
-            value={ingredient.Satuan}
+            id="unit"
+            name="unit"
+            value={ingredient.unit}
             onChange={handleChange}
             required
             className="input mt-1"
@@ -134,16 +134,16 @@ const IngredientForm: React.FC<IngredientFormProps> = ({
 
         <div>
           <label
-            htmlFor="HargaPerSatuan"
+            htmlFor="price"
             className="block text-sm font-medium text-gray-700"
           >
-            Harga Per Satuan
+            Price
           </label>
           <input
             type="number"
-            id="HargaPerSatuan"
-            name="HargaPerSatuan"
-            value={ingredient.HargaPerSatuan}
+            id="price"
+            name="price"
+            value={ingredient.price_per_unit}
             onChange={handleChange}
             required
             min="0"
@@ -153,16 +153,16 @@ const IngredientForm: React.FC<IngredientFormProps> = ({
 
         <div>
           <label
-            htmlFor="Stok"
+            htmlFor="stock"
             className="block text-sm font-medium text-gray-700"
           >
-            Stok
+            Stock
           </label>
           <input
             type="number"
-            id="Stok"
-            name="Stok"
-            value={ingredient.Stok}
+            id="stock"
+            name="stock"
+            value={ingredient.stock}
             onChange={handleChange}
             required
             min="0"
@@ -173,7 +173,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Tugas bawaan
+          Default Tasks
         </label>
         <div className="mb-4">
           <button
@@ -182,9 +182,8 @@ const IngredientForm: React.FC<IngredientFormProps> = ({
             className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900"
           >
             <Plus size={16} className={`transform transition-transform ${isFormOpen ? 'rotate-45' : ''}`} />
-            {isFormOpen ? 'Tutup' : 'Tambah Tugas'}
+            {isFormOpen ? 'Close' : 'Add Task'}
           </button>
-          
           {isFormOpen && (
             <div className="space-y-4 mt-4 p-4 border border-gray-200 rounded-lg">
               <div className="grid grid-cols-1 gap-4">
@@ -193,7 +192,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({
                     type="text"
                     value={taskTitle}
                     onChange={(e) => setTaskTitle(e.target.value)}
-                    placeholder="Nama Tugas"
+                    placeholder="Task Name"
                     className="input"
                   />
                 </div>
@@ -201,7 +200,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({
                   <textarea
                     value={taskDescription}
                     onChange={(e) => setTaskDescription(e.target.value)}
-                    placeholder="Deskripsi Tugas"
+                    placeholder="Task Description"
                     className="input"
                     rows={2}
                   />
@@ -229,50 +228,34 @@ const IngredientForm: React.FC<IngredientFormProps> = ({
                     />
                   </div>
                   <button
-                type="button"
-                onClick={handleAddTaskTemplate}
-                className="btn m-auto btn-primary w-full"
-              >
-                 Add Task 
-              </button>
+                    type="button"
+                    onClick={handleAddTaskTemplate}
+                    className="btn m-auto btn-primary w-full"
+                  >
+                    Add Task
+                  </button>
                 </div>
-                
               </div>
-              
             </div>
           )}
         </div>
-
         <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
           {ingredient.taskTemplates?.map((task, index) => (
             <div
               key={index}
               className="flex items-start justify-between bg-gray-50 p-3 rounded"
             >
-              <div className="flex-1">
-                <h4 className="font-medium text-gray-800">{task.title}</h4>
-                <p className="text-sm text-gray-600 mt-1">{task.description}</p>
-                <div className="flex gap-2 mt-2">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      task.priority === 'high'
-                        ? 'bg-red-100 text-red-800'
-                        : task.priority === 'medium'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-blue-100 text-blue-800'
-                    }`}
-                  >
-                    {task.priority}
-                  </span>
-                  <span className="text-sm text-gray-500">
-                    Est. {task.estimatedTime} min
-                  </span>
+              <div>
+                <div className="font-semibold">{task.title}</div>
+                <div className="text-xs text-gray-500">{task.description}</div>
+                <div className="text-xs text-gray-400">
+                  Priority: {task.priority}, Estimated: {task.estimatedTime} min
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => handleRemoveTaskTemplate(index)}
-                className="text-red-500 hover:text-red-700 ml-4"
+                className="ml-2 text-red-500 hover:text-red-700"
               >
                 <Trash2 size={16} />
               </button>
@@ -280,17 +263,12 @@ const IngredientForm: React.FC<IngredientFormProps> = ({
           ))}
         </div>
       </div>
-
-      <div className="flex justify-end space-x-3 pt-2 m-auto">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="btn btn-danger bg-gray-100 text-gray-700 hover:bg-gray-200 h-10 m-2"
-        >
-          Batal
+      <div className="flex justify-end gap-2">
+        <button type="button" onClick={onCancel} className="btn btn-secondary">
+          Cancel
         </button>
-        <button type="submit" className="btn btn-primary h-10 w-full m-2">
-          {initialIngredient ? 'Update Bahan' : 'Tambah Bahan'}
+        <button type="submit" className="btn btn-primary">
+          Save
         </button>
       </div>
     </form>

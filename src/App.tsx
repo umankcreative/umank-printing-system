@@ -26,6 +26,8 @@ import { UserProvider } from './context/UserContext';
 import { CartProvider } from './context/CartContext';
 import './App.css';
 import Login from './pages/Login';
+import IngredientForm from './components/IngredientForm';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
@@ -47,7 +49,7 @@ function App() {
             </ProductProvider>
           }
         >
-          <Route index element={<ProductList />} />
+          <Route index element={<Dashboard />} />
           <Route path="products" element={<ProductList />} />
           <Route path="products/create" element={<ProductCreate />} />
           <Route path="products/edit/:id" element={<ProductEdit />} />

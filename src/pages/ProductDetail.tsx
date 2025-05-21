@@ -1,8 +1,8 @@
 import React from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Edit,  Clock } from 'lucide-react';
+import { ArrowLeft, Edit, Clock, AlertCircle } from 'lucide-react';
 import { useProductContext } from '../context/ProductContext';
-// import { TaskTemplate } from '../types';
+// import { Task } from '../types';
 import { formatCurrency } from '../lib/utils';
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -25,14 +25,16 @@ const ProductDetail: React.FC = () => {
     );
   }
 
-  // const getTaskStatusColor = (status: TaskTemplate['priority']) => {
+  // const getTaskStatusColor = (status: Task['status']) => {
   //   switch (status) {
-  //     case 'high':
-  //       return 'bg-red-100 text-red-800';
-  //     case 'medium':
-  //       return 'bg-yellow-100 text-yellow-800';
-  //     case 'low':
+  //     case 'todo':
+  //       return 'bg-gray-100 text-gray-800';
+  //     case 'in-progress':
   //       return 'bg-blue-100 text-blue-800';
+  //     case 'review':
+  //       return 'bg-yellow-100 text-yellow-800';
+  //     case 'completed':
+  //       return 'bg-green-100 text-green-800';
   //     default:
   //       return 'bg-gray-100 text-gray-800';
   //   }
@@ -57,7 +59,7 @@ const ProductDetail: React.FC = () => {
             <ArrowLeft size={24} />
           </button>
           <h1 className="text-2xl font-bold text-gray-800">
-            {product.NamaProduk}
+            {product.name}
           </h1>
         </div>
         <Link
@@ -79,8 +81,8 @@ const ProductDetail: React.FC = () => {
               product.images.map((image) => (
                 <div key={image.id} className="relative aspect-square">
                   <img
-                    src={image.image}
-                    alt={product.NamaProduk}
+                    src={image.url}
+                    alt={product.name}
                     className="w-full h-full object-cover rounded-lg"
                   />
                 </div>
@@ -97,7 +99,7 @@ const ProductDetail: React.FC = () => {
             <div className="space-y-4">
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Deskripsi</h3>
-                <p className="mt-1 text-gray-800">{product.Deskripsi}</p>
+                <p className="mt-1 text-gray-800">{product.description}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -106,7 +108,7 @@ const ProductDetail: React.FC = () => {
                     Harga Modal
                   </h3>
                   <p className="mt-1 text-lg font-semibold text-gray-800">
-                    {formatCurrency(product.HargaModal)}
+                    {formatCurrency(product.price)}
                   </p>
                 </div>
                 <div>
@@ -114,7 +116,7 @@ const ProductDetail: React.FC = () => {
                     Harga Jual
                   </h3>
                   <p className="mt-1 text-lg font-semibold text-purple-600">
-                    {formatCurrency(product.Harga)}
+                    {formatCurrency(product.price)}
                   </p>
                 </div>
               </div>
@@ -131,12 +133,12 @@ const ProductDetail: React.FC = () => {
                   <p className="mt-1">
                     <span
                       className={`px-2 py-1 rounded-full text-sm font-medium ${
-                        parseInt(product.Stok) > 100
+                        product.stock > 100
                           ? 'bg-green-100 text-green-800'
                           : 'bg-amber-100 text-amber-800'
                       }`}
                     >
-                      {product.Stok}
+                      {product.stock}
                     </span>
                   </p>
                 </div>
@@ -173,24 +175,24 @@ const ProductDetail: React.FC = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {product.ingredients?.map((item, index) => {
                     const totalPrice =
-                      parseInt(item.ingredient.HargaPerSatuan) *
-                      parseInt(item.quantity);
+                      item.ingredient.price_per_unit *
+                      item.quantity;
                     return (
                       <tr key={item.ingredient.id} className="hover:bg-gray-50">
                         <td className="px-4 py-3 text-sm">{index + 1}</td>
                         <td className="px-4 py-3">
                           <div className="font-medium text-gray-800 text-sm">
-                            {item.ingredient.NamaBahan}
+                            {item.ingredient.name}
                           </div>
-                          <div className="text-sm text-gray-500 text-xs">
-                            {item.ingredient.Satuan}
+                          <div className=" text-gray-500 text-xs">
+                            {item.ingredient.unit}
                           </div>
                         </td>
                         <td className="px-4 py-3 text-center text-sm">
                           {item.quantity}
                         </td>
                         <td className="px-4 py-3 text-right text-sm">
-                          {formatCurrency(item.ingredient.HargaPerSatuan)}
+                          {formatCurrency(item.ingredient.price_per_unit)}
                         </td>
                         <td className="px-4 py-3 text-right font-medium text-sm">
                           {formatCurrency(totalPrice.toString())}
@@ -208,13 +210,13 @@ const ProductDetail: React.FC = () => {
         <div className="lg:col-span-2">
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
-              Pre-defined Tasks
+              Tugas Produksi
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {product.ingredients?.map((item) =>
                 item.ingredient.taskTemplates?.map((task, index) => (
                   <div
-                    key={`${item.ingredient.id}-${index}`}
+                    key={index}
                     className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start justify-between mb-3">
@@ -226,27 +228,36 @@ const ProductDetail: React.FC = () => {
                           {task.description}
                         </p>
                       </div>
+                      
+                    </div>
+
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <div className="flex items-center">
+                        <Clock size={16} className="mr-1" />
+                        <span>{task.estimatedTime} Menit</span>
+                      </div>
                       {task.priority && (
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            task.priority === 'high'
-                              ? 'bg-red-100 text-red-800'
-                              : task.priority === 'medium'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-blue-100 text-blue-800'
-                          }`}
-                        >
-                          {task.priority}
-                        </span>
+                        <div className="flex items-center">
+                          <AlertCircle size={16} className="mr-1" />
+                          <span className="capitalize">{task.priority}</span>
+                        </div>
                       )}
                     </div>
 
-                    {task.estimatedTime && (
-                      <div className="flex items-center text-sm text-gray-500">
-                        <Clock size={16} className="mr-1" />
-                        <span>Est. {task.estimatedTime} minutes</span>
+                    {/* {taskTemplate.subtasks && taskTemplate.subtasks.length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <CheckSquare size={16} className="mr-1" />
+                          <span>
+                            {
+                              task.subtasks.filter((st) => st.status === 'done')
+                                .length
+                            }{' '}
+                            of {task.subtasks.length} subtasks completed
+                          </span>
+                        </div>
                       </div>
-                    )}
+                    )} */}
                   </div>
                 ))
               )}
@@ -255,7 +266,7 @@ const ProductDetail: React.FC = () => {
                 (item) => (item.ingredient.taskTemplates?.length ?? 0) > 0
               ) && (
                 <div className="lg:col-span-3 text-center py-8 text-gray-500">
-                  No pre-defined tasks found for this product's ingredients
+                  No tasks found for this product's ingredients
                 </div>
               )}
             </div>

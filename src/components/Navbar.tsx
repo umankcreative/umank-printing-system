@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Printer, Menu, X, Clock } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,11 +10,11 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="bg-purple-700 text-white shadow-md">
+    <nav className="bg-purple-600 text-white shadow-md">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <Link to="/" className="flex items-center">
+            <Link to="/admin" className="flex items-center text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-fuchsia-500 to-yellow-400">
               <svg
                 version="1.0"
                 xmlns="http://www.w3.org/2000/svg"
@@ -79,7 +79,7 @@ c22 -4 64 -18 91 -32z m915 -121 l6 -48 -26 31 c-29 34 -34 63 -15 82 16 16
                 </g>
               </svg>
 
-              <span className="font-bold text-xl">Umank Printing System</span>
+              <span className="font-bold text-xl ml-2">Umank Printing System</span>
             </Link>
           </div>
 
@@ -114,6 +114,12 @@ c22 -4 64 -18 91 -32z m915 -121 l6 -48 -26 31 c-29 34 -34 63 -15 82 16 16
               className="px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
             >
               Todo
+            </Link>
+            <Link
+              to="/admin/users"
+              className="px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
+            >
+              Users
             </Link>
             {/* <Link to="/timeline" className="px-3 py-2 rounded-md hover:bg-purple-600 transition-colors flex items-center">
               <Clock className="h-4 w-4 mr-1" />
@@ -167,6 +173,13 @@ c22 -4 64 -18 91 -32z m915 -121 l6 -48 -26 31 c-29 34 -34 63 -15 82 16 16
             onClick={toggleMenu}
           >
             Todo
+          </Link>
+          <Link
+            to="/admin/users"
+            className="block px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
+            onClick={toggleMenu}
+          >
+            Users
           </Link>
         </div>
       )}

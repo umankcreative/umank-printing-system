@@ -28,13 +28,13 @@ const RecipeBuilder: React.FC<RecipeBuilderProps> = ({
       updatedIngredients[existingIndex] = {
         ...updatedIngredients[existingIndex],
         quantity: (
-          parseInt(updatedIngredients[existingIndex].quantity) + 1
-        ).toString(),
+          updatedIngredients[existingIndex].quantity + 1
+        ),
       };
       onChange(updatedIngredients);
     } else {
       // If it doesn't exist, add it with quantity 1
-      onChange([...recipeIngredients, { ingredient, quantity: '1' }]);
+      onChange([...recipeIngredients, { ingredient, quantity: 1 }]);
     }
 
     setShowIngredientList(false);
@@ -47,7 +47,7 @@ const RecipeBuilder: React.FC<RecipeBuilderProps> = ({
     );
   };
 
-  const handleQuantityChange = (ingredientId: string, quantity: string) => {
+  const handleQuantityChange = (ingredientId: string, quantity: number) => {
     const updatedIngredients = recipeIngredients.map((item) => {
       if (item.ingredient.id === ingredientId) {
         return { ...item, quantity };
@@ -61,15 +61,15 @@ const RecipeBuilder: React.FC<RecipeBuilderProps> = ({
     return recipeIngredients.reduce((total, item) => {
       return (
         total +
-        parseInt(item.ingredient.HargaPerSatuan) * parseInt(item.quantity)
+        item.ingredient.price_per_unit * item.quantity
       );
     }, 0);
   };
 
   const filteredIngredients = ingredients.filter(
     (ingredient) =>
-      ingredient.NamaBahan.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ingredient.Deskripsi.toLowerCase().includes(searchTerm.toLowerCase())
+      ingredient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ingredient.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -111,13 +111,13 @@ const RecipeBuilder: React.FC<RecipeBuilderProps> = ({
                   onClick={() => handleAddIngredient(ingredient)}
                 >
                   <div>
-                    <div className="ftext-md">{ingredient.NamaBahan}</div>
+                    <div className="font-medium text-md">{ingredient.name}</div>
                     <div className="text-sm text-gray-500">
-                      {ingredient.Deskripsi}
+                      {ingredient.description}
                     </div>
                   </div>
                   <div className="text-purple-700 text-md">
-                    {formatCurrency(ingredient.HargaPerSatuan)}
+                    {formatCurrency(ingredient.price_per_unit.toString())}
                   </div>
                 </div>
               ))
@@ -157,17 +157,17 @@ const RecipeBuilder: React.FC<RecipeBuilderProps> = ({
             <tbody className="bg-white divide-y divide-gray-200">
               {recipeIngredients.map((item, index) => {
                 const totalPrice =
-                  parseInt(item.ingredient.HargaPerSatuan) *
-                  parseInt(item.quantity);
+                  item.ingredient.price_per_unit *
+                  item.quantity;
                 return (
                   <tr key={item.ingredient.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3">{index + 1}</td>
                     <td className="px-4 py-3">
                       <div className="text-sm font-medium text-gray-800">
-                        {item.ingredient.NamaBahan}
+                        {item.ingredient.name}
                       </div>
                       <div className="text-xs text-gray-500">
-                        {item.ingredient.Satuan}
+                        {item.ingredient.unit}
                       </div>
                     </td>
                     <td className="px-4 py-3 text-center">
@@ -178,14 +178,14 @@ const RecipeBuilder: React.FC<RecipeBuilderProps> = ({
                         onChange={(e) =>
                           handleQuantityChange(
                             item.ingredient.id,
-                            e.target.value
+                            parseInt(e.target.value)
                           )
                         }
                         className="w-16 text-center text-sm border border-gray-300 rounded p-1"
                       />
                     </td>
                     <td className="px-4 py-3 text-right text-sm">
-                      {formatCurrency(item.ingredient.HargaPerSatuan)}
+                      {formatCurrency(item.ingredient.price_per_unit.toString())}
                     </td>
                     <td className="px-4 py-3 text-right font-medium text-sm">
                       {formatCurrency(totalPrice.toString())}

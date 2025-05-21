@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Search, LayoutGrid, Table as TableIcon } from 'lucide-react';
+import { Plus, LayoutGrid, Table as TableIcon } from 'lucide-react';
 import { useProductContext } from '../context/ProductContext';
 import ProductTable from '../components/ProductTable';
 import { ToggleGroup, ToggleGroupItem } from '../components/ui/toggle-group';
@@ -16,12 +16,13 @@ const ProductList: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const itemsPerPage = 10;
 
-  // Filter products based on search term, category, and status
+  // Filter products based on search term
   const filteredProducts = useMemo(() => 
     products.filter((product) => {
-      const matchesSearch = product.NamaProduk.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = !categoryFilter || product.category === categoryFilter;
-      const matchesStatus = !statusFilter || product.isActive.toString() === statusFilter;
+      const matchesStatus = statusFilter === '' || product.isActive === (statusFilter === 'true');
+      
       return matchesSearch && matchesCategory && matchesStatus;
     }),
     [products, searchTerm, categoryFilter, statusFilter]
@@ -53,16 +54,10 @@ const ProductList: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
+    <div className="container mx-auto px-4 py-4">
+      <div className="flex justify-between items-center mb-2">
         <h1 className="text-2xl font-semibold">Products</h1>
-        <Link
-          to="/admin/products/add"
-          className="btn btn-primary inline-flex items-center"
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          Add Product
-        </Link>
+        
       </div>
 
       <div className="mb-6 flex justify-between items-center">
@@ -90,6 +85,14 @@ const ProductList: React.FC = () => {
             <TableIcon size={16} />
           </ToggleGroupItem>
         </ToggleGroup>
+        <div className="p-4">
+            <Link
+              to="/admin/products/create"
+              className="btn btn-primary flex items-center justify-center h-full m-auto"
+            >
+              <Plus size={20} className="mr-2" /> Tambah Produk
+            </Link>
+          </div>
       </div>
 
       {viewMode === 'table' ? (

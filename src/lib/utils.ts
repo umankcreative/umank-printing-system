@@ -6,12 +6,14 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const formatCurrency = (amount: string): string => {
+export const formatCurrency = (value: number | string): string => {
+  const numValue = typeof value === 'string' ? parseFloat(value) : value;
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
     minimumFractionDigits: 0,
-  }).format(Number(amount));
+    maximumFractionDigits: 0,
+  }).format(numValue);
 };
 
 export const generateOrderTasks = (order: Order, products: Product[]): Task[] => {
@@ -56,7 +58,7 @@ export const generateOrderTasks = (order: Order, products: Product[]): Task[] =>
         0,
         8
       )}:\n${order.items
-        .map((item) => `- ${item.product.NamaProduk} (${item.quantity} buah)`)
+        .map((item) => `- ${item.product.name} (${item.quantity} buah)`)
         .join('\n')}`,
       status: 'todo',
       deadline: order.delivery_date,
@@ -93,7 +95,7 @@ export const generateTaskForProduct = (
     return ingredient.taskTemplates.map((taskTemplate: TaskTemplate) => ({
       id: crypto.randomUUID(),
       title: `${taskTemplate.title} - untuk ${
-        product.NamaProduk
+        product.name
       } dari Order #${orderId?.slice(
         0,
         8
@@ -116,8 +118,8 @@ export const generateTaskForProduct = (
 
   return {
     id: crypto.randomUUID(),
-    title: `Produksi ${product.NamaProduk} - Order #${orderId?.slice(0, 8)}`,
-    description: `Siapkan bahan-bahan untuk ${product.NamaProduk} dari Order #${orderId?.slice(
+    title: `Produksi ${product.name} - Order #${orderId?.slice(0, 8)}`,
+    description: `Siapkan bahan-bahan untuk ${product.name} dari Order #${orderId?.slice(
       0,
       8
     )} sebanyak ${quantity} pcs`,

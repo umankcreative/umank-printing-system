@@ -56,7 +56,7 @@ const ProductEdit: React.FC = () => {
           <ArrowLeft size={24} />
         </button>
         <h1 className="text-2xl font-bold text-gray-800">
-          Edit Produk: {product.NamaProduk}
+          Edit Produk: {product.name}
         </h1>
       </div>
 

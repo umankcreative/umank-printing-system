@@ -100,12 +100,12 @@ export interface TaskResponse {
 
 export interface Ingredient {
   id: string;
-  NamaBahan: string;
-  Deskripsi: string;
-  Satuan: string;
-  HargaPerSatuan: string;
-  Stok: string;
-  id_cabang: string;
+  name: string;
+  description: string;
+  unit: string;
+  price_per_unit: number;
+  stock: number;
+  branch_id: string;
   created_at: string;
   updated_at: string;
   taskTemplates?: TaskTemplate[];
@@ -123,7 +123,7 @@ export interface Order {
   id: string;
   customer: Customer;
   items: OrderItem[];
-  total_amount: string;
+  total_amount: number;
   status: 'pending' | 'processing' | 'ready' | 'delivered' | 'cancelled';
   order_date: string;
   delivery_date: string;
@@ -138,8 +138,8 @@ export interface OrderItem {
   order_id: string;
   product_id: string;
   product: Product;
-  quantity: string;
-  price: string;
+  quantity: number;
+  price: number;
   created_at?: string;
   updated_at?: string;
 }
@@ -155,34 +155,33 @@ export interface Customer {
 
 export interface Product {
   id: string;
-  NamaProduk: string;
-  Deskripsi: string;
+  name: string;
+  description: string;
   category: string;
-  thumbnail_id: string | null;
-  HargaModal: string;
-  Harga: string;
-  minOrder: string;
-  Stok: string;
+  price: number;
+  cost_price: number;
+  stock: number;
+  minOrder: number;
+  isActive: boolean;
   branch_id: string;
+  thumbnail_id?: string;
   created_at: string;
   updated_at: string;
-  images?: ProductImage[];
   ingredients?: RecipeIngredient[];
-  isActive: boolean;
+  images?: ProductImage[];
 }
 
 export interface ProductImage {
   id: string;
-  image: string;
   product_id: string;
+  url: string;
   created_at: string;
   updated_at: string;
 }
 
-export interface RecipeIngredient extends Ingredient {
-  product_id: string;
+export interface RecipeIngredient {
   ingredient: Ingredient;
-  quantity: string;
+  quantity: number;
 }
 
 // export interface RecipeIngredient {

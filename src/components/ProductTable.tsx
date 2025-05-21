@@ -43,24 +43,24 @@ const ProductTable: React.FC<ProductTableProps> = ({
         size: 64,
       },
       {
-        accessorKey: 'NamaProduk',
+        accessorKey: 'name',
         header: 'Nama Produk',
         cell: ({ row }: { row: Row<Product> }) => (
           <div className="flex items-center">
             {row.original.thumbnail_id && (
               <img
                 src={row.original.thumbnail_id}
-                alt={row.original.NamaProduk}
+                alt={row.original.name}
                 className="h-10 w-10 rounded-full object-cover mr-3"
                 loading="lazy"
               />
             )}
             <div>
               <div className="text-sm font-medium text-gray-900">
-                {row.original.NamaProduk}
+                {row.original.name}
               </div>
               <div className="text-sm text-gray-500 line-clamp-1">
-                {row.original.Deskripsi}
+                {row.original.description}
               </div>
             </div>
           </div>
@@ -73,29 +73,29 @@ const ProductTable: React.FC<ProductTableProps> = ({
         size: 128,
       },
       {
-        accessorKey: 'HargaModal',
+        accessorKey: 'cost_price',
         header: 'Harga Modal',
-        cell: ({ row }: { row: Row<Product> }) => formatCurrency(row.original.HargaModal),
+        cell: ({ row }: { row: Row<Product> }) => formatCurrency(row.original.cost_price),
         size: 128,
       },
       {
-        accessorKey: 'Harga',
+        accessorKey: 'price',
         header: 'Harga Jual',
-        cell: ({ row }: { row: Row<Product> }) => formatCurrency(row.original.Harga),
+        cell: ({ row }: { row: Row<Product> }) => formatCurrency(row.original.price),
         size: 128,
       },
       {
-        accessorKey: 'Stok',
+        accessorKey: 'stock',
         header: 'Stok',
         cell: ({ row }: { row: Row<Product> }) => (
           <span
             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-              parseInt(row.original.Stok) > 100
+              parseInt(row.original.stock.toString()) > 100
                 ? 'bg-green-100 text-green-800'
                 : 'bg-amber-100 text-amber-800'
             }`}
           >
-            {row.original.Stok}
+            {row.original.stock}
           </span>
         ),
         size: 96,

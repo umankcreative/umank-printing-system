@@ -16,7 +16,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete }) => {
         {product.thumbnail_id ? (
           <img
             src={product.thumbnail_id}
-            alt={product.NamaProduk}
+            alt={product.name}
             className="w-full h-full object-cover"
             loading="lazy"
           />
@@ -39,34 +39,34 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete }) => {
       </div>
       <div className="p-4">
         <h3 className="text-lg font-semibold text-gray-900 mb-1 line-clamp-1">
-          {product.NamaProduk}
+          {product.name}
         </h3>
         <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-          {product.Deskripsi}
+          {product.description}
         </p>
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm text-gray-500">{product.category}</span>
           <span
             className={`px-2 py-1 rounded-full text-xs font-medium ${
-              parseInt(product.Stok) > 100
+              product.stock > 100
                 ? 'bg-green-100 text-green-800'
                 : 'bg-amber-100 text-amber-800'
             }`}
           >
-            Stok: {product.Stok}
+            Stok: {product.stock}
           </span>
         </div>
         <div className="space-y-1">
           <div className="flex justify-between text-sm">
             <span className="text-gray-500">Harga Modal:</span>
             <span className="text-gray-700">
-              {formatCurrency((product.HargaModal).toString())}
+              {formatCurrency((product.cost_price).toString())}
             </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-gray-500">Harga Jual:</span>
             <span className="font-medium text-purple-600">
-              {formatCurrency(parseInt(product.Harga).toString())}
+              {formatCurrency(product.price.toString())}
             </span>
           </div>
         </div>

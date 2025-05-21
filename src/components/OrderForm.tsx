@@ -61,7 +61,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
           item.product_id === product.id
             ? {
                 ...item,
-                quantity: (parseInt(item.quantity) + 1).toString(),
+                quantity: (item.quantity + 1),
                 updated_at: new Date().toISOString(),
               }
             : item
@@ -73,7 +73,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
         order_id: initialOrder?.id || crypto.randomUUID(),
         product_id: product.id,
         quantity: product.minOrder,
-        price: product.Harga,
+        price: product.price,
         product: product,
       };
       setOrderItems((prev) => [...prev, newItem]);
@@ -82,7 +82,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
     setSearchTerm('');
   };
 
-  const handleQuantityChange = (itemId: string, quantity: string) => {
+  const handleQuantityChange = (itemId: string, quantity: number) => {
     setOrderItems((prev) =>
       prev.map((item) =>
         item.id === itemId
@@ -99,7 +99,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
   const calculateTotal = (): string => {
     return orderItems
       .reduce((total, item) => {
-        return total + parseInt(item.price) * parseInt(item.quantity);
+        return total + item.price * item.quantity;
       }, 0)
       .toString();
   };
@@ -111,7 +111,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
       id: initialOrder?.id || crypto.randomUUID(),
       customer,
       items: orderItems,
-      total_amount: calculateTotal(),
+      total_amount: parseFloat(calculateTotal()),
       status: initialOrder?.status || 'pending',
       order_date: initialOrder?.order_date || new Date().toISOString(),
       delivery_date: orderDetails.delivery_date,
@@ -126,8 +126,8 @@ const OrderForm: React.FC<OrderFormProps> = ({
 
   const filteredProducts = products.filter(
     (product) =>
-      product.NamaProduk.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.Deskripsi.toLowerCase().includes(searchTerm.toLowerCase())
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -283,25 +283,25 @@ const OrderForm: React.FC<OrderFormProps> = ({
                           {product.thumbnail_id && (
                             <img
                               src={product.thumbnail_id}
-                              alt={product.NamaProduk}
+                              alt={product.name}
                               className="w-12 h-12 object-cover rounded-md mr-3"
                             />
                           )}
                       </div>
                       <div className="mr-auto pl-2">
                         <h3 className="text-left font-medium text-purple-600">
-                          {product.NamaProduk}
+                          {product.name}
                         </h3>
                         <p className="text-sm text-gray-500">
-                          {product.Deskripsi}
+                          {product.description}
                         </p>
                       </div>
                       <div className="text-right">
                         <p className="font-medium text-purple-600">
-                          {formatCurrency(product.Harga)}
+                          {formatCurrency(product.price.toString())}
                         </p>
                         <p className="text-sm text-gray-500">
-                          Stock: {product.Stok}
+                          Stock: {product.stock}
                         </p>
                       </div>
                     </div>
@@ -320,14 +320,14 @@ const OrderForm: React.FC<OrderFormProps> = ({
                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                   >
                     <div className="flex-1">
-                      <h3 className="font-medium">{item.product.NamaProduk}</h3>
+                      <h3 className="font-medium">{item.product.name}</h3>
                       <p className="text-sm text-gray-500">
                         {formatCurrency(item.price)} x
                         <input
                           type="number"
                           value={item.quantity}
                           onChange={(e) =>
-                            handleQuantityChange(item.id, e.target.value)
+                            handleQuantityChange(item.id, parseInt(e.target.value))
                           }
                           min="1"
                           className="w-16 mx-2 text-center border rounded"
@@ -335,7 +335,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
                         ={' '}
                         {formatCurrency(
                           (
-                            parseInt(item.price) * parseInt(item.quantity)
+                            item.price * item.quantity
                           ).toString()
                         )}
                       </p>
