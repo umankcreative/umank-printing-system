@@ -187,55 +187,45 @@ const UserList: React.FC<UserListProps> = ({ onEdit, onDelete }) => {
                 {/* Actions */}
                 <div className="mt-5 sm:mt-0 flex justify-center sm:justify-end space-x-2">
                   {user.status !== 'active' && (
-                    <Button
-                      variant="success"
-                      size="sm"
-                      icon={<UserCheck size={16} />}
+                    <button
+                      className="btn btn-sm btn-outline-success"
                       onClick={() => handleStatusChange(user.id, 'active')}
                     >
                       <span className="sm:hidden md:inline">Activate</span>
-                    </Button>
+                    </button>
                   )}
 
                   {user.status !== 'suspended' && (
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      icon={<AlertCircle size={16} />}
+                    <button
+                      className="btn btn-sm btn-outline-danger"
                       onClick={() => handleStatusChange(user.id, 'suspended')}
                     >
                       <span className="sm:hidden md:inline">Suspend</span>
-                    </Button>
+                    </button>
                   )}
 
                   {user.status !== 'inactive' && (
-                    <Button
-                      variant="light"
-                      size="sm"
-                      icon={<UserX size={16} />}
+                    <button
+                      className="btn btn-sm btn-outline-secondary"
                       onClick={() => handleStatusChange(user.id, 'inactive')}
                     >
                       <span className="sm:hidden md:inline">Deactivate</span>
-                    </Button>
+                    </button>
                   )}
 
-                  <Button
-                    variant="info"
-                    size="sm"
-                    icon={<Edit size={16} />}
+                  <button
+                    className="btn btn-sm btn-outline-primary"
                     onClick={() => onEdit(user)}
                   >
                     <span className="sm:hidden md:inline">Edit</span>
-                  </Button>
+                  </button>
 
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    icon={<Trash2 size={16} />}
+                  <button
+                    className="btn btn-sm btn-outline-danger"
                     onClick={() => onDelete(user)}
                   >
                     <span className="sm:hidden md:inline">Delete</span>
-                  </Button>
+                  </button>
                 </div>
               </div>
             </Card>

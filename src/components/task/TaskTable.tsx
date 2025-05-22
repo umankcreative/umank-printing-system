@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Task, TaskStatus } from '../types';
+import { Task, TaskStatus } from '../../types';
 import { formatDistanceToNow } from 'date-fns';
 import {
   Table,
@@ -8,8 +8,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../components/ui/table';
-import { ToggleGroup, ToggleGroupItem } from '../components/ui/toggle-group';
+} from '../ui/table';
+import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
 import { Rows3, Columns3, ArrowDown, ArrowUp } from 'lucide-react';
 import {
   ContextMenu,
@@ -17,7 +17,7 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
   ContextMenuSeparator,
-} from '../components/ui/context-menu';
+} from '../ui/context-menu';
 
 interface TaskTableProps {
   tasks: Task[];

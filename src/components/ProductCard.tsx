@@ -73,7 +73,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete }) => {
         <div className="mt-4 flex justify-end space-x-2">
           <Link
             to={`/admin/products/${product.id}`}
-            className="btn btn-sm btn-outline-primary"
+            className="btn btn-sm btn-outline-secondary"
           >
             <EyeIcon size={16} className="mr-1" /> Detail
           </Link>

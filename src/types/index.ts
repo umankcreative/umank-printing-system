@@ -61,6 +61,35 @@ export const PRODUCT_CATEGORIES = [
   'Lainnya',
 ];
 
+export interface PaperOption {
+  name: string;
+  grammars: string[];
+}
+
+export const PAPER_OPTIONS: PaperOption[] = [
+  { name: 'Art Paper', grammars: ['85gr', '100gr', '115gr', '120gr', '150gr'] },
+  {
+    name: 'Art Carton',
+    grammars: ['190gr', '210gr', '230gr', '260gr', '310gr', '350gr', '400gr'],
+  },
+  { name: 'Ivory', grammars: ['210gr', '230gr', '250gr', '310gr', '400gr'] },
+  {
+    name: 'Dupleks',
+    grammars: ['250gr', '270gr', '310gr', '350gr', '400gr', '450gr', '500gr'],
+  },
+  { name: 'HVS', grammars: ['60gr', '70gr', '80gr', '100gr'] },
+  { name: 'Samson Kraft', grammars: ['70gr', '80gr'] },
+  { name: 'BW', grammars: ['160gr', '220gr', '250gr'] },
+  { name: 'Yupo', grammars: ['150gsm'] },
+  { name: 'Concorde', grammars: ['120gsm', '250gsm'] },
+  { name: 'Mohawk Eggshell', grammars: ['148gsm', '216gsm', '270gsm'] },
+  { name: 'Linen Jepang', grammars: ['230gsm'] },
+  { name: 'Yellow Board', grammars: ['YB40', 'TB30'] },
+  { name: 'Fancy Paper', grammars: ['80gr', '100gr', '220gr', '300gr'] },
+  { name: 'Corrugated', grammars: ['100gr'] },
+  { name: 'NCR', grammars: ['100gr'] },
+];
+
 export interface CartItem extends Product {
   quantity: number;
 }
@@ -165,10 +194,16 @@ export interface Product {
   isActive: boolean;
   branch_id: string;
   thumbnail_id?: string;
-  created_at: string;
-  updated_at: string;
   ingredients?: RecipeIngredient[];
   images?: ProductImage[];
+  paperType?: string;
+  paperGrammar?: string;
+  printType?: 'Black & White' | 'Full Color';
+  finishingType?: 'Tanpa Finishing' | 'Doff' | 'Glossy' | 'Lainnya';
+  customFinishing?: string;
+  productionCost?: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ProductImage {

@@ -14,8 +14,8 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { Task } from '../types';
-import TaskCard from '../components/TaskCard';
-import TaskForm from '../components/TaskForm';
+import TaskCard from '../components/task/TaskCard';
+import TaskForm from '../components/task/TaskForm';
 import { Plus, Search } from 'lucide-react';
 import { useTaskContext } from '../context/TaskContext';
 
@@ -216,6 +216,10 @@ const TodoBoard: React.FC = () => {
                           onStatusChange={handleStatusChange}
                           onEdit={handleEditTask}
                           className="m-2 border"
+                          onClick={() => {
+                            setEditingTask(task);
+                            setShowTaskForm(true);
+                          }}
                         />
                       ))
                     )}
@@ -232,6 +236,10 @@ const TodoBoard: React.FC = () => {
               task={tasks.find((t) => t.id === activeId)!}
               onStatusChange={handleStatusChange}
               onEdit={handleEditTask}
+              onClick={() => {
+                setEditingTask(task);
+                setShowTaskForm(true);
+              }}
             />
           ) : null}
         </DragOverlay>

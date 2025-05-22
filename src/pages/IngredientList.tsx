@@ -12,7 +12,7 @@ const IngredientList: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   
   const [editingIngredient, setEditingIngredient] = useState<Ingredient | undefined>();
-  const itemsPerPage = 10;
+  const itemsPerPage = 12;
 
   // Filter ingredients based on search term
   const filteredIngredients = ingredients.filter(
@@ -60,9 +60,14 @@ const IngredientList: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold">Bahan</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Bahan</h1>
+          <p className="mt-1 text-sm text-gray-600">
+            Pengelola komponen bahan untuk Produk Umank Creative.
+          </p>
+        </div>
         
         <button
             className="btn btn-primary flex items-center justify-center"
@@ -110,7 +115,7 @@ const IngredientList: React.FC = () => {
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+          <thead className="sticky top-0 z-10 bg-gray-50">
             <tr>
               <th className="table-header px-6 py-3 text-left">Nama</th>
               {/* <th className="table-header px-6 py-3 text-left">Deskripsi</th> */}
@@ -148,7 +153,7 @@ const IngredientList: React.FC = () => {
                   <div className="flex justify-end space-x-2">
                     <button
                         onClick={() => handleEdit(ingredient)}
-                        className="text-amber-500 hover:text-amber-700"
+                        className="text-purple-500 hover:text-purple-700"
                       >
                         <Edit size={18} />
                       </button>

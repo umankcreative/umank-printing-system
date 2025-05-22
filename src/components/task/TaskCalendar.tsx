@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Task } from '../types';
+import { Task } from '../../types';
 import { format, addMonths, subMonths } from 'date-fns';
 import {
   Calendar as CalendarIcon,
@@ -7,9 +7,9 @@ import {
   ChevronRight,
   Plus,
 } from 'lucide-react';
-import { Button } from './ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
-import { Calendar } from './ui/calendar';
+import { Button } from '../ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
+import { Calendar } from '../ui/calendar';
 
 interface TaskCalendarProps {
   tasks: Task[];

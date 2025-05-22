@@ -30,7 +30,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const existingItem = currentItems.find((item) => item.id === product.id);
 
       if (existingItem) {
-        toast.success(`Jumlah ${product.NamaProduk} diperbarui`);
+        toast.success(`Jumlah ${product.name} diperbarui`);
         return currentItems.map((item) =>
           item.id === product.id
             ? { ...item, quantity: item.quantity + quantity }
@@ -38,7 +38,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         );
       }
 
-      toast.success(`${product.NamaProduk} ditambahkan ke keranjang`);
+      toast.success(`${product.name} ditambahkan ke keranjang`);
       return [...currentItems, { ...product, quantity }];
     });
   };
@@ -47,7 +47,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((currentItems) => {
       const itemToRemove = currentItems.find((item) => item.id === productId);
       if (itemToRemove) {
-        toast.info(`${itemToRemove.NamaProduk} dihapus dari keranjang`);
+        toast.info(`${itemToRemove.name} dihapus dari keranjang`);
       }
       return currentItems.filter((item) => item.id !== productId);
     });
@@ -77,7 +77,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const getTotalPrice = () => {
     return items.reduce(
-      (total, item) => total + parseInt(item.Harga) * item.quantity,
+      (total, item) => total + item.price * item.quantity,
       0
     );
   };

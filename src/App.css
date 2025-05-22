@@ -78,9 +78,15 @@
   .btn-outline-primary {
     @apply border-2 border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2;
   }
+  .btn-outline-secondary {
+    @apply border-2 border-teal-500 text-teal-500 hover:bg-teal-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2;
+  }
 
   .btn-outline-danger {
     @apply border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+  }
+  .btn-outline-success {
+    @apply border-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2;
   }
 
   .btn-sm {
@@ -94,7 +100,7 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Montserrat", "Segoe UI",
+  font-family: -apple-system, "Montserrat", BlinkMacSystemFont, "Segoe UI",
     "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
     "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;

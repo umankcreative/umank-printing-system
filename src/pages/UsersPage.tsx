@@ -3,12 +3,13 @@ import React, { useState } from 'react';
 import UserList from '../components/users/UserList';
 import UserForm from '../components/users/UserForm';
 import Modal from '../components/ui/Modalx';
-import Button from '../components/ui/Buttonx';
+// import Button from '../components/ui/Buttonx';
 import UserPermissions from '../components/users/UserPermissions';
 import { User } from '../types/user';
 import { useUserContext } from '../context/UserContext';
 import { UserCog, AlertTriangle } from 'lucide-react';
 import { Tab } from '@headlessui/react';
+import { Button } from '../components/ui/button';
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
@@ -65,13 +66,12 @@ const UsersPage: React.FC = () => {
           </p>
         </div>
         <div className="mt-4 sm:mt-0">
-          <Button
-            variant="primary"
-            icon={<UserCog size={20} />}
+          <button
+            className="btn btn-md btn-primary"
             onClick={() => setIsCreateModalOpen(true)}
           >
             Add New User
-          </Button>
+          </button>
         </div>
       </div>
 
@@ -150,8 +150,8 @@ const UsersPage: React.FC = () => {
         size="sm"
       >
         <div className="text-center">
-          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-            <AlertTriangle size={24} className="text-red-600" />
+          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 animate-pulse">
+            <AlertTriangle size={24} className="text-red-600 " />
           </div>
           <h3 className="mt-3 text-lg font-medium text-gray-900">
             Delete User
@@ -161,12 +161,12 @@ const UsersPage: React.FC = () => {
             cannot be undone.
           </p>
           <div className="mt-6 flex justify-center space-x-3">
-            <Button variant="light" onClick={() => setIsDeleteModalOpen(false)}>
+            <button className="btn btn-sm btn-secondary"  onClick={() => setIsDeleteModalOpen(false)}>
               Cancel
-            </Button>
-            <Button variant="danger" onClick={confirmDelete}>
+            </button>
+            <button className="btn btn-sm btn-danger" onClick={confirmDelete}>
               Delete
-            </Button>
+            </button>
           </div>
         </div>
       </Modal>

@@ -4,13 +4,13 @@ import { Ingredient, RecipeIngredient } from '../types';
 import { formatCurrency } from '../lib/utils';
 interface RecipeBuilderProps {
   ingredients: Ingredient[];
-  recipeIngredients: RecipeIngredient[];
+  selectedIngredients: RecipeIngredient[];
   onChange: (ingredients: RecipeIngredient[]) => void;
 }
 
 const RecipeBuilder: React.FC<RecipeBuilderProps> = ({
   ingredients,
-  recipeIngredients,
+  selectedIngredients,
   onChange,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -18,23 +18,21 @@ const RecipeBuilder: React.FC<RecipeBuilderProps> = ({
 
   const handleAddIngredient = (ingredient: Ingredient) => {
     // Check if ingredient already exists in the recipe
-    const existingIndex = recipeIngredients.findIndex(
+    const existingIndex = selectedIngredients.findIndex(
       (item) => item.ingredient.id === ingredient.id
     );
 
     if (existingIndex !== -1) {
       // If it exists, update the quantity
-      const updatedIngredients = [...recipeIngredients];
+      const updatedIngredients = [...selectedIngredients];
       updatedIngredients[existingIndex] = {
         ...updatedIngredients[existingIndex],
-        quantity: (
-          updatedIngredients[existingIndex].quantity + 1
-        ),
+        quantity: updatedIngredients[existingIndex].quantity + 1,
       };
       onChange(updatedIngredients);
     } else {
       // If it doesn't exist, add it with quantity 1
-      onChange([...recipeIngredients, { ingredient, quantity: 1 }]);
+      onChange([...selectedIngredients, { ingredient, quantity: 1 }]);
     }
 
     setShowIngredientList(false);
@@ -43,12 +41,12 @@ const RecipeBuilder: React.FC<RecipeBuilderProps> = ({
 
   const handleRemoveIngredient = (ingredientId: string) => {
     onChange(
-      recipeIngredients.filter((item) => item.ingredient.id !== ingredientId)
+      selectedIngredients.filter((item) => item.ingredient.id !== ingredientId)
     );
   };
 
   const handleQuantityChange = (ingredientId: string, quantity: number) => {
-    const updatedIngredients = recipeIngredients.map((item) => {
+    const updatedIngredients = selectedIngredients.map((item) => {
       if (item.ingredient.id === ingredientId) {
         return { ...item, quantity };
       }
@@ -58,11 +56,8 @@ const RecipeBuilder: React.FC<RecipeBuilderProps> = ({
   };
 
   const calculateTotal = (): number => {
-    return recipeIngredients.reduce((total, item) => {
-      return (
-        total +
-        item.ingredient.price_per_unit * item.quantity
-      );
+    return selectedIngredients.reduce((total, item) => {
+      return total + item.ingredient.price_per_unit * item.quantity;
     }, 0);
   };
 
@@ -131,7 +126,7 @@ const RecipeBuilder: React.FC<RecipeBuilderProps> = ({
       </div>
 
       {/* Recipe ingredients table */}
-      {recipeIngredients.length > 0 ? (
+      {selectedIngredients.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead>
@@ -155,7 +150,7 @@ const RecipeBuilder: React.FC<RecipeBuilderProps> = ({
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {recipeIngredients.map((item, index) => {
+              {selectedIngredients.map((item, index) => {
                 const totalPrice =
                   item.ingredient.price_per_unit *
                   item.quantity;

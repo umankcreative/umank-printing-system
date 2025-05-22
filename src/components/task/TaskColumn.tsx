@@ -1,4 +1,4 @@
-import { Task, TaskStatus } from '../types';
+import { Task, TaskStatus } from '../../types';
 import { Plus, MoreHorizontal } from 'lucide-react';
 import TaskCard from './TaskCard';
 // import { useSortable } from '@dnd-kit/sortable';

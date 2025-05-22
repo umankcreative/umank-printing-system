@@ -10,23 +10,23 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
-  const [quantity, setQuantity] = useState(parseInt(product.minOrder));
+  const [quantity, setQuantity] = useState(product.minOrder);
   const { addItem } = useCart();
 
-  const formattedPrice = formatCurrency(product.Harga);
+  const formattedPrice = formatCurrency(product.price);
 
   const handleAddToCart = () => {
     addItem(product, quantity);
   };
 
   const decreaseQuantity = () => {
-    if (quantity > parseInt(product.minOrder)) {
+    if (quantity > product.minOrder) {
       setQuantity(quantity - 1);
     }
   };
 
   const increaseQuantity = () => {
-    if (quantity < parseInt(product.Stok)) {
+    if (quantity < product.stock) {
       setQuantity(quantity + 1);
     }
   };
@@ -38,7 +38,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
           <img
             // src={`/images/products/${product.thumbnail_id}`}
             src={product.thumbnail_id}
-            alt={product.NamaProduk}
+            alt={product.name}
             className="max-h-full object-contain"
           />
         ) : (
@@ -49,14 +49,14 @@ const ProductCard = ({ product }: ProductCardProps) => {
       </CardHeader>
       <CardContent className="flex-grow p-4">
         <h3 className="font-semibold text-lg mb-2 line-clamp-2">
-          {product.NamaProduk}
+          {product.name}
         </h3>
         <p className="text-sm text-gray-600 mb-2 line-clamp-3">
-          {product.Deskripsi}
+          {product.description}
         </p>
         <div className="text-primary font-bold text-lg">{formattedPrice}</div>
         <div className="mt-2 text-xs text-gray-500">
-          Min. Order: {product.minOrder} | Stok: {product.Stok}
+          Min. Order: {product.minOrder} | Stok: {product.stock}
         </div>
       </CardContent>
       <CardFooter className="px-4 pb-4 pt-0">
@@ -69,7 +69,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
                 size="icon"
                 className="h-8 w-8 rounded-none"
                 onClick={decreaseQuantity}
-                disabled={quantity <= parseInt(product.minOrder)}
+                disabled={quantity <= product.minOrder}
               >
                 <MinusIcon className="h-4 w-4" />
               </Button>
@@ -79,7 +79,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
                 size="icon"
                 className="h-8 w-8 rounded-none"
                 onClick={increaseQuantity}
-                disabled={quantity >= parseInt(product.Stok)}
+                disabled={quantity >= product.stock}
               >
                 <PlusIcon className="h-4 w-4" />
               </Button>

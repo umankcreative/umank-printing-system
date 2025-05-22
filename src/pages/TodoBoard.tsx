@@ -6,11 +6,11 @@ import {
   LayoutGrid,
   Table as TableIcon,
 } from 'lucide-react';
-import TaskCard from '../components/TaskCard';
-import { TaskCalendar } from '../components/TaskCalendar';
-import { TaskColumn } from '../components/TaskColumn';
-import { TaskTable } from '../components/TaskTable';
-import { TaskDialog } from '../components/TaskDialog';
+import TaskCard from '../components/task/TaskCard';
+import { TaskCalendar } from '../components/task/TaskCalendar';
+import { TaskColumn } from '../components/task/TaskColumn';
+import { TaskTable } from '../components/task/TaskTable';
+import { TaskDialog } from '../components/task/TaskDialog';
 import { Task, TaskStatus } from '../types';
 import {
   DndContext,
@@ -176,15 +176,20 @@ const TaskBoard: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col w-full">
+    <div>
       <div className="flex items-center justify-between mb-6 px-2">
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-semibold">Task Manager</h1>
-          <div className="flex items-center gap-1 px-2 py-1 bg-muted rounded-md">
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h1 className="text-2xl font-bold text-gray-900">Pengelola Tugas</h1>
+            {/* <div className="flex items-center gap-1 px-2 py-1 bg-muted rounded-md">
             <span className="text-sm font-medium">All</span>
             <span className="text-xs text-muted-foreground">
               ({tasks.length})
             </span>
+          </div> */}
+          <p className="mt-1 text-sm text-gray-600">
+            Pengelola tugas untuk Umank Creative staff yang sedang berjalan.
+          </p>
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -208,7 +213,7 @@ const TaskBoard: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => handleOpenDialog()}
-              className="btn btn-primary  gap-2  flex items-center justify-center h-full m-auto"
+              className="btn btn-outline-primary  gap-2  flex items-center justify-center h-full m-auto"
             >
               <Plus size={16} />
               <span>Add Task</span>
@@ -319,7 +324,7 @@ const TaskBoard: React.FC = () => {
       )}
 
       {viewMode === 'calendar' && (
-        <div className="overflow-hidden pb-4 h-[calc(100vh-200px)]">
+        <div className="overflow-auto pb-4 h-[calc(100vh-200px)]">
           <TaskCalendar
             tasks={tasks}
             onAddTask={handleOpenDialogWithDate}
@@ -327,7 +332,11 @@ const TaskBoard: React.FC = () => {
           />
         </div>
       )}
-
+       {selectedDate && (
+        <p className="text-sm text-none text-gray-600 mt-2">
+          Tanggal dipilih: {selectedDate.toLocaleDateString()}
+        </p>
+      )}
       <TaskDialog
         isOpen={isDialogOpen}
         onClose={handleCloseDialog}

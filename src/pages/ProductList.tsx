@@ -14,7 +14,7 @@ const ProductList: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
-  const itemsPerPage = 10;
+  const itemsPerPage = 12;
 
   // Filter products based on search term
   const filteredProducts = useMemo(() => 
@@ -54,9 +54,35 @@ const ProductList: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-4">
-      <div className="flex justify-between items-center mb-2">
-        <h1 className="text-2xl font-semibold">Products</h1>
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Products</h1>
+          <p className="mt-1 text-sm text-gray-600">
+            Manage Products for Umank Creative.
+          </p>
+        </div>
+        <ToggleGroup
+          type="single"
+          value={viewMode}
+          onValueChange={(value) => value && setViewMode(value as 'grid' | 'table')}
+          className="border rounded-md ml-auto"
+        >
+          <ToggleGroupItem value="grid" aria-label="Grid view">
+            <LayoutGrid size={16} />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="table" aria-label="Table view">
+            <TableIcon size={16} />
+          </ToggleGroupItem>
+        </ToggleGroup>
+              
+                <Link
+                  to="/admin/products/create"
+                  className="btn btn-outline-primary flex items-center justify-center"
+                >
+                  <Plus size={20} className="mr-2" /> Tambah Produk
+                </Link>
+        
         
       </div>
 
@@ -72,27 +98,7 @@ const ProductList: React.FC = () => {
         />
         
 
-        <ToggleGroup
-          type="single"
-          value={viewMode}
-          onValueChange={(value) => value && setViewMode(value as 'grid' | 'table')}
-          className="border rounded-md"
-        >
-          <ToggleGroupItem value="grid" aria-label="Grid view">
-            <LayoutGrid size={16} />
-          </ToggleGroupItem>
-          <ToggleGroupItem value="table" aria-label="Table view">
-            <TableIcon size={16} />
-          </ToggleGroupItem>
-        </ToggleGroup>
-        <div className="p-4">
-            <Link
-              to="/admin/products/create"
-              className="btn btn-primary flex items-center justify-center h-full m-auto"
-            >
-              <Plus size={20} className="mr-2" /> Tambah Produk
-            </Link>
-          </div>
+        
       </div>
 
       {viewMode === 'table' ? (

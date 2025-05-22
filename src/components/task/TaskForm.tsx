@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Task } from '../types';
+import { Task } from '../../types';
 import { Plus, Trash2 } from 'lucide-react';
 
 interface TaskFormProps {

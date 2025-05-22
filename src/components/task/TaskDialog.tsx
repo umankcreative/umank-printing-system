@@ -5,18 +5,18 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '../components/ui/dialog';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Textarea } from '../components/ui/textarea';
+} from '../ui/dialog';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Textarea } from '../ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../components/ui/select';
-import { Task, TaskStatus, TaskPriority, TaskCategory } from '../types';
+} from '../ui/select';
+import { Task, TaskStatus, TaskPriority, TaskCategory } from '../../types';
 import { toast } from 'sonner';
 import { Trash, Clock } from 'lucide-react';
 import {
@@ -25,10 +25,10 @@ import {
   FormItem,
   FormLabel,
   FormControl,
-} from '../components/ui/form';
+} from '../ui/form';
 import { useForm } from 'react-hook-form';
 import { v4 as uuidv4 } from 'uuid';
-import { useUserContext } from '../context/UserContext';
+import { useUserContext } from '../../context/UserContext';
 
 interface TaskDialogProps {
   isOpen: boolean;
@@ -60,7 +60,6 @@ export function TaskDialog({
       priority: 'medium' as TaskPriority,
       category: 'preparation' as TaskCategory,
       estimatedTime:2,
-      dueDate: '',
       deadline: '',
       assignee: '',
       subtasks: [],
@@ -76,7 +75,6 @@ export function TaskDialog({
         priority: task.priority || 'medium',
         category: task.category || 'preparation',
         estimatedTime: task.estimatedTime || 2,
-        dueDate: task.dueDate || '',
         deadline: task.deadline || '',
         assignee: task.assignee || '',
         subtasks: [],
@@ -89,7 +87,6 @@ export function TaskDialog({
         priority: 'medium',
         category: 'preparation',
         estimatedTime: 2,
-        dueDate: '',
         deadline: '',
         assignee: '',
       });
@@ -118,7 +115,7 @@ export function TaskDialog({
         priority: values.priority,
         category: values.category,
         estimatedTime: values.estimatedTime,
-        dueDate: values.dueDate || undefined,
+        // dueDate: values.dueDate || undefined,
         deadline: values.deadline,
         assignee: values.assignee || undefined,
         subtasks: [],
@@ -134,7 +131,7 @@ export function TaskDialog({
         priority: values.priority,
         category: values.category,
         estimatedTime: values.estimatedTime,
-        dueDate: values.dueDate || undefined,
+        // dueDate: values.dueDate || undefined,
         deadline: values.deadline,
         assignee: values.assignee || undefined,
         ingredient_id: undefined,

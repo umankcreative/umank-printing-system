@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Ingredient, TaskTemplate } from '../types';
-import { Plus, Trash2 } from 'lucide-react';
+import { Clock, Flag, Plus, Trash2 } from 'lucide-react';
 
 interface IngredientFormProps {
   initialIngredient?: Ingredient;
@@ -30,7 +30,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({
   const [taskTitle, setTaskTitle] = useState('');
   const [taskDescription, setTaskDescription] = useState('');
   const [taskPriority, setTaskPriority] = useState<TaskTemplate['priority']>('medium');
-  const [taskEstimatedTime, setTaskEstimatedTime] = useState<number>(30);
+  const [taskEstimatedTime, setTaskEstimatedTime] = useState<number>(2);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -61,7 +61,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({
     setTaskTitle('');
     setTaskDescription('');
     setTaskPriority('medium');
-    setTaskEstimatedTime(30);
+    setTaskEstimatedTime(2);
   };
 
   const handleRemoveTaskTemplate = (index: number) => {
@@ -77,6 +77,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({
   };
 
   return (
+    <div className="space-y-4 overflow-scroll h-[calc(100vh-200px)]">
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label
@@ -175,7 +176,32 @@ const IngredientForm: React.FC<IngredientFormProps> = ({
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Default Tasks
         </label>
-        <div className="mb-4">
+          <div className="mb-4">
+          <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+          {ingredient.taskTemplates?.map((task, index) => (
+            <div
+              key={index}
+              className="flex items-start justify-between bg-gray-50 p-3 rounded"
+            >
+              <div className="flex columns-2 gap-2">
+                <div className="flex-1 items-center gap-2">
+                  <div className="font-semibold">{task.title}</div>
+                  <div className="text-xs text-gray-500">{task.description}</div>
+                </div>
+                <div className="flex flex-1 items-center gap-2 text-xs text-gray-400">
+                 <Flag size={16} /> Prioritas: {task.priority}, <Clock size={16} /> Estimasi: {task.estimatedTime} menit
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleRemoveTaskTemplate(index)}
+                className="ml-2 text-red-500 hover:text-red-700"
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
+          ))}
+        </div>
           <button
             type="button"
             onClick={() => setIsFormOpen(!isFormOpen)}
@@ -239,29 +265,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({
             </div>
           )}
         </div>
-        <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-          {ingredient.taskTemplates?.map((task, index) => (
-            <div
-              key={index}
-              className="flex items-start justify-between bg-gray-50 p-3 rounded"
-            >
-              <div>
-                <div className="font-semibold">{task.title}</div>
-                <div className="text-xs text-gray-500">{task.description}</div>
-                <div className="text-xs text-gray-400">
-                  Priority: {task.priority}, Estimated: {task.estimatedTime} min
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleRemoveTaskTemplate(index)}
-                className="ml-2 text-red-500 hover:text-red-700"
-              >
-                <Trash2 size={16} />
-              </button>
-            </div>
-          ))}
-        </div>
+        
       </div>
       <div className="flex justify-end gap-2">
         <button type="button" onClick={onCancel} className="btn btn-secondary">
@@ -271,7 +275,8 @@ const IngredientForm: React.FC<IngredientFormProps> = ({
           Save
         </button>
       </div>
-    </form>
+      </form>
+      </div>
   );
 };
 

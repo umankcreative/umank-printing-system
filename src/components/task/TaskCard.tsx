@@ -1,13 +1,13 @@
-import { Task } from '../types';
+import { Task } from '../../types';
 import {
   CheckSquare,
   MessageSquare,
   ArrowRight,
   Calendar,
-  MoveVertical,
   Grip,
 } from 'lucide-react';
-import { format, formatDistanceToNow } from 'date-fns';
+// import { format, formatDistanceToNow } from 'date-fns';
+import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';

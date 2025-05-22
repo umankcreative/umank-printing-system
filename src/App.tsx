@@ -14,8 +14,15 @@ import Guest from './pages/Guest';
 import Users from './pages/UsersPage';
 import Shop from './pages/Shop';
 import Cart from './pages/Cart';
+import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
+// src/App.tsx or your router configuration file
+import { Settings } from './pages/Settings';
+
+
 import { Toaster } from './components/ui/toaster';
 import { Toaster as Sonner } from './components/ui/sonner';
+
 import GuestLayout from './layout/GuestLayout';
 import AdminLayout from './layout/AdminLayout';
 
@@ -24,10 +31,8 @@ import { OrderProvider } from './context/OrderContext';
 import { TaskProvider } from './context/TaskContext';
 import { UserProvider } from './context/UserContext';
 import { CartProvider } from './context/CartContext';
+import { FormProvider } from './context/FormContext';
 import './App.css';
-import Login from './pages/Login';
-import IngredientForm from './components/IngredientForm';
-import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
@@ -60,6 +65,7 @@ function App() {
           <Route path="orders" element={<Orders />} />
           <Route path="orders/:id" element={<OrderDetail />} />
           <Route path="users" element={<Users />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
 
         <Route path="/" element={<GuestLayout />}>
@@ -67,17 +73,21 @@ function App() {
           <Route
             path="shop"
             element={
+              <FormProvider>
               <CartProvider>
                 <Shop />
               </CartProvider>
+              </FormProvider>
             }
           />
           <Route
             path="cart"
             element={
-              <CartProvider>
-                <Cart />
-              </CartProvider>
+              <FormProvider>
+                <CartProvider>
+                  <Cart />
+                </CartProvider>
+              </FormProvider>
             }
           />
 

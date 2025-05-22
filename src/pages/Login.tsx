@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Printer } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import Logo from '../components/Logo';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -35,7 +36,10 @@ const Login: React.FC = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <Printer className="h-12 w-12 text-purple-600" />
+          <Logo
+            width={'100px'}
+            height={'100px'}
+            color={'#6B48E5'} />
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Sign in to your account

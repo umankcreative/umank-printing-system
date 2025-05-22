@@ -6,11 +6,11 @@ import {
   LayoutGrid,
   Table as TableIcon,
 } from 'lucide-react';
-import TaskCard from '../components/TaskCard';
-import { TaskCalendar } from '../components/TaskCalendar';
-import { TaskColumn } from '../components/TaskColumn';
-import { TaskTable } from '../components/TaskTable';
-import { TaskDialog } from '../components/TaskDialog';
+import TaskCard from '../components/task/TaskCard';
+import { TaskCalendar } from '../components/task/TaskCalendar';
+import { TaskColumn } from '../components/task/TaskColumn';
+import { TaskTable } from '../components/task/TaskTable';
+import { TaskDialog } from '../components/task/TaskDialog';
 import { Task, TaskStatus } from '../types';
 import {
   DndContext,

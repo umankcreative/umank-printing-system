@@ -10,19 +10,19 @@ interface CartItemProps {
 const CartItem = ({ item }: CartItemProps) => {
   const { updateQuantity, removeItem } = useCart();
 
-  const formattedPrice = formatCurrency(item.Harga);
+  const formattedPrice = formatCurrency(item.price.toString());
 
-  const subTotal = parseInt(item.Harga) * item.quantity;
+  const subTotal = item.price * item.quantity;
   const formattedSubtotal = formatCurrency(subTotal.toString());
 
   const handleDecrease = () => {
-    if (item.quantity > parseInt(item.minOrder)) {
+    if (item.quantity > item.minOrder) {
       updateQuantity(item.id, item.quantity - 1);
     }
   };
 
   const handleIncrease = () => {
-    if (item.quantity < parseInt(item.Stok)) {
+    if (item.quantity < item.stock) {
       updateQuantity(item.id, item.quantity + 1);
     }
   };
@@ -35,7 +35,7 @@ const CartItem = ({ item }: CartItemProps) => {
           <img
             // src={`/images/products/${item.thumbnail_id}`}
             src={item.thumbnail_id}
-            alt={item.NamaProduk}
+            alt={item.name}
             className="max-h-full max-w-full object-contain"
           />
         ) : (
@@ -47,7 +47,7 @@ const CartItem = ({ item }: CartItemProps) => {
 
       {/* Product Details */}
       <div className="sm:ml-4 flex-grow">
-        <h3 className="font-medium">{item.NamaProduk}</h3>
+        <h3 className="font-medium">{item.name}</h3>
         <p className="text-sm text-gray-600">{formattedPrice}</p>
         <p className="text-xs text-gray-500 mt-1">
           Min. Order: {item.minOrder}
@@ -61,7 +61,7 @@ const CartItem = ({ item }: CartItemProps) => {
           size="icon"
           className="h-8 w-8"
           onClick={handleDecrease}
-          disabled={item.quantity <= parseInt(item.minOrder)}
+          disabled={item.quantity <= item.minOrder}
         >
           <MinusIcon className="h-3 w-3" />
         </Button>
@@ -71,7 +71,7 @@ const CartItem = ({ item }: CartItemProps) => {
           size="icon"
           className="h-8 w-8"
           onClick={handleIncrease}
-          disabled={item.quantity >= parseInt(item.Stok)}
+          disabled={item.quantity >= item.stock}
         >
           <PlusIcon className="h-3 w-3" />
         </Button>

@@ -43,20 +43,20 @@ const Dashboard: React.FC = () => {
         {stats.map((stat) => (
           <div
             key={stat.title}
-            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+            className="bg-white rounded-lg shadow-md pl-6 pt-6 hover:shadow-lg transition-shadow"
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between overflow-hidden">
               <div>
                 <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                <p className="text-2xl font-semibold text-gray-900 mt-1">
+                <p className="text-3xl font-bold text-gray-800 mt-1">
                   {stat.value}
                 </p>
               </div>
               <div
-                className={`p-3 rounded-full ${stat.color} bg-opacity-10`}
+                className={`w-64 h-64 -mr-16 -mb-16 opacity-30 p-3 rounded-full ${stat.color} bg-opacity-10`}
               >
                 <stat.icon
-                  className={`w-6 h-6 ${stat.color.replace('bg-', 'text-')}`}
+                  className={`w-64 h-64 ${stat.color.replace('bg-', 'text-')}`}
                 />
               </div>
             </div>
