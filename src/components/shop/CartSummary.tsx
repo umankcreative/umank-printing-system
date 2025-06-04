@@ -7,6 +7,8 @@ import OrderForm from './OrderForm';
 import { toast } from '../../hooks/use-toast';
 import { FormTemplate } from '../../types/formTypes';
 import { formatCurrency } from '../../lib/utils';
+import { useOrderContext } from '../../context/OrderContext';
+import { Order, Customer, OrderItem } from '../../types/api';
 
 import {
   Card,
@@ -16,31 +18,49 @@ import {
   CardTitle,
 } from '../ui/shop/Card';
 
-
-
 const CartSummary = () => {
   const { getTotalPrice, getTotalItems, clearCart, items } = useCart();
-  const { getFormTemplateForCategory } = useForm();
+  const { addOrder } = useOrderContext();
+  const { formCategoryMappings,getFormTemplateForCategory } = useForm();
+
   const [isFormOpen, setIsFormOpen] = useState(false);
   
   const formattedTotal = formatCurrency(getTotalPrice());
   
-  // Ambil template berdasarkan kategori produk dalam keranjang
+  // Get templates based on product categories in cart
   const getTemplatesForCart = () => {
-    // Jika kosong, tidak ada template yang perlu ditampilkan
     if (items.length === 0) return [];
     
-    // Kumpulkan semua kategori unik dalam keranjang
+    // Get unique category IDs from cart items
     const uniqueCategories = [...new Set(items.map(item => item.category))];
-    
-    // Ambil template untuk setiap kategori unik
+    // console.log('Unique categories:', uniqueCategories);
     const templates: FormTemplate[] = [];
     
-    uniqueCategories.forEach(category => {
-      const template = getFormTemplateForCategory(category);
+    // Find matching templates using formCategoryMappings
+    uniqueCategories.forEach(categoryName => {
+      // Find the mapping for this category
+      const mapping = formCategoryMappings.find(m => m.categoryName === categoryName);
+      if (mapping) {
+        // console.log('Found mapping for category:', {
+        //   categoryId: mapping.categoryId,
+        //   categoryName: mapping.categoryName,
+        //   formTemplateId: mapping.formTemplateId
+        // });
+
+        // Use the existing getFormTemplateForCategory function
+        const template = getFormTemplateForCategory(mapping.categoryId);
       if (template) {
+        // console.log('Found template:', {
+        //   id: template.id,
+        //   name: template.name,
+        //   categoryId: template.category_id
+        // });
         templates.push(template);
       }
+      }
+      
+      
+      console.log(templates);
     });
     
     return templates;
@@ -58,9 +78,60 @@ const CartSummary = () => {
     }
   };
   
-  const handleFormSubmit = (data: Record<string, any>) => {
-    console.log('Form data:', data);
+  const handleFormSubmit = (formData: Record<string, unknown>) => {
+    // Create customer data
+    const customer: Customer = {
+      id: crypto.randomUUID(),
+      name: formData.name as string || '',
+      email: formData.email as string || '',
+      phone: formData.phone as string || '',
+      company: formData.company as string || '',
+      is_active: true,
+      contact: formData.contact as string || '',
+      address: formData.address as string || '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    // Create order items from cart items
+    const orderItems: OrderItem[] = items.map(item => ({
+      id: crypto.randomUUID(),
+      order_id: '', // Will be set after order creation
+      product_id: item.id,
+      product: item,
+      quantity: item.quantity,
+      price: item.price,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }));
+
+    // Create the order
+    const order: Order = {
+      id: crypto.randomUUID(),
+      customer,
+      items: orderItems,
+      total_amount: getTotalPrice(),
+      status: 'pending',
+      delivery_date: formData.delivery_date as string || new Date().toISOString(),
+      notes: formData.notes as string || '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      form_data: formData, // Store the form data
+    };
+
+    // Update order_id in order items
+    order.items = order.items.map(item => ({
+      ...item,
+      order_id: order.id
+    }));
+
+    // Add order to context
+    addOrder(order);
+    
+    // Clear the cart and close the form
     clearCart();
+    setIsFormOpen(false);
+    
     toast({
       title: "Berhasil",
       description: "Pesanan telah berhasil diproses. Terima kasih telah berbelanja!"
@@ -85,10 +156,10 @@ const CartSummary = () => {
         </div>
       </CardContent>
       <CardFooter className="flex flex-col gap-2">
-        <Button onClick={handleCheckout} className="w-full">
+        <Button onClick={handleCheckout} className="btn btn-primary btn-sm w-full">
           Proses Pesanan
         </Button>
-        <Button variant="outline" onClick={clearCart} className="w-full text-red-500">
+        <Button variant="outline" onClick={clearCart} className="w-full btn-sm btn btn-outline-danger btn-sm">
           Kosongkan Keranjang
         </Button>
       </CardFooter>

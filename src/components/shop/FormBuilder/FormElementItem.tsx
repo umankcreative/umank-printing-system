@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { FormElement, FormElementOption } from '../../../types/formTypes';
+import React from 'react';
+import { FormElement } from '../../../types/formTypes';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card1';
 import { Button } from '../../ui/button';
 import { Trash, Grip, Edit, Calendar, FileImage, Mail, Phone } from 'lucide-react';
@@ -10,7 +10,6 @@ import { Checkbox } from '../../ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '../../ui/radio-group';
 import { Label } from '../../ui/label';
 import { cn } from '../../../lib/utils';
-import { Popover, PopoverContent, PopoverTrigger } from '../../ui/popover';
 
 interface FormElementItemProps {
   element: FormElement;
@@ -25,6 +24,12 @@ const FormElementItem: React.FC<FormElementItemProps> = ({
   onDelete, 
   isDragging = false 
 }) => {
+  console.log('Rendering form element preview:', {
+    id: element.id,
+    type: element.type,
+    label: element.label
+  });
+
   const renderPreview = () => {
     switch (element.type) {
       case 'input':
@@ -132,7 +137,7 @@ const FormElementItem: React.FC<FormElementItemProps> = ({
                     <span className="font-semibold">Klik untuk upload</span> atau drag & drop
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {element.fileAccept || 'SVG, PNG, JPG atau GIF'}
+                    {element.file_accept || 'SVG, PNG, JPG atau GIF'}
                   </p>
                 </div>
                 <Input disabled id={`dropzone-file-${element.id}`} type="file" className="hidden" />
@@ -195,7 +200,10 @@ const FormElementItem: React.FC<FormElementItemProps> = ({
           <Button variant="ghost" size="sm" onClick={onEdit}>
             <Edit className="w-4 h-4" />
           </Button>
-          <Button variant="ghost" size="sm" onClick={onDelete}>
+          <Button variant="ghost" size="sm" onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}>
             <Trash className="w-4 h-4 text-red-500" />
           </Button>
         </div>

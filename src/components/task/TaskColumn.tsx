@@ -47,7 +47,7 @@ export function TaskColumn({
     transition,
     isDragging,
   } = useSortable({
-    id: status,
+    id: `${status}-column`,
     data: {
       type: 'column',
       status,
@@ -59,9 +59,29 @@ export function TaskColumn({
     transition,
   };
 
+  const columnIconColors: Record<TaskStatus, string> = {
+    todo: 'bg-gray-400',
+    'in-progress': 'bg-blue-400',
+    review: 'bg-yellow-400',
+    completed: 'bg-green-400',
+    closed: 'bg-gray-400',
+    pending: 'bg-gray-400',
+    blocked: 'bg-red-400',
+  };
+
+  function StatusIcon({ status }: { status: TaskStatus }) {
+    return <div className={`w-3 h-3 rounded-full ${columnIconColors[status]}`} />;
+  }
+
   return (
-    <div className="task-column">
-      <div key={status} className="flex items-center justify-between mb-2">
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="task-column"
+    >
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <StatusIcon status={status} />
           <h3 className="font-medium text-sm">{title}</h3>
@@ -75,7 +95,7 @@ export function TaskColumn({
       </div>
 
       <div
-        className={`flex  flex-col gap-2 min-h-[500px] transition-colors ${
+        className={`flex flex-col gap-2 min-h-[500px] transition-colors ${
           isDragging ? 'bg-muted/70' : ''
         }`}
       >
@@ -88,13 +108,15 @@ export function TaskColumn({
               Geser tugas ke sini
             </div>
           ) : (
-            tasks.map((task) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                onClick={() => onTaskClick(task)}
-              />
-            ))
+            <div className="min-h-[500px] space-y-2 rounded-lg bg-red-500 p-2">
+              {tasks.map((task) => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onClick={() => onTaskClick(task)}
+                />
+              ))}
+            </div>
           )}
         </SortableContext>
       </div>
@@ -105,16 +127,4 @@ export function TaskColumn({
       </button>
     </div>
   );
-}
-
-function StatusIcon({ status }: { status: TaskStatus }) {
-  const columnIconColors = {
-    todo: 'bg-gray-400',
-    'in-progress': 'bg-blue-400',
-    review: 'bg-yellow-400',
-    completed: 'bg-green-400',
-    closed: 'bg-gray-400',
-  };
-
-  return <div className={`w-3 h-3 rounded-full ${columnIconColors[status]}`} />;
 }

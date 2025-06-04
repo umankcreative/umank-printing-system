@@ -1,18 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTaskContext } from '../context/TaskContext';
-import { useProductContext } from '../context/ProductContext';
 import { useOrderContext } from '../context/OrderContext';
 import { Task } from '../types';
+import { Order as ApiOrder, OrderItem as ApiOrderItem, RecipeIngredient } from '../types/api';
 import { formatCurrency } from '../lib/utils';
 
 import {
   ArrowLeft,
   Calendar,
   Clock,
-  AlertCircle,
   CheckSquare,
-  MessageSquare,
   Package,
   ShoppingCart,
   Utensils,
@@ -24,8 +22,8 @@ const TaskDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { tasks, updateTaskStatus } = useTaskContext();
-  const { getProduct } = useProductContext();
   const { getOrder } = useOrderContext();
+  const [relatedOrder, setRelatedOrder] = useState<ApiOrder | undefined>();
 
   // Find the task and its parent if it exists
   const task = tasks.find((t) => t.id === id);
@@ -33,17 +31,27 @@ const TaskDetailPage: React.FC = () => {
     ? tasks.find((t) => t.id === task.parent_task_id)
     : undefined;
 
-  // Get related order and product information
-  const relatedOrder = task?.order_id ? getOrder(task.order_id) : undefined;
-  // const relatedProduct = relatedOrder?.items.find(
-  //   (item) => item.product_id === task?.product_id
-  // )?.product;
+  useEffect(() => {
+    const fetchOrder = async () => {
+      if (task?.order_id) {
+        try {
+          const order = await getOrder(task.order_id);
+          if (order) {
+            setRelatedOrder(order as unknown as ApiOrder);
+          }
+        } catch (error) {
+          console.error('Error fetching order:', error);
+        }
+      }
+    };
+    fetchOrder();
+  }, [task?.order_id, getOrder]);
 
   const relatedProduct = relatedOrder?.items
-    .map((item) => item.product) // ambil semua produk dari order
+    ?.map((item: ApiOrderItem) => item.product)
     .find((product) =>
       product.ingredients?.some(
-        (ri) => ri.ingredient.id === task?.ingredient_id
+        (ri: RecipeIngredient) => ri.id === task?.ingredient_id
       )
     );
 
@@ -69,26 +77,27 @@ const TaskDetailPage: React.FC = () => {
   }
 
   const statusColors = {
+    pending: 'bg-blue-100 text-blue-800',
     todo: 'bg-blue-100 text-blue-800',
     'in-progress': 'bg-blue-100 text-blue-800',
     review: 'bg-yellow-100 text-yellow-800',
     completed: 'bg-green-100 text-green-800',
     closed: 'bg-red-100 text-red-800',
-  };
+    blocked: 'bg-red-100 text-red-800',
+  } as const;
 
   const priorityColors = {
     low: 'bg-gray-100 text-gray-800',
     medium: 'bg-amber-100 text-amber-800',
     high: 'bg-red-100 text-red-800',
-  };
+  } as const;
 
   const handleStatusChange = (newStatus: Task['status']) => {
     updateTaskStatus(task.id, newStatus);
   };
 
-  const completedSubtasks =
-    task.subtasks?.filter((st) => st.status === 'completed').length || 0;
-  const totalSubtasks = task.subtasks?.length || 0;
+  const completedSubtasks = task.child_tasks?.filter(st => st.status === 'completed').length || 0;
+  const totalSubtasks = task.child_tasks?.length || 0;
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -120,7 +129,7 @@ const TaskDetailPage: React.FC = () => {
             <div className="flex flex-wrap gap-3 mb-6">
               <span
                 className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  statusColors[task.status]
+                  statusColors[task.status as keyof typeof statusColors]
                 }`}
               >
                 {task.status.charAt(0).toUpperCase() + task.status.slice(1)}
@@ -128,7 +137,7 @@ const TaskDetailPage: React.FC = () => {
               {task.priority && (
                 <span
                   className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    priorityColors[task.priority]
+                    priorityColors[task.priority as keyof typeof priorityColors]
                   }`}
                 >
                   {task.priority.charAt(0).toUpperCase() +
@@ -152,41 +161,41 @@ const TaskDetailPage: React.FC = () => {
               <div className="flex items-center text-gray-600">
                 <Clock size={18} className="mr-2 text-red-400" />
                 <span className="text-red-400">
-                  Deadline: {format(new Date(task.deadline), 'MMM d, yyyy')}
+                  Deadline: {task.deadline ? format(new Date(task.deadline), 'MMM d, yyyy') : 'No deadline'}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Subtasks */}
-          {task.subtasks && task.subtasks.length > 0 && (
+          {/* Child Tasks */}
+          {task.child_tasks && task.child_tasks.length > 0 && (
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-lg font-semibold mb-4 flex items-center">
                 <CheckSquare size={20} className="mr-2" />
-                Subtasks ({completedSubtasks}/{totalSubtasks})
+                Child Tasks ({completedSubtasks}/{totalSubtasks})
               </h2>
               <div className="space-y-3">
-                {task.subtasks.map((subtask) => (
+                {task.child_tasks.map((childTask) => (
                   <Link
-                    key={subtask.id}
-                    to={`/admin/tasks/${subtask.id}`}
+                    key={childTask.id}
+                    to={`/admin/tasks/${childTask.id}`}
                     className="block bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors"
                   >
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="font-medium text-gray-800">
-                          {subtask.title}
+                          {childTask.title}
                         </h3>
                         <p className="text-sm text-gray-500 line-clamp-1">
-                          {subtask.description}
+                          {childTask.description}
                         </p>
                       </div>
                       <span
                         className={`px-2 py-1 rounded text-xs font-medium ${
-                          statusColors[subtask.status]
+                          statusColors[childTask.status as keyof typeof statusColors]
                         }`}
                       >
-                        {subtask.status}
+                        {childTask.status}
                       </span>
                     </div>
                   </Link>
@@ -223,7 +232,7 @@ const TaskDetailPage: React.FC = () => {
                   className={`w-full px-4 py-2 rounded-md text-sm font-medium transition-colors
                     ${
                       task.status === status
-                        ? statusColors[status]
+                        ? statusColors[status as keyof typeof statusColors]
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                 >
@@ -233,18 +242,8 @@ const TaskDetailPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Comments Count */}
-          {task.comments && task.comments.length > 0 && (
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-lg font-semibold mb-4 flex items-center">
-                <MessageSquare size={20} className="mr-2" />
-                Comments ({task.comments.length})
-              </h2>
-            </div>
-          )}
-
           {/* Related Information */}
-          {(task.ingredient_id || task.order_id || task.product_id) && (
+          {(task.ingredient_id || task.order_id) && (
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-lg font-semibold mb-4">
                 Related Information
@@ -266,11 +265,11 @@ const TaskDetailPage: React.FC = () => {
                       </p>
                       <p className="text-sm">
                         <span className="text-gray-600">Customer:</span>{' '}
-                        {relatedOrder.customer.name}
+                        {relatedOrder.customer?.name}
                       </p>
                       <p className="text-sm">
                         <span className="text-gray-600">Total:</span>{' '}
-                        {formatCurrency(relatedOrder.total_amount)}
+                        {formatCurrency(parseFloat(relatedOrder.total_amount))}
                       </p>
                     </div>
                   </div>
@@ -285,15 +284,11 @@ const TaskDetailPage: React.FC = () => {
                     <div className="pl-6 space-y-1">
                       <p className="text-sm">
                         <span className="text-gray-600">Name:</span>{' '}
-                        {relatedProduct.NamaProduk}
+                        {relatedProduct.name}
                       </p>
                       <p className="text-sm">
                         <span className="text-gray-600">Price:</span>{' '}
-                        {formatCurrency(relatedProduct.Harga)}
-                      </p>
-                      <p className="text-sm">
-                        <span className="text-gray-600">Stock:</span>{' '}
-                        {relatedProduct.Stok}
+                        {formatCurrency(relatedProduct.price)}
                       </p>
                     </div>
                   </div>

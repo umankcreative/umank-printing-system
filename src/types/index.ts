@@ -21,21 +21,17 @@ export interface TimelineResponse {
 }
 
 // export type TaskStatus = 'pending' | 'in-progress' | 'completed' | 'blocked';
-export type TaskStatus =
-  | 'pending'
-  | 'todo'
-  | 'in-progress'
-  | 'review'
-  | 'completed'
-  | 'closed'
-  | 'blocked';
-export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
-export type TaskCategory =
-  | 'preparation'
-  | 'cooking'
-  | 'service'
-  | 'cleaning'
-  | 'other';
+export type TaskStatus = 'pending' | 'todo' | 'in-progress' | 'review' | 'completed' | 'closed'| 'blocked';
+
+export interface MinimalTask {
+  id: string;
+  title: string;
+  description: string;
+  status: TaskStatus;
+}
+
+export type TaskPriority = 'low' | 'medium' | 'high';
+export type TaskCategory = 'order' | 'production' | 'other';
 
 export const ORDER_CATEGORIES = [
   'pending',
@@ -95,29 +91,39 @@ export interface CartItem extends Product {
 }
 
 export interface TaskTemplate {
+  id: string;
+  ingredient_id?: string;
   title: string;
   description: string;
-  priority?: TaskPriority;
-  category?: TaskCategory;
-  estimatedTime?: number; // In minutes
+  priority: 'low' | 'medium' | 'high';
+  estimated_time: number;
+  created_at: string;
+  updated_at: string;
 }
 
 // Update existing Task interface
-export interface Task extends TaskTemplate {
+export interface Task {
   id: string;
+  title: string;
+  description: string;
   status: TaskStatus;
-  deadline: string;
-  // dueDate?: string; //remove this later
-  assignee?: string;
-  ingredient_id?: string;
-  order_id?: string;
-  parent_task_id?: string;
+  priority: TaskPriority;
+  category: TaskCategory;
+  deadline: string | null;
+  assignee: string | null;
+  ingredient_id: string | null;
+  order_id: string | null;
+  parent_task_id: string | null;
+  estimated_time: number | null;
   created_at: string;
   updated_at: string;
-  subtasks?: Task[];
-  comments?: Comment[];
-  timeline?: TimelineEvent[];
-  responses?: TaskResponse[];
+  ingredient: any | null; // Replace 'any' with proper Ingredient interface if available
+  order: Order | null;
+  parent_task: Task | null;
+  child_tasks: Task[];
+  timeline_events: TimelineEvent[];
+  task_responses: TaskResponse[];
+  task_assignments: TaskAssignment[];
 }
 
 export interface TaskResponse {
@@ -131,13 +137,13 @@ export interface Ingredient {
   id: string;
   name: string;
   description: string;
+  quantity: string;
   unit: string;
-  price_per_unit: number;
+  price_per_unit: string;
   stock: number;
   branch_id: string;
-  created_at: string;
-  updated_at: string;
-  taskTemplates?: TaskTemplate[];
+  notes: string;
+  task_templates: TaskTemplate[];
 }
 
 // export interface ProductWithExtras extends Product {
@@ -150,16 +156,18 @@ export interface Ingredient {
 
 export interface Order {
   id: string;
-  customer: Customer;
-  items: OrderItem[];
-  total_amount: number;
-  status: 'pending' | 'processing' | 'ready' | 'delivered' | 'cancelled';
+  customer_id: string;
+  branch_id: string;
+  total_amount: string;
+  paid_amount: string;
+  payment_status: string;
+  payment_method: string;
+  status: string;
   order_date: string;
   delivery_date: string;
-  notes?: string;
+  notes: string | null;
   created_at: string;
   updated_at: string;
-  tasks?: Task[];
 }
 
 export interface OrderItem {
@@ -176,8 +184,12 @@ export interface OrderItem {
 export interface Customer {
   id: string;
   name: string;
+  email: string;
+  phone: string;
+  company: string;
   contact: string;
   address: string;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -187,6 +199,7 @@ export interface Product {
   name: string;
   description: string;
   category: string;
+  category_id: string;
   price: number;
   cost_price: number;
   stock: number;
@@ -196,11 +209,11 @@ export interface Product {
   thumbnail_id?: string;
   ingredients?: RecipeIngredient[];
   images?: ProductImage[];
-  paperType?: string;
-  paperGrammar?: string;
-  printType?: 'Black & White' | 'Full Color';
-  finishingType?: 'Tanpa Finishing' | 'Doff' | 'Glossy' | 'Lainnya';
-  customFinishing?: string;
+  paperType?: string | null;
+  paperGrammar?: string | null;
+  printType?: 'Black & White' | 'Full Color' | null;
+  finishingType?: 'Tanpa Finishing' | 'Doff' | 'Glossy' | 'Lainnya' | null;
+  customFinishing?: string | null;
   productionCost?: number;
   created_at: string;
   updated_at: string;
@@ -228,3 +241,11 @@ export interface RecipeIngredient {
 //   created_at: string;
 //   updated_at: string;
 // }
+
+export interface TaskAssignment {
+  id: string;
+  task_id: string;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+}

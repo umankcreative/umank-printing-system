@@ -1,13 +1,15 @@
 import React from 'react';
-import { PRODUCT_CATEGORIES } from '../../data/mockData.ts';
 import { Button } from '../../components/ui/button';
+import { ProductCategory } from '../../types/api';
 
 interface CategoryFilterProps {
+  categories: ProductCategory[];
   selectedCategory: string | null;
   onSelectCategory: (category: string | null) => void;
 }
 
 const CategoryFilter = ({
+  categories,
   selectedCategory,
   onSelectCategory,
 }: CategoryFilterProps) => {
@@ -24,15 +26,15 @@ const CategoryFilter = ({
           Semua
         </Button>
 
-        {PRODUCT_CATEGORIES.map((category) => (
+        {categories.map((category) => (
           <Button
-            key={category}
-            variant={selectedCategory === category ? 'default' : 'outline'}
+            key={category.id}
+            variant={selectedCategory === category.id ? 'default' : 'outline'}
             size="sm"
-            onClick={() => onSelectCategory(category)}
-            className="mb-2"
+            onClick={() => onSelectCategory(category.id)}
+            className="mb-2 rounded-full hover:bg-purple-500 hover:text-white"
           >
-            {category}
+            {category.name}
           </Button>
         ))}
       </div>

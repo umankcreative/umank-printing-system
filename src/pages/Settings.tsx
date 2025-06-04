@@ -1,6 +1,6 @@
 // src/pages/Settings.tsx
 import React, { useState } from 'react';
-import { Plus, Pencil, Trash2, Save, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, Save, X, Settings2 } from 'lucide-react';
 import { PRODUCT_CATEGORIES, PAPER_OPTIONS, PaperOption } from '../types';
 
 const Settings: React.FC = () => {
@@ -62,7 +62,9 @@ const handleEditPaperOption = (index: number) => {
   return (
     <div>
       <div>
-          <h1 className="text-2xl font-bold text-gray-900">Setting</h1>
+          <h1 className="text-2xl font-bold flex items-center gap-2 text-gray-900">
+      <Settings2  className="h-6 w-6" />
+            Pengaturan</h1>
           <p className="mt-1 text-sm text-gray-600">
             Manage categories, and Paper type for Products.
           </p>

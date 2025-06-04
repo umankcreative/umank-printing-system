@@ -1,32 +1,62 @@
 import { Task } from '../../types';
-import {
-  CheckSquare,
-  MessageSquare,
-  ArrowRight,
-  Calendar,
-  Grip,
-} from 'lucide-react';
-// import { format, formatDistanceToNow } from 'date-fns';
-import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { ArrowRight, Grip } from 'lucide-react';
+import { useDrag } from 'react-dnd';
+import { useTaskContext } from '../../context/TaskContext';
 
 interface TaskCardProps {
   task: Task;
-  onClick: () => void;
-  onEdit: (task: Task) => void;
-  onStatusChange: (taskId: string, newStatus: Task['status']) => void;
+  // onClick: () => void;
+
 }
 
-// interface TaskCardProps {
-//   task: Task;
-//   onStatusChange: (taskId: string, newStatus: Task['status']) => void;
-//   onEdit: (task: Task) => void;
-// }
+const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
+  const { updateTaskStatus } = useTaskContext();
+  // const { getIngredientsByIds } = useIngredientContext();
+  
+  // const completedSubtasks = task.subtasks.filter(subtask => subtask.completed).length;
+  // const totalSubtasks = task.subtasks.length;
+  
+  
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
-  // const TaskCard({ task, onClick }: TaskCardProps) {
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: 'TASK',
+    item: { id: task.id, status: task.status },
+    end: (item, monitor) => {
+      const dropResult = monitor.getDropResult<{ status: string }>();
+      if (item && dropResult) {
+        updateTaskStatus(item.id, dropResult.status as any);
+      }
+    },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  }));
+
+  // const style = {
+  //   transform: CSS.Transform.toString(transform),
+  //   transition,
+  //   opacity: isDragging ? 0.5 : 1,
+  // };
+
+  
+
+  
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'low':
+        return 'bg-green-100 text-green-800';
+      case 'medium':
+        return 'bg-blue-100 text-blue-800';
+      case 'high':
+        return 'bg-orange-100 text-orange-800';
+      case 'urgent':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
       case 'todo':
@@ -61,100 +91,35 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
     }
   };
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
-    id: task.id,
-    data: {
-      type: 'task',
-      task,
-    },
-  });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  // const timeAgo = formatDistanceToNow(new Date(task.created_at), {
-  //   addSuffix: true,
-  // });
-
-  const completedSubtasks =
-    task.subtasks?.filter((st) => st.status === 'completed').length || 0;
-  const totalSubtasks = task.subtasks?.length || 0;
-
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className={`task-card group rounded-lg shadow-sm p-4 cursor-move hover:shadow-md transition-all duration-200 ${
-        task.parent_task_id
-          ? 'ml-2 bg-blue-50 border-l-4 border-blue-300'
-          : 'bg-white'
+      ref={drag}
+      className={`bg-white rounded-lg shadow-sm border border-gray-200 transition-all duration-200 cursor-move p-4 ${
+        isDragging ? 'opacity-50' : 'opacity-100'
       }`}
-      onClick={(e) => {
-        e.preventDefault();
-        // onEdit(task);
-      }}
+      style={{ width: '100%' }}
     >
       <div className="flex items-center justify-between mb-2">
         <span className={`status-badge ${getStatusBadgeClass(task.status)}`}>
           {getStatusText(task.status)}
         </span>
-        <Grip
-          size={14}
-          className="opacity-0 group-hover:opacity-100 transition-opacity"
-        />
+        <div className="flex items-center justify-between">
+          {/* <Link to={`/admin/tasks/${task.id}`} className="block">
+            <ArrowRight size={16} className="mr-1" />
+          </Link> */}
+          <Grip
+            size={14}
+            className="opacity-0 group-hover:opacity-100 transition-opacity bg-red-600"
+          />
+        </div>
       </div>
-      <div onClick={onClick} className="cursor-pointer">
+      <div>
         <h4 className="font-medium mb-1 text-left">{task.title}</h4>
         {task.description && (
           <p className="text-sm mb-2 text-left line-clamp-2">
             {task.description}
           </p>
         )}
-        {/* <div className="flex items-center justify-between mt-2">
-          <div className="flex items-center gap-1 text-xs">
-            <Clock size={12} />
-            <span>{timeAgo}</span>
-          </div>
-        </div> */}
-        <div className="flex items-center justify-between text-xs text-gray-500">
-          <div className="flex items-center space-x-2">
-            {task.subtasks && task.subtasks.length > 0 && (
-              <div className="flex items-center">
-                <CheckSquare size={16} className="mr-1" />
-                <span>
-                  {completedSubtasks}/{totalSubtasks}
-                </span>
-              </div>
-            )}
-            {task.comments && task.comments.length > 0 && (
-              <div className="flex items-center">
-                <MessageSquare size={16} className="mr-1" />
-                <span>{task.comments.length}</span>
-              </div>
-            )}
-          </div>
-          <div className="flex items-center">
-            <Calendar size={16} className="mr-1 text-xs text-red-400" />
-            <span className="text-red-400 text-xs">
-              {format(new Date(task.deadline), 'MMM d')}
-            </span>
-          </div>
-          <Link to={`/admin/tasks/${task.id}`} className="block">
-            <ArrowRight size={16} className="mr-1" />
-          </Link>
-        </div>
       </div>
     </div>
   );

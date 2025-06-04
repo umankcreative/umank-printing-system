@@ -1,223 +1,345 @@
-import React, { useState } from 'react';
-import { Plus, Trash2, Search } from 'lucide-react';
-import { Ingredient, RecipeIngredient } from '../types';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Plus, Minus, Trash2 } from 'lucide-react';
+import { Ingredient, RecipeIngredient } from '../types/api';
+import { ingredientService } from '../services/ingredientService';
+import { recipeIngredientService } from '../services/recipeIngredientService';
 import { formatCurrency } from '../lib/utils';
+import debounce from 'lodash/debounce';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '../components/ui/dialog';
+import { Button } from '../components/ui/button';
+import IngredientForm from './IngredientForm';
+import { CreateIngredientPayload } from '../services/ingredientService';
+import { toast } from 'sonner';
+import axios from 'axios';
+
 interface RecipeBuilderProps {
-  ingredients: Ingredient[];
-  selectedIngredients: RecipeIngredient[];
+  ingredients: RecipeIngredient[];
   onChange: (ingredients: RecipeIngredient[]) => void;
+  productId: string;
 }
 
-const RecipeBuilder: React.FC<RecipeBuilderProps> = ({
-  ingredients,
-  selectedIngredients,
+const RecipeBuilder: React.FC<RecipeBuilderProps> = ({ 
+  ingredients = [], 
   onChange,
+  productId 
 }) => {
+  const [availableIngredients, setAvailableIngredients] = useState<Ingredient[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showIngredientList, setShowIngredientList] = useState(false);
+  const [showIngredientForm, setShowIngredientForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleAddIngredient = (ingredient: Ingredient) => {
-    // Check if ingredient already exists in the recipe
-    const existingIndex = selectedIngredients.findIndex(
-      (item) => item.ingredient.id === ingredient.id
-    );
-
-    if (existingIndex !== -1) {
-      // If it exists, update the quantity
-      const updatedIngredients = [...selectedIngredients];
-      updatedIngredients[existingIndex] = {
-        ...updatedIngredients[existingIndex],
-        quantity: updatedIngredients[existingIndex].quantity + 1,
-      };
-      onChange(updatedIngredients);
-    } else {
-      // If it doesn't exist, add it with quantity 1
-      onChange([...selectedIngredients, { ingredient, quantity: 1 }]);
-    }
-
-    setShowIngredientList(false);
-    setSearchTerm('');
-  };
-
-  const handleRemoveIngredient = (ingredientId: string) => {
-    onChange(
-      selectedIngredients.filter((item) => item.ingredient.id !== ingredientId)
-    );
-  };
-
-  const handleQuantityChange = (ingredientId: string, quantity: number) => {
-    const updatedIngredients = selectedIngredients.map((item) => {
-      if (item.ingredient.id === ingredientId) {
-        return { ...item, quantity };
+  const debouncedBulkUpdate = useCallback(
+    debounce(async (updatedIngredients: RecipeIngredient[]) => {
+      try {
+        const quantities = updatedIngredients.map(ing => ({
+          id: ing.id,
+          quantity: Number(parseFloat(ing.quantity))
+        }));
+        
+        console.log('Sending bulk update with:', {
+          product_id: productId,
+          ingredients: quantities
+        });
+        await recipeIngredientService.bulkUpdateQuantities(productId, quantities);
+      } catch (error) {
+        console.error('Error updating quantities:', error);
+        if (axios.isAxiosError(error) && error.response) {
+          console.error('Server response:', error.response.data);
+        }
+        toast.error('Failed to update quantities');
       }
-      return item;
-    });
-    onChange(updatedIngredients);
-  };
-
-  const calculateTotal = (): number => {
-    return selectedIngredients.reduce((total, item) => {
-      return total + item.ingredient.price_per_unit * item.quantity;
-    }, 0);
-  };
-
-  const filteredIngredients = ingredients.filter(
-    (ingredient) =>
-      ingredient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ingredient.description.toLowerCase().includes(searchTerm.toLowerCase())
+    }, 1000),
+    [productId]
   );
 
-  return (
-    <div className="bg-white rounded-lg shadow-md p-4">
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">
-        Bahan Produk (Resep)
-      </h2>
+  const fetchIngredients = async () => {
+    try {
+      setLoading(true);
+      const response = await ingredientService.getIngredients({ search: searchTerm });
+      console.log('Fetched available ingredients:', response.data);
+      setAvailableIngredients(response.data || []);
+    } catch (error) {
+      console.error('Error fetching ingredients:', error);
+      setAvailableIngredients([]);
+      toast.error('Failed to fetch ingredients');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      {/* Search and add ingredients */}
-      <div className="relative mb-6">
-        <div className="flex">
-          <div className="relative flex-grow">
+  useEffect(() => {
+    fetchIngredients();
+  }, [searchTerm]);
+
+  useEffect(() => {
+    console.log('RecipeBuilder props:', { ingredients, onChange });
+  }, [ingredients, onChange]);
+
+  const handleAddIngredient = (ingredient: Ingredient) => {
+    try {
+      console.log('handleAddIngredient called with:', ingredient);
+      console.log('Current recipe ingredients:', ingredients);
+      
+      const existingIndex = ingredients.findIndex(i => i.id === ingredient.id);
+      console.log('Existing ingredient index:', existingIndex);
+      
+      let updatedIngredients: RecipeIngredient[];
+      
+      if (existingIndex !== -1) {
+        // If it exists, update the quantity
+        updatedIngredients = [...ingredients];
+        const currentQty = parseFloat(updatedIngredients[existingIndex].quantity) || 0;
+        updatedIngredients[existingIndex] = {
+          ...updatedIngredients[existingIndex],
+          quantity: (currentQty + 1).toFixed(2),
+        };
+        console.log('Updated existing ingredient:', updatedIngredients[existingIndex]);
+      } else {
+        // If it doesn't exist, add it with quantity 1
+        const newIngredient: RecipeIngredient = {
+          id: ingredient.id,
+          name: ingredient.name,
+          description: ingredient.description,
+          quantity: '1.00',
+          unit: ingredient.unit,
+          price_per_unit: ingredient.price_per_unit,
+          notes: ingredient.notes,
+          task_templates: ingredient.task_templates || []
+        };
+        updatedIngredients = [...ingredients, newIngredient];
+        console.log('Added new ingredient:', newIngredient);
+      }
+      
+      console.log('Calling onChange with updated ingredients:', updatedIngredients);
+      onChange(updatedIngredients);
+    } catch (error) {
+      console.error('Error in handleAddIngredient:', error);
+      console.error('Ingredient data:', ingredient);
+      console.error('Current ingredients:', ingredients);
+    }
+  };
+
+  const handleUpdateQuantity = async (index: number, newQuantity: number) => {
+    if (newQuantity <= 0) {
+      handleRemoveIngredient(index);
+      return;
+    }
+
+    const updatedIngredients = [...ingredients];
+    const ingredient = updatedIngredients[index];
+    
+    try {
+      // Update local state immediately for responsive UI
+    updatedIngredients[index] = {
+        ...ingredient,
+      quantity: newQuantity.toFixed(2),
+    };
+    onChange(updatedIngredients);
+
+      // Debounced bulk update to the server
+      debouncedBulkUpdate(updatedIngredients);
+    } catch (error) {
+      console.error('Error updating quantity:', error);
+      toast.error('Failed to update quantity');
+      
+      // Revert to previous state on error
+      onChange(ingredients);
+    }
+  };
+
+  const handleRemoveIngredient = (index: number) => {
+    onChange(ingredients.filter((_, i) => i !== index));
+  };
+
+  const calculateIngredientCost = (ingredient: RecipeIngredient) => {
+    if (!ingredient?.price_per_unit) return 0;
+    const quantity = parseFloat(ingredient.quantity) || 0;
+    const pricePerUnit = parseFloat(ingredient.price_per_unit) || 0;
+    return quantity * pricePerUnit;
+  };
+
+  const handleAddNewIngredient = async (ingredientData: CreateIngredientPayload) => {
+    try {
+      setIsSubmitting(true);
+      await ingredientService.createIngredient(ingredientData);
+      
+      // Refresh the ingredients list instead of manually updating state
+      await fetchIngredients();
+      
+      // toast.success('Ingredient created successfully');
+      setShowIngredientForm(false);
+    } catch (error) {
+      console.error('Error creating ingredient:', error);
+      toast.error('Failed to create ingredient');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleOpenIngredientForm = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowIngredientForm(true);
+  };
+
+  return (
+    <>
+      <div className="space-y-4">
+        <div className="mb-4">
+          <div className="flex items-center gap-2">
             <input
               type="text"
-              placeholder="Cari bahan..."
-              className="input pr-10"
+              placeholder="Search ingredients..."
+              className="flex-1 px-3 py-2 border rounded-lg"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              onFocus={() => setShowIngredientList(true)}
             />
-            <Search className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
+            <Button
+              type="button"
+              onClick={handleOpenIngredientForm}
+              variant="outline"
+              className="flex items-center gap-2"
+              disabled={isSubmitting}
+            >
+              <Plus className="h-4 w-4" />
+              Add New
+            </Button>
           </div>
-          <button
-            className="btn btn-primary ml-2"
-            onClick={() => setShowIngredientList(!showIngredientList)}
-          >
-            <Plus size={20} />
-          </button>
         </div>
 
-        {/* Ingredient selection dropdown */}
-        {showIngredientList && (
-          <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-            {filteredIngredients.length > 0 ? (
-              filteredIngredients.map((ingredient) => (
-                <div
+        {/* Available Ingredients */}
+        <div className="border rounded-lg p-4">
+          <h3 className="font-medium mb-2">Available Ingredients</h3>
+          {loading ? (
+            <div className="text-center py-4">Loading...</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {availableIngredients.map((ingredient) => (
+                <button
                   key={ingredient.id}
-                  className="p-2 hover:bg-purple-50 cursor-pointer border-b border-gray-100 flex justify-between items-center"
-                  onClick={() => handleAddIngredient(ingredient)}
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Ingredient button clicked:', ingredient);
+                    handleAddIngredient(ingredient);
+                  }}
+                  className="flex items-center justify-between p-2 border rounded hover:bg-gray-50 cursor-pointer"
                 >
-                  <div>
-                    <div className="font-medium text-md">{ingredient.name}</div>
-                    <div className="text-sm text-gray-500">
-                      {ingredient.description}
-                    </div>
+                  <div className="flex flex-col text-left">
+                    <span className="font-medium">{ingredient.name}</span>
+                    <span className="text-sm text-gray-500">{formatCurrency(ingredient.price_per_unit)} / {ingredient.unit}</span>
                   </div>
-                  <div className="text-purple-700 text-md">
-                    {formatCurrency(ingredient.price_per_unit.toString())}
-                  </div>
+                  <Plus size={16} />
+                </button>
+              ))}
+              {availableIngredients.length === 0 && !loading && (
+                <div className="text-center py-4 text-gray-500 col-span-2">
+                  No ingredients found
                 </div>
-              ))
-            ) : (
-              <div className="p-4 text-center text-gray-500">
-                No ingredients found
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Selected Ingredients */}
+        <div className="border rounded-lg p-4">
+          <h3 className="font-medium mb-2">Recipe Ingredients</h3>
+          <div className="space-y-2">
+            {ingredients.map((recipeIngredient, index) => (
+              <div key={recipeIngredient.id || index} className="flex items-center justify-between p-2 border rounded">
+                <div className="flex-1">
+                  <div className="font-medium">{recipeIngredient.name}</div>
+                  <div className="text-sm text-gray-500">{formatCurrency(calculateIngredientCost(recipeIngredient))}</div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                     handleUpdateQuantity(index, parseFloat(recipeIngredient.quantity) - 1);
+                    }}
+                    className="p-1 hover:bg-gray-100 rounded"
+                  >
+                    <Minus size={16} />
+                  </button>
+                  <input
+                    type="number"
+                    value={recipeIngredient.quantity}
+                    onChange={(e) => handleUpdateQuantity(index, parseFloat(e.target.value) || 0)}
+                    className="w-20 text-center border rounded px-2 py-1"
+                    step="0.01"
+                    min="0"
+                  />
+                  <span className="text-sm text-gray-500">{recipeIngredient.unit}</span>
+                  <button
+                    onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleUpdateQuantity(index, parseFloat(recipeIngredient.quantity) + 1);
+                    }}
+                    className="p-1 hover:bg-gray-100 rounded"
+                  >
+                    <Plus size={16} />
+                  </button>
+                  <button
+                    onClick={() => handleRemoveIngredient(index)}
+                    className="p-1 hover:bg-gray-100 rounded text-red-500"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            ))}
+            {(!ingredients || ingredients.length === 0) && (
+              <div className="text-center py-4 text-gray-500">
+                No ingredients added yet
               </div>
             )}
           </div>
-        )}
+        </div>
+
+        {/* Total Cost */}
+        <div className="border rounded-lg p-4">
+          <div className="flex justify-between items-center">
+            <span className="font-medium">Total Cost:</span>
+            <span className="text-lg font-bold">
+              {formatCurrency(ingredients.reduce((sum, ing) => sum + calculateIngredientCost(ing), 0))}
+            </span>
+          </div>
+        </div>
       </div>
 
-      {/* Recipe ingredients table */}
-      {selectedIngredients.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead>
-              <tr>
-                <th className="table-header px-4 py-3 text-left text-sm">No</th>
-                <th className="table-header px-4 py-3 text-left text-sm">
-                  Nama Bahan
-                </th>
-                <th className="table-header px-4 py-3 text-center text-sm">
-                  Jumlah
-                </th>
-                <th className="table-header px-4 py-3 text-right text-sm">
-                  Harga
-                </th>
-                <th className="table-header px-4 py-3 text-right  text-sm">
-                  Total
-                </th>
-                <th className="table-header px-4 py-3 text-center text-sm">
-                  Aksi
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {selectedIngredients.map((item, index) => {
-                const totalPrice =
-                  item.ingredient.price_per_unit *
-                  item.quantity;
-                return (
-                  <tr key={item.ingredient.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">{index + 1}</td>
-                    <td className="px-4 py-3">
-                      <div className="text-sm font-medium text-gray-800">
-                        {item.ingredient.name}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {item.ingredient.unit}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <input
-                        type="number"
-                        min="1"
-                        value={item.quantity}
-                        onChange={(e) =>
-                          handleQuantityChange(
-                            item.ingredient.id,
-                            parseInt(e.target.value)
-                          )
-                        }
-                        className="w-16 text-center text-sm border border-gray-300 rounded p-1"
-                      />
-                    </td>
-                    <td className="px-4 py-3 text-right text-sm">
-                      {formatCurrency(item.ingredient.price_per_unit.toString())}
-                    </td>
-                    <td className="px-4 py-3 text-right font-medium text-sm">
-                      {formatCurrency(totalPrice.toString())}
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <button
-                        onClick={() =>
-                          handleRemoveIngredient(item.ingredient.id)
-                        }
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-            <tfoot>
-              <tr className="bg-purple-50">
-                <td colSpan={4} className="px-4 py-3 text-right font-semibold">
-                  Total:
-                </td>
-                <td className="px-4 py-3 text-right font-bold text-purple-700">
-                  {formatCurrency(calculateTotal().toString())}
-                </td>
-                <td></td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      ) : (
-        <div className="text-center py-6 text-gray-500 bg-gray-50 rounded-lg">
-          Belum ada bahan yang ditambahkan
-        </div>
-      )}
-    </div>
+      {/* Move Dialog outside the main form */}
+      <Dialog 
+        open={showIngredientForm} 
+        onOpenChange={(open) => {
+          if (!isSubmitting) {
+            setShowIngredientForm(open);
+          }
+        }}
+      >
+        <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
+          <DialogHeader>
+            <DialogTitle>Add New Ingredient</DialogTitle>
+            <DialogDescription>
+              Create a new ingredient that will be available for all recipes.
+            </DialogDescription>
+          </DialogHeader>
+          <IngredientForm
+            onSubmit={handleAddNewIngredient}
+            onCancel={() => !isSubmitting && setShowIngredientForm(false)}
+          />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

@@ -1,17 +1,121 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import Logo from './Logo';
+
+
+
+
+import {
+  Users,
+  UserCog,
+  Home,
+  Box,
+  Boxes,
+  ShoppingCart,
+  CalendarClock,
+  Settings,
+  Menu,
+  X,
+  ArchiveRestore,
+  DownloadCloud,
+} from 'lucide-react';
+
+interface NavItem {
+  name: string;
+  icon: React.ReactNode;
+  path: string;
+  roles: string[];
+  subMenu?: NavItem[];
+}
+
+const navigation: NavItem[] = [
+    {
+        name: 'Dashboard',
+        icon: <Home size={20} />,
+        path: '/admin/',
+        roles: ['admin'],
+      },
+ 
+  {
+    name: 'Ingredients',
+    icon: <Boxes size={20} />,
+    path: '/admin/ingredients',
+    roles: ['admin'],
+  },
+  {
+    name: 'Products',
+    icon: <Box size={20} />,
+    path: '/admin/products',
+    roles: ['admin'],
+  },
+  {
+    name: 'Customers',
+    icon: <Users size={20} />,
+    path: '/admin/customers',
+    roles: ['admin'],
+  },
+
+
+  {
+    name: 'Orders',
+    icon: <ShoppingCart size={20} />,
+    path: '/admin/orders',
+    roles: ['admin'],
+  },
+
+  {
+    name: 'Todo',
+    icon: <CalendarClock size={20} />,
+    path: '/admin/tasks',
+    roles: ['admin'],
+  },
+  {
+    name: 'Users',
+    icon: <UserCog size={20} />,
+    path: '/admin/users',
+    roles: ['admin'],
+  },
+  {
+    name: 'Formulir',
+    icon: <ArchiveRestore size={20} />,
+    path: '/admin/form-management',
+    roles: ['admin'],
+    },
+    {
+        name: 'Settings',
+        icon: <Settings size={20} />,
+        path: '/admin/settings',
+        roles: ['admin'],
+      },
+    {
+        name: 'Invoice',
+        icon: <DownloadCloud size={20} />,
+        path: '/admin/invoice',
+        roles: ['admin'],
+      },
+];
+
+
+  // interface SidebarProps {
+  //   userRole: string;
+  //   userName: string;
+  // }
+
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
 
+  // const filteredNavigation = useMemo(() => {
+  //   return navigation.filter((item) => item.roles.includes(userRole));
+  // }, [userRole]);
+
   return (
-    <nav className="bg-purple-600 text-white shadow-md">
+    <nav className="sticky top-0 bg-purple-700 text-white shadow-md">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
@@ -23,14 +127,20 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Desktop menu */}
+          
           <div className="hidden md:flex space-x-4">
-            <Link
-              to="/admin"
-              className="px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
-            >
-              Dashboard
-            </Link>
-            <Link
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                to={item.path}
+                className={`px-2 py-2 rounded-md hover:bg-purple-600 transition-colors ${location.pathname === item.path
+                    ? 'bg-purple-600'
+                    : 'bg-purple-700'
+                  }`}
+              > {item.name}
+              </Link>
+            ))}
+            {/* <Link
               to="/admin/ingredients"
               className="px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
             >
@@ -49,6 +159,12 @@ const Navbar: React.FC = () => {
               Order
             </Link>
             <Link
+              to="/admin/customers"
+              className="px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
+            >
+              Pelanggan
+            </Link>
+            <Link
               to="/admin/tasks"
               className="px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
             >
@@ -60,9 +176,15 @@ const Navbar: React.FC = () => {
             >
               Users
             </Link>
+            <Link
+              to="/admin/form-management"
+              className="px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
+            >
+              Form Management
+            </Link>
             <Link to="/admin/settings" className="px-3 py-2 rounded-md hover:bg-purple-600 transition-colors flex items-center">
               Setting
-            </Link>
+            </Link> */}
           </div>
 
           {/* Mobile menu button */}
@@ -106,6 +228,13 @@ const Navbar: React.FC = () => {
             Order
           </Link>
           <Link
+            to="/admin/customers"
+            className="block px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
+            onClick={toggleMenu}
+          >
+            Pelanggan
+          </Link>
+          <Link
             to="/admin/tasks"
             className="block px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
             onClick={toggleMenu}
@@ -118,6 +247,13 @@ const Navbar: React.FC = () => {
             onClick={toggleMenu}
           >
             Users
+          </Link>
+          <Link
+            to="/admin/form-management"
+            className="block px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
+            onClick={toggleMenu}
+          >
+            Form Management
           </Link>
           <Link
             to="/admin/settings"

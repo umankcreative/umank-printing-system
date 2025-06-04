@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Printer } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { AxiosError } from 'axios';
 import Logo from '../components/Logo';
+import { useAuth } from '../context/AuthContext';
+import api from '../lib/axios';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,16 +19,17 @@ const Login: React.FC = () => {
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const response = await api.post('/login/', {
         email,
         password,
       });
 
-      if (error) throw error;
-
+      const { token, refresh_token, user } = response.data;
+      login(token, refresh_token, user);
       navigate('/admin');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      const error = err as AxiosError<{ message: string }>;
+      setError(error.response?.data?.message || 'An error occurred during login');
     } finally {
       setLoading(false);
     }
@@ -39,7 +42,9 @@ const Login: React.FC = () => {
           <Logo
             width={'100px'}
             height={'100px'}
-            color={'#6B48E5'} />
+            color={'#7E22CE'}
+         />
+          
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Sign in to your account
@@ -49,6 +54,11 @@ const Login: React.FC = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <span className="block sm:inline">{error}</span>
+              </div>
+            )}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email address
@@ -63,6 +73,7 @@ const Login: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="input"
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -81,21 +92,16 @@ const Login: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="input"
+                  disabled={loading}
                 />
               </div>
             </div>
 
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">
-                {error}
-              </div>
-            )}
-
             <div>
               <button
                 type="submit"
-                disabled={loading}
                 className="w-full btn btn-primary"
+                disabled={loading}
               >
                 {loading ? 'Signing in...' : 'Sign in'}
               </button>

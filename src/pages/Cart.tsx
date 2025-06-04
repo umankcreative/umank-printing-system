@@ -9,9 +9,9 @@ const Cart = () => {
   const { items } = useCart();
 
   return (
-    <div className="container py-8">
+    <div className="container py-8 pt-20">
       <div className="flex items-center mb-6">
-        <Link to="/store">
+        <Link to="/shop">
           <Button variant="ghost" size="sm" className="gap-1">
             <ArrowLeftIcon className="h-4 w-4" />
             Kembali ke Toko

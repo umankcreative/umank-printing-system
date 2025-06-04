@@ -13,69 +13,121 @@ import {
   Permission,
   RolePermission,
 } from '../types/user';
-import {
-  users as initialUsers,
-  branches,
-  permissions,
-  rolePermissions,
-} from '../data/mockData';
+import { userService } from '../services/userService';
+import { branchService } from '../services/branchService';
+import { permissionService } from '../services/permissionService';
 
 interface UserContextType {
   users: User[];
   branches: Branch[];
   permissions: Permission[];
   rolePermissions: RolePermission[];
-  addUser: (user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  updateUser: (id: string, userData: Partial<User>) => void;
-  deleteUser: (id: string) => void;
-  updateUserStatus: (id: string, status: UserStatus) => void;
-  updateUserRole: (id: string, role: UserRole) => void;
-  getUserById: (id: string) => User | undefined;
-  getBranchById: (id: string) => Branch | undefined;
+  addUser: (userData: Omit<User, 'id' | 'created_at' | 'updated_at' | 'branch' | 'last_active' | 'email_verified_at'>) => Promise<void>;
+  updateUser: (id: string, userData: Partial<Omit<User, 'id' | 'created_at' | 'updated_at' | 'branch'>>) => Promise<void>;
+  deleteUser: (id: string) => Promise<void>;
+  updateUserStatus: (id: string, status: UserStatus) => Promise<void>;
+  updateUserRole: (id: string, role: UserRole) => Promise<void>;
+  getUserById: (id: string) => Promise<User | undefined>;
+  getBranchById: (id: string) => Promise<Branch | undefined>;
   getPermissionsForRole: (role: UserRole) => Permission[];
+  loading: boolean;
+  error: string | null;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [users, setUsers] = useState<User[]>(initialUsers);
+  const [users, setUsers] = useState<User[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [permissions, setPermissions] = useState<Permission[]>([]);
+  const [rolePermissions, setRolePermissions] = useState<RolePermission[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const addUser = (userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const newUser: User = {
-      ...userData,
-      id: Date.now().toString(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
+  // Fetch initial data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const [
+          usersResponse,
+          branchesResponse,
+          permissionsResponse,
+          rolePermissionsResponse
+        ] = await Promise.all([
+          userService.getUsers(),
+          branchService.getBranches(),
+          permissionService.getPermissions(),
+          permissionService.getAllRolePermissions()
+        ]);
+
+        setUsers(usersResponse.data);
+        setBranches(branchesResponse.data);
+        setPermissions(permissionsResponse);
+        setRolePermissions(rolePermissionsResponse);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch data');
+      } finally {
+        setLoading(false);
+      }
     };
-    setUsers([...users, newUser]);
+
+    fetchData();
+  }, []);
+
+  const addUser = async (userData: Omit<User, 'id' | 'created_at' | 'updated_at' | 'branch' | 'last_active' | 'email_verified_at'>) => {
+    try {
+      const newUser = await userService.createUser(userData);
+      setUsers(prev => [...prev, newUser]);
+    } catch (err) {
+      throw new Error(err instanceof Error ? err.message : 'Failed to create user');
+    }
   };
 
-  const updateUser = (id: string, userData: Partial<User>) => {
-    setUsers(
-      users.map((user) =>
-        user.id === id ? { ...user, ...userData, updatedAt: new Date() } : user
-      )
-    );
+  const updateUser = async (id: string, userData: Partial<Omit<User, 'id' | 'created_at' | 'updated_at' | 'branch'>>) => {
+    try {
+      const updatedUser = await userService.updateUser(id, userData);
+      setUsers(prev => prev.map(user => user.id === id ? updatedUser : user));
+    } catch (err) {
+      throw new Error(err instanceof Error ? err.message : 'Failed to update user');
+    }
   };
 
-  const deleteUser = (id: string) => {
-    setUsers(users.filter((user) => user.id !== id));
+  const deleteUser = async (id: string) => {
+    try {
+      await userService.deleteUser(id);
+      setUsers(prev => prev.filter(user => user.id !== id));
+    } catch (err) {
+      throw new Error(err instanceof Error ? err.message : 'Failed to delete user');
+    }
   };
 
-  const updateUserStatus = (id: string, status: UserStatus) => {
-    updateUser(id, { status });
+  const updateUserStatus = async (id: string, status: UserStatus) => {
+    await updateUser(id, { status });
   };
 
-  const updateUserRole = (id: string, role: UserRole) => {
-    updateUser(id, { role });
+  const updateUserRole = async (id: string, role: UserRole) => {
+    await updateUser(id, { role });
   };
 
-  const getUserById = (id: string) => {
-    return users.find((user) => user.id === id);
+  const getUserById = async (id: string) => {
+    try {
+      return await userService.getUser(id);
+    } catch (err) {
+      console.error('Failed to fetch user:', err);
+      return undefined;
+    }
   };
 
-  const getBranchById = (id: string) => {
-    return branches.find((branch) => branch.id === id);
+  const getBranchById = async (id: string) => {
+    try {
+      return await branchService.getBranch(id);
+    } catch (err) {
+      console.error('Failed to fetch branch:', err);
+      return undefined;
+    }
   };
 
   const getPermissionsForRole = (role: UserRole) => {
@@ -102,6 +154,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         getUserById,
         getBranchById,
         getPermissionsForRole,
+        loading,
+        error,
       }}
     >
       {children}

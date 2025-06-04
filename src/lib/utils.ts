@@ -26,7 +26,7 @@ export const generateOrderTasks = (order: Order, products: Product[]): Task[] =>
     description: `Proses order milik ${order.customer.name}. Harus selesai sebelum Tanggal : ${order.delivery_date}`,
     status: 'todo',
     deadline: order.delivery_date,
-    estimatedTime: 2,
+    estimated_time: 2,
     priority: 'high',
     order_id: order.id,
     created_at: now,
@@ -38,7 +38,7 @@ export const generateOrderTasks = (order: Order, products: Product[]): Task[] =>
     const productTask = generateTaskForProduct(
       products,
       item.product_id,
-      item.quantity,
+      item.quantity.toString(),
       order.delivery_date,
       order.id,
       mainTask.id
@@ -62,7 +62,7 @@ export const generateOrderTasks = (order: Order, products: Product[]): Task[] =>
         .join('\n')}`,
       status: 'todo',
       deadline: order.delivery_date,
-      estimatedTime: 2,
+      estimated_time: 2,
       priority: 'high',
       order_id: order.id,
       parent_task_id: mainTask.id,
@@ -106,7 +106,7 @@ export const generateTaskForProduct = (
       )} sebanyak ${quantity} pcs \n Harus selesai sebelum tanggal : ${deadline} `,
       status: 'todo',
       deadline,
-      estimatedTime: taskTemplate.estimatedTime || 2,
+      estimated_time: taskTemplate.estimated_time || 2,
       priority: taskTemplate.priority || 'medium',
       order_id: orderId,
       ingredient_id: ingredient.id,
@@ -125,7 +125,7 @@ export const generateTaskForProduct = (
     )} sebanyak ${quantity} pcs`,
     status: 'todo',
     deadline,
-    estimatedTime: 2,
+    estimated_time: 2,
     priority: 'high',
     order_id: orderId,
     parent_task_id: parentTaskId,
@@ -133,4 +133,18 @@ export const generateTaskForProduct = (
     updated_at: now,
     subtasks,
   };
+};
+
+/**
+ * Validates if a string is a valid UUID v4
+ * Format: 8-4-4-4-12 hexadecimal characters
+ * Example: 123e4567-e89b-12d3-a456-426614174000
+ */
+export const isValidUUID = (uuid: string): boolean => {
+  if (typeof uuid !== 'string' || uuid.length !== 36) {
+    return false;
+  }
+  
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(uuid);
 };

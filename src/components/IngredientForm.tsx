@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Ingredient, TaskTemplate } from '../types';
-import { Clock, Flag, Plus, Trash2 } from 'lucide-react';
+import { Ingredient } from '../types';
+import { CreateIngredientPayload } from '../services/ingredientService';
+import { useAuth } from '../context/AuthContext';
 
 interface IngredientFormProps {
   initialIngredient?: Ingredient;
-  onSubmit: (ingredient: Ingredient) => void;
+  onSubmit: (ingredient: CreateIngredientPayload) => void;
   onCancel: () => void;
 }
 
@@ -13,270 +14,125 @@ const IngredientForm: React.FC<IngredientFormProps> = ({
   onSubmit,
   onCancel,
 }) => {
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [ingredient, setIngredient] = useState<Ingredient>({
-    id: initialIngredient?.id || crypto.randomUUID(),
+  const { user } = useAuth();
+  
+  const [ingredient, setIngredient] = useState<CreateIngredientPayload>({
     name: initialIngredient?.name || '',
     description: initialIngredient?.description || '',
     unit: initialIngredient?.unit || '',
-    price_per_unit: initialIngredient?.price_per_unit || 0,
+    price_per_unit: initialIngredient?.price_per_unit || '',
     stock: initialIngredient?.stock || 0,
-    branch_id: initialIngredient?.branch_id || '1',
-    created_at: initialIngredient?.created_at || new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    taskTemplates: initialIngredient?.taskTemplates || [],
+    branch_id: initialIngredient?.branch_id || user?.branch_id || ''
   });
 
-  const [taskTitle, setTaskTitle] = useState('');
-  const [taskDescription, setTaskDescription] = useState('');
-  const [taskPriority, setTaskPriority] = useState<TaskTemplate['priority']>('medium');
-  const [taskEstimatedTime, setTaskEstimatedTime] = useState<number>(2);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setIngredient((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleAddTaskTemplate = () => {
-    if (!taskTitle.trim()) return;
-
-    const newTaskTemplate: TaskTemplate = {
-      title: taskTitle,
-      description: taskDescription,
-      priority: taskPriority,
-      estimatedTime: taskEstimatedTime,
-    };
-
-    setIngredient((prev) => ({
-      ...prev,
-      taskTemplates: [...(prev.taskTemplates || []), newTaskTemplate],
-    }));
-
-    // Reset form
-    setTaskTitle('');
-    setTaskDescription('');
-    setTaskPriority('medium');
-    setTaskEstimatedTime(2);
-  };
-
-  const handleRemoveTaskTemplate = (index: number) => {
-    setIngredient((prev) => ({
-      ...prev,
-      taskTemplates: prev.taskTemplates?.filter((_, i) => i !== index),
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(ingredient);
+    e.stopPropagation();
+    
+    setIsLoading(true);
+    try {
+      await onSubmit(ingredient);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancel = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onCancel();
   };
 
   return (
-    <div className="space-y-4 overflow-scroll h-[calc(100vh-200px)]">
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label
-          htmlFor="name"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Name
-        </label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          value={ingredient.name}
-          onChange={handleChange}
-          required
-          className="input mt-1"
-        />
-      </div>
-
-      <div>
-        <label
-          htmlFor="description"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Description
-        </label>
-        <textarea
-          id="description"
-          name="description"
-          value={ingredient.description}
-          onChange={handleChange}
-          rows={3}
-          className="input mt-1"
-        />
-      </div>
-
-      <div className="grid grid-cols-3 gap-4">
+    <form onSubmit={handleSubmit} className="space-y-6" onClick={(e) => e.stopPropagation()}>
+      <div className="grid grid-cols-2 gap-4">
         <div>
-          <label
-            htmlFor="unit"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Unit
+          <label className="block text-sm font-medium text-gray-700">
+            Nama
           </label>
           <input
             type="text"
-            id="unit"
-            name="unit"
+            value={ingredient.name}
+            onChange={(e) => setIngredient({ ...ingredient, name: e.target.value })}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Satuan
+          </label>
+          <input
+            type="text"
             value={ingredient.unit}
-            onChange={handleChange}
+            onChange={(e) => setIngredient({ ...ingredient, unit: e.target.value })}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             required
-            className="input mt-1"
           />
         </div>
 
         <div>
-          <label
-            htmlFor="price"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Price
+          <label className="block text-sm font-medium text-gray-700">
+            Harga per Satuan
           </label>
           <input
             type="number"
-            id="price"
-            name="price"
             value={ingredient.price_per_unit}
-            onChange={handleChange}
+            onChange={(e) => setIngredient({ ...ingredient, price_per_unit: e.target.value })}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             required
             min="0"
-            className="input mt-1"
+            step="0.01"
           />
         </div>
 
         <div>
-          <label
-            htmlFor="stock"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Stock
+          <label className="block text-sm font-medium text-gray-700">
+            Stok
           </label>
           <input
             type="number"
-            id="stock"
-            name="stock"
             value={ingredient.stock}
-            onChange={handleChange}
+            onChange={(e) => setIngredient({ ...ingredient, stock: parseInt(e.target.value) || 0 })}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             required
             min="0"
-            className="input mt-1"
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Default Tasks
+        <label className="block text-sm font-medium text-gray-700">
+          Deskripsi
         </label>
-          <div className="mb-4">
-          <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-          {ingredient.taskTemplates?.map((task, index) => (
-            <div
-              key={index}
-              className="flex items-start justify-between bg-gray-50 p-3 rounded"
-            >
-              <div className="flex columns-2 gap-2">
-                <div className="flex-1 items-center gap-2">
-                  <div className="font-semibold">{task.title}</div>
-                  <div className="text-xs text-gray-500">{task.description}</div>
-                </div>
-                <div className="flex flex-1 items-center gap-2 text-xs text-gray-400">
-                 <Flag size={16} /> Prioritas: {task.priority}, <Clock size={16} /> Estimasi: {task.estimatedTime} menit
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleRemoveTaskTemplate(index)}
-                className="ml-2 text-red-500 hover:text-red-700"
-              >
-                <Trash2 size={16} />
-              </button>
-            </div>
-          ))}
-        </div>
-          <button
-            type="button"
-            onClick={() => setIsFormOpen(!isFormOpen)}
-            className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900"
-          >
-            <Plus size={16} className={`transform transition-transform ${isFormOpen ? 'rotate-45' : ''}`} />
-            {isFormOpen ? 'Close' : 'Add Task'}
-          </button>
-          {isFormOpen && (
-            <div className="space-y-4 mt-4 p-4 border border-gray-200 rounded-lg">
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <input
-                    type="text"
-                    value={taskTitle}
-                    onChange={(e) => setTaskTitle(e.target.value)}
-                    placeholder="Task Name"
-                    className="input"
-                  />
-                </div>
-                <div>
-                  <textarea
-                    value={taskDescription}
-                    onChange={(e) => setTaskDescription(e.target.value)}
-                    placeholder="Task Description"
-                    className="input"
-                    rows={2}
-                  />
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <select
-                      value={taskPriority}
-                      onChange={(e) => setTaskPriority(e.target.value as TaskTemplate['priority'])}
-                      className="input"
-                    >
-                      <option value="low">Low</option>
-                      <option value="medium">Medium</option>
-                      <option value="high">High</option>
-                    </select>
-                  </div>
-                  <div>
-                    <input
-                      type="number"
-                      value={taskEstimatedTime}
-                      onChange={(e) => setTaskEstimatedTime(parseInt(e.target.value))}
-                      min="2"
-                      placeholder="Estimated Time (minutes)"
-                      className="input"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleAddTaskTemplate}
-                    className="btn m-auto btn-primary w-full"
-                  >
-                    Add Task
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-        
+        <textarea
+          value={ingredient.description}
+          onChange={(e) => setIngredient({ ...ingredient, description: e.target.value })}
+          rows={3}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+        />
       </div>
-      <div className="flex justify-end gap-2">
-        <button type="button" onClick={onCancel} className="btn btn-secondary">
+
+      <div className="flex justify-end gap-3">
+        <button
+          type="button"
+          onClick={handleCancel}
+          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
           Cancel
         </button>
-        <button type="submit" className="btn btn-primary">
-          Save
+        <button
+          type="submit"
+          className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          disabled={isLoading}
+        >
+          {isLoading ? 'Saving...' : 'Save'}
         </button>
       </div>
-      </form>
-      </div>
+    </form>
   );
 };
 

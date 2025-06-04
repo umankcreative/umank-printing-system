@@ -18,7 +18,11 @@ import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 // src/App.tsx or your router configuration file
 import { Settings } from './pages/Settings';
+import Customers from './pages/Customers';
 
+import TemplatePage from "./pages/TemplatePage";
+import ReceiptPage from "./pages/ReceiptPage";
+import IndexTemplate from "./pages/IndexTemplate";
 
 import { Toaster } from './components/ui/toaster';
 import { Toaster as Sonner } from './components/ui/sonner';
@@ -32,69 +36,102 @@ import { TaskProvider } from './context/TaskContext';
 import { UserProvider } from './context/UserContext';
 import { CartProvider } from './context/CartContext';
 import { FormProvider } from './context/FormContext';
+import { CustomerProvider } from './context/CustomerContext';
+import { AuthProvider } from './context/AuthContext';
 import './App.css';
+import ProtectedRoute from './components/ProtectedRoute';
+import FormBuilder from './pages/FormBuilder';
+import FormManagement from './pages/FormManagement';
+import PublicForm from './pages/PublicForm';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 function App() {
   return (
-    <Router>
-      <Toaster />
-      <Sonner />
-      <Routes>
-        <Route
-          path="/admin"
-          element={
-            <ProductProvider>
-              <UserProvider>
-                <OrderProvider>
-                  <TaskProvider>
-                    <AdminLayout />
-                  </TaskProvider>
-                </OrderProvider>
-              </UserProvider>
-            </ProductProvider>
-          }
-        >
-          <Route index element={<Dashboard />} />
-          <Route path="products" element={<ProductList />} />
-          <Route path="products/create" element={<ProductCreate />} />
-          <Route path="products/edit/:id" element={<ProductEdit />} />
-          <Route path="products/:id" element={<ProductDetail />} />
-          <Route path="ingredients" element={<IngredientList />} />
-          <Route path="tasks" element={<TodoBoard />} />
-          <Route path="tasks/:id" element={<TaskDetailPage />} />
-          <Route path="orders" element={<Orders />} />
-          <Route path="orders/:id" element={<OrderDetail />} />
-          <Route path="users" element={<Users />} />
-          <Route path="settings" element={<Settings />} />
-        </Route>
-
-        <Route path="/" element={<GuestLayout />}>
-          <Route index element={<Guest />} />
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <AuthProvider>
+        <Toaster />
+        <Sonner />
+        <Routes>
           <Route
-            path="shop"
+            path="/admin"
             element={
-              <FormProvider>
-              <CartProvider>
-                <Shop />
-              </CartProvider>
-              </FormProvider>
+              <ProtectedRoute>
+                <DndProvider backend={HTML5Backend}>
+                <ProductProvider>
+                  <UserProvider>
+                    <OrderProvider>
+                      <CustomerProvider>
+                        <TaskProvider>
+                          <FormProvider>
+                            <AdminLayout />
+                          </FormProvider>
+                        </TaskProvider>
+                      </CustomerProvider>
+                    </OrderProvider>
+                  </UserProvider>
+                  </ProductProvider>
+                  </DndProvider>
+              </ProtectedRoute>
             }
-          />
-          <Route
-            path="cart"
-            element={
-              <FormProvider>
-                <CartProvider>
-                  <Cart />
-                </CartProvider>
-              </FormProvider>
-            }
-          />
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="products" element={<ProductList />} />
+            <Route path="products/create" element={<ProductCreate />} />
+            <Route path="products/edit/:id" element={<ProductEdit />} />
+            <Route path="products/:id" element={<ProductDetail />} />
+            <Route path="ingredients" element={<IngredientList />} />
+            <Route path="tasks" element={<TodoBoard />} />
+            <Route path="tasks/:id" element={<TaskDetailPage />} />
+            <Route path="orders" element={<Orders />} />
+            <Route path="orders/:id" element={<OrderDetail />} />
+            <Route path="customers" element={<Customers />} />
+            <Route path="users" element={<Users />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="form-builder/new" element={<FormBuilder />} />
+            <Route path="form-builder/:id" element={<FormBuilder />} />
+            <Route path="form-management" element={<FormManagement />} />
 
-          <Route path='login' element={<Login />} />
-        </Route>
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+            <Route path="invoice" element={<IndexTemplate />} />
+            <Route path="template" element={<TemplatePage />} />
+            <Route path="receipt" element={<ReceiptPage />} />
+            
+          </Route>
+
+          <Route path="/" element={<GuestLayout />}>
+            <Route index element={<Guest />} />
+            <Route
+              path="shop"
+              element={
+                <ProductProvider>
+                  <FormProvider>
+                    <CartProvider>
+                      <Shop />
+                    </CartProvider>
+                  </FormProvider>
+                </ProductProvider>
+              }
+            />
+            <Route
+              path="cart"
+              element={
+                <ProductProvider>
+                  <FormProvider>
+                    <CartProvider>
+                      <OrderProvider>
+                        <Cart />
+                      </OrderProvider>
+                    </CartProvider>
+                  </FormProvider>
+                </ProductProvider>
+              }
+            />
+            <Route path="form/:id" element={<PublicForm />} />
+            <Route path='login' element={<Login />} />
+          </Route>
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </AuthProvider>
     </Router>
   );
 }

@@ -34,7 +34,7 @@ const FormElementEditor: React.FC<FormElementEditorProps> = ({
       setPlaceholder(element.placeholder || '');
       setRequired(element.required);
       setOptions(element.options || []);
-      setFileAccept(element.fileAccept || '');
+      setFileAccept(element.file_accept || '');
     } else {
       resetForm();
     }
@@ -83,10 +83,10 @@ const FormElementEditor: React.FC<FormElementEditorProps> = ({
     const updatedElement: FormElement = {
       ...element,
       label,
-      placeholder: placeholder || undefined,
+      placeholder: placeholder || '',
       required,
-      options: ['select', 'checkbox', 'radio'].includes(element.type) ? options : undefined,
-      fileAccept: element.type === 'file' ? fileAccept : undefined,
+      options: ['select', 'checkbox', 'radio'].includes(element.type) ? options : [],
+      file_accept: element.type === 'file' ? fileAccept : '',
       validation: validation,
     };
 

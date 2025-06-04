@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
-import { PRODUCT_CATEGORIES } from '../types';
+import * as categoryService from '../services/categoryService';
+import { Category } from '../types/formTypes';
 
 interface ProductFiltersProps {
   searchTerm: string;
@@ -21,6 +22,26 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   onStatusChange,
   className,
 }) => {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await categoryService.getCategories();
+        // Filter for product type categories only
+        const productCategories = data.filter(cat => cat.type === 'product');
+        setCategories(productCategories);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   return (
     <div className={`bg-white shadow-sm rounded-lg border border-gray-200 p-4 ${className || ''}`}>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
@@ -36,17 +57,17 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             placeholder="Search products..."
           />
         </div>
-<div className="flex flex-col flex-grow  md:flex-row gap-2 md:gap-2"></div>
-        <div className="flex flex-col flex-grow  md:flex-row gap-2 md:gap-2">
+
+        <div className="flex gap-2">
           <select
             value={categoryFilter}
             onChange={(e) => onCategoryChange(e.target.value)}
-            className="bg-gray-50 border w-full border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
           >
-            <option value="">Semua Kategori</option>
-            {PRODUCT_CATEGORIES.map((category) => (
-              <option key={category} value={category}>
-                {category}
+            <option value="">All Categories</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
               </option>
             ))}
           </select>
@@ -54,11 +75,11 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
           <select
             value={statusFilter}
             onChange={(e) => onStatusChange(e.target.value)}
-            className="bg-gray-50 border  max-w-[500px] min-w-[200px] border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
           >
-            <option value="">Semua Status</option>
-            <option value="true">Aktif</option>
-            <option value="false">Tidak Aktif</option>
+            <option value="">All Status</option>
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
           </select>
         </div>
       </div>
@@ -67,3 +88,4 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
 };
 
 export default ProductFilters;
+

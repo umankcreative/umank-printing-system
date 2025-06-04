@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Edit, Trash2, ArrowUpDown, Eye } from 'lucide-react';
-import { Product } from '../types';
+import { Product } from '../types/api';
 import { formatCurrency } from '../lib/utils';
 import {
   useReactTable,
@@ -19,7 +19,7 @@ interface ProductTableProps {
   products: Product[];
   currentPage: number;
   itemsPerPage: number;
-  onDelete: (id: string) => void;
+  onDelete: (product: Product) => void;
 }
 
 const ProductTable: React.FC<ProductTableProps> = ({
@@ -106,12 +106,12 @@ const ProductTable: React.FC<ProductTableProps> = ({
         cell: ({ row }: { row: Row<Product> }) => (
           <span
             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-              row.original.isActive
+              row.original.is_active
                 ? 'bg-green-100 text-green-800'
                 : 'bg-red-100 text-red-800'
             }`}
           >
-            {row.original.isActive ? 'Aktif' : 'Nonaktif'}
+            {row.original.is_active ? 'Aktif' : 'Nonaktif'}
           </span>
         ),
         size: 96,
@@ -134,7 +134,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
               <Edit size={18} />
             </Link>
             <button
-              onClick={() => onDelete(row.original.id)}
+              onClick={() => onDelete(row.original)}
               className="inline-flex items-center justify-center p-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-md transition-colors border border-red-200"
             >
               <Trash2 size={18} />

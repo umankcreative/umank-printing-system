@@ -30,36 +30,37 @@ const UserPermissions: React.FC<UserPermissionsProps> = ({ user, onSave }) => {
   };
 
   return (
-    <div className="space-y-6">
+    <>
+    <div className="flex gap-2">
       {modules.map((module) => {
         const modulePermissions = permissions.filter(
           (p) => p.module === module
         );
 
         return (
-          <Card key={module} className="overflow-hidden">
-            <div className="border-b pb-4 mb-4">
-              <h3 className="text-lg font-semibold capitalize">
+          <div key={module} className="overflow-hidden">
+            <div className="border-b">
+              <h3 className="text-md font-semibold capitalize">
                 {module} Module
               </h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-xs text-gray-600">
                 Permissions for {module} operations
               </p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-2">
               {modulePermissions.map((permission) => (
                 <div
                   key={permission.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between p-1 bg-gray-50 rounded-lg"
                 >
                   <div>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-sm text-gray-900">
                       {permission.name
                         .replace(/_/g, ' ')
                         .replace(/\b\w/g, (c) => c.toUpperCase())}
                     </p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-xs text-gray-600">
                       {permission.description}
                     </p>
                   </div>
@@ -83,9 +84,12 @@ const UserPermissions: React.FC<UserPermissionsProps> = ({ user, onSave }) => {
                 </div>
               ))}
             </div>
-          </Card>
+          </div>
         );
       })}
+
+      
+      </div>
 
       <div className="flex justify-end mt-6">
         <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded mb-4 flex items-start">
@@ -102,7 +106,8 @@ const UserPermissions: React.FC<UserPermissionsProps> = ({ user, onSave }) => {
           </div>
         </div>
       </div>
-    </div>
+
+      </>
   );
 };
 

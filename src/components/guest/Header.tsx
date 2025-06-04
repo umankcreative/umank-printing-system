@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Menu, X, Printer } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import Logo from '../Logo';
+import { SparklesText } from '../ui/Sparkles-text';
 
 const Header: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,8 +27,8 @@ const Header: React.FC = () => {
       <div className="container mx-auto px-4 md:px-6 flex justify-between items-center">
         <div className="flex items-center">
           <Logo width={'30pt'} height={'30pt'} color={'#6B48E5'} />
-          <span className="text-xl font-bold text-gray-800">
-            Umank Creative
+          <span>
+           <SparklesText text="Umank Creative" className='pl-2 text-[#6B48E5] bg-clip-text bg-gradient-to-r from-cyan-500 via-fuchsia-500 to-yellow-400' />
           </span>
         </div>
 

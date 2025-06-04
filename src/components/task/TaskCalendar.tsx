@@ -160,8 +160,14 @@ export function TaskCalendar({
       currentDate.getMonth(),
       day
     );
-    setSelectedDate(newDate);
-    onAddTask(newDate);
+    const holiday = isHoliday(day);
+    const sunday = isSunday(day);
+    const isNonWorkingDay = holiday || sunday;
+    
+    if (!isNonWorkingDay) {
+      setSelectedDate(newDate);
+      onAddTask(newDate);
+    }
   };
 
   const getTasksForDate = (day: number): Task[] => {
@@ -300,7 +306,10 @@ export function TaskCalendar({
           </div>
           <button
             onClick={(e) => handleQuickAddTask(day, e)}
-            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-500 text-white p-2 rounded-full shadow-lg hover:bg-blue-600"
+            className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 
+              ${!isNonWorkingDay ? 'group-hover:opacity-100' : ''} 
+              transition-opacity bg-blue-500 text-white p-2 rounded-full shadow-lg hover:bg-blue-600`}
+            disabled={isNonWorkingDay}
           >
             <Plus className="w-4 h-4" />
           </button>
@@ -353,7 +362,17 @@ export function TaskCalendar({
           </Button>
           <Button
             variant="default"
-            onClick={() => onAddTask(selectedDate || new Date())}
+            onClick={() => {
+              const selectedDay = selectedDate?.getDate() || new Date().getDate();
+              const holiday = isHoliday(selectedDay);
+              const sunday = isSunday(selectedDay);
+              const isNonWorkingDay = holiday || sunday;
+              
+              if (!isNonWorkingDay) {
+                onAddTask(selectedDate || new Date());
+              }
+            }}
+            disabled={selectedDate ? (isHoliday(selectedDate.getDate()) || isSunday(selectedDate.getDate())) : false}
           >
             <Plus className="h-4 w-4 mr-2" />
             Add Task

@@ -1,93 +1,100 @@
-import React, { memo } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Edit, EyeIcon, Trash2 } from 'lucide-react';
-import { Product } from '../types';
+import { MoreVertical, Edit, Trash, EyeIcon } from 'lucide-react';
+import { Product } from '../types/api';
 import { formatCurrency } from '../lib/utils';
 
 interface ProductCardProps {
   product: Product;
-  onDelete: (id: string) => void;
+  onDelete: (product: Product) => void;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete }) => {
+  const [showDropdown, setShowDropdown] = useState(false);
+
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
-      <div className="relative aspect-video">
-        {product.thumbnail_id ? (
-          <img
-            src={product.thumbnail_id}
-            alt={product.name}
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-        ) : (
-          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-            <span className="text-gray-400">No image</span>
-          </div>
-        )}
-        <div className="absolute top-2 right-2">
+    <div className="bg-white rounded-lg shadow-sm border relative">
+      <div className="relative">
+        <div className="aspect-square rounded-t-lg overflow-hidden bg-gray-100">
+          {product.thumbnail_id && (
+            <img
+              src={product.thumbnail_id}
+              alt={product.name}
+              className="w-full h-full object-cover"
+            />
+          )}
+        </div>
+        <div className="absolute top-2 left-2">
           <span
             className={`px-2 py-1 rounded-full text-xs font-medium ${
-              product.isActive
+              product.is_active
                 ? 'bg-green-100 text-green-800'
                 : 'bg-red-100 text-red-800'
             }`}
           >
-            {product.isActive ? 'Aktif' : 'Nonaktif'}
+            {product.is_active ? 'Aktif' : 'Nonaktif'}
           </span>
         </div>
+        <button
+          onClick={() => setShowDropdown(!showDropdown)}
+          className="absolute top-2 right-2 p-1 hover:bg-black/5 rounded-full"
+        >
+          <MoreVertical className="h-5 w-5 text-gray-600" />
+        </button>
+        {showDropdown && (
+          <div className="absolute top-10 right-2 bg-white rounded-lg shadow-lg border py-1 z-10">
+            <Link
+              to={`/admin/products/edit/${product.id}`}
+              className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              Edit
+            </Link>
+            <button
+              onClick={() => onDelete(product)}
+              className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-left"
+            >
+              <Trash className="h-4 w-4 mr-2" />
+              Delete
+            </button>
+          </div>
+        )}
       </div>
       <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-1 line-clamp-1">
-          {product.name}
-        </h3>
-        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-          {product.description}
-        </p>
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-sm text-gray-500">{product.category}</span>
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-medium ${
-              product.stock > 100
-                ? 'bg-green-100 text-green-800'
-                : 'bg-amber-100 text-amber-800'
-            }`}
-          >
-            Stok: {product.stock}
-          </span>
+        <h3 className="font-medium text-gray-900">{product.name}</h3>
+        <div className="mt-1 flex items-center gap-1">
+          <span className="text-sm text-gray-500">{product.category?.name || ''}</span>
         </div>
-        <div className="space-y-1">
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Harga Modal:</span>
-            <span className="text-gray-700">
-              {formatCurrency((product.cost_price).toString())}
+        <div className="mt-4 flex items-center justify-between">
+          <div className="flex flex-col">
+            <span className="text-sm text-gray-500">Price</span>
+            <span className="font-medium text-gray-900">
+              {formatCurrency(product.price)}
             </span>
           </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Harga Jual:</span>
-            <span className="font-medium text-purple-600">
-              {formatCurrency(product.price.toString())}
-            </span>
+          <div className="flex flex-col items-end">
+            <span className="text-sm text-gray-500">Stock</span>
+            <span className="font-medium text-gray-900">{product.stock}</span>
           </div>
         </div>
         <div className="mt-4 flex justify-end space-x-2">
           <Link
             to={`/admin/products/${product.id}`}
-            className="btn btn-sm btn-outline-secondary"
+            className="btn btn-sm btn-outline-secondary flex items-center"
           >
             <EyeIcon size={16} className="mr-1" /> Detail
           </Link>
           <Link
             to={`/admin/products/edit/${product.id}`}
-            className="btn btn-sm btn-outline-primary"
+            className="btn btn-sm btn-outline-primary flex items-center"
           >
             <Edit size={16} className="mr-1" /> Edit
           </Link>
           <button
-            onClick={() => onDelete(product.id)}
-            className="btn btn-sm btn-outline-danger"
+            onClick={() => onDelete(product)}
+            className="btn btn-sm btn-outline-danger flex items-center"
           >
-            <Trash2 size={16} className="mr-1" /> Hapus
+            <Trash size={16} className="mr-1" /> Delete
           </button>
         </div>
       </div>
@@ -95,4 +102,4 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete }) => {
   );
 };
 
-export default memo(ProductCard);
+export default ProductCard;

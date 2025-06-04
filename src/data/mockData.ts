@@ -1,4 +1,4 @@
-import { Ingredient, Product, ProductImage, Recipes } from '../types';
+import { Customer, Ingredient, Product, ProductImage, Recipes } from '../types';
 import {
   User,
   Branch,
@@ -864,3 +864,126 @@ export const getStatusBadgeColor = (status: UserStatus): string => {
       return 'bg-gray-400';
   }
 };
+
+export const mockCustomers: Customer[] = [
+  {
+    id: '1',
+    name: 'PT Maju Bersama',
+    email: 'contact@majubersama.com',
+    phone: '021-5553789',
+    company: 'PT Maju Bersama',
+    contact: 'Budi Santoso',
+    address: 'Jl. Sudirman No. 123, Jakarta Pusat',
+    isActive: true,
+    created_at: '2024-01-01T08:00:00Z',
+    updated_at: '2024-01-01T08:00:00Z'
+  },
+  {
+    id: '2', 
+    name: 'CV Sukses Makmur',
+    email: 'info@suksesmakmur.co.id',
+    phone: '022-4445678',
+    company: 'CV Sukses Makmur',
+    contact: 'Dewi Lestari',
+    address: 'Jl. Asia Afrika No. 88, Bandung',
+    isActive: true,
+    created_at: '2024-01-02T09:30:00Z',
+    updated_at: '2024-01-02T09:30:00Z'
+  },
+  {
+    id: '3',
+    name: 'UD Sejahtera',
+    email: 'order@sejahtera.com',
+    phone: '031-7778899',
+    company: 'UD Sejahtera',
+    contact: 'Ahmad Hidayat',
+    address: 'Jl. Pemuda No. 45, Surabaya',
+    isActive: true,
+    created_at: '2024-01-03T10:15:00Z',
+    updated_at: '2024-01-03T10:15:00Z'
+  },
+  {
+    id: '4',
+    name: 'Toko Makmur Jaya',
+    email: 'makmurjaya@gmail.com',
+    phone: '0812-3456-7890',
+    company: 'Toko Makmur Jaya',
+    contact: 'Siti Aminah',
+    address: 'Jl. Gatot Subroto No. 67, Medan',
+    isActive: true,
+    created_at: '2024-01-04T11:20:00Z',
+    updated_at: '2024-01-04T11:20:00Z'
+  },
+  {
+    id: '5',
+    name: 'PT Karya Indah',
+    email: 'sales@karyaindah.com',
+    phone: '024-8889900',
+    company: 'PT Karya Indah',
+    contact: 'Rudi Hartono',
+    address: 'Jl. Pandanaran No. 33, Semarang',
+    isActive: true,
+    created_at: '2024-01-05T13:45:00Z',
+    updated_at: '2024-01-05T13:45:00Z'
+  },
+  {
+    id: '6',
+    name: 'Koperasi Mitra Usaha',
+    email: 'koperasi@mitrausaha.org',
+    phone: '0815-7890-1234',
+    company: 'Koperasi Mitra Usaha',
+    contact: 'Rina Wijaya',
+    address: 'Jl. Diponegoro No. 156, Yogyakarta',
+    isActive: true,
+    created_at: '2024-01-06T14:30:00Z',
+    updated_at: '2024-01-06T14:30:00Z'
+  },
+  {
+    id: '7',
+    name: 'CV Berkah Jaya',
+    email: 'info@berkahjaya.net',
+    phone: '0813-2345-6789',
+    company: 'CV Berkah Jaya',
+    contact: 'Hendra Gunawan',
+    address: 'Jl. Ahmad Yani No. 90, Malang',
+    isActive: true,
+    created_at: '2024-01-07T15:20:00Z',
+    updated_at: '2024-01-07T15:20:00Z'
+  },
+  {
+    id: '8',
+    name: 'PT Cemerlang Abadi',
+    email: 'contact@cemerlangabadi.co.id',
+    phone: '061-3334455',
+    company: 'PT Cemerlang Abadi',
+    contact: 'Linda Kusuma',
+    address: 'Jl. Thamrin No. 234, Palembang',
+    isActive: true,
+    created_at: '2024-01-08T16:10:00Z',
+    updated_at: '2024-01-08T16:10:00Z'
+  },
+  {
+    id: '9',
+    name: 'UD Bintang Terang',
+    email: 'sales@bintangterang.com',
+    phone: '0816-8901-2345',
+    company: 'UD Bintang Terang',
+    contact: 'Agus Setiawan',
+    address: 'Jl. Veteran No. 78, Makassar',
+    isActive: true,
+    created_at: '2024-01-09T17:05:00Z',
+    updated_at: '2024-01-09T17:05:00Z'
+  },
+  {
+    id: '10',
+    name: 'PT Global Sukses',
+    email: 'info@globalsukses.com',
+    phone: '0878-9012-3456',
+    company: 'PT Global Sukses',
+    contact: 'Maria Susanti',
+    address: 'Jl. Gajah Mada No. 111, Denpasar',
+    isActive: true,
+    created_at: '2024-01-10T18:00:00Z',
+    updated_at: '2024-01-10T18:00:00Z'
+  }
+];

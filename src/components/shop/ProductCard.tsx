@@ -33,13 +33,13 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   return (
     <Card className="h-full flex flex-col overflow-hidden transition-shadow hover:shadow-lg">
-      <CardHeader className="bg-gray-100 h-48 flex items-center justify-center p-4">
+      <CardHeader className="bg-gray-100 h-48 mb-4 flex items-center justify-center p-0 ">
         {product.thumbnail_id ? (
           <img
             // src={`/images/products/${product.thumbnail_id}`}
             src={product.thumbnail_id}
             alt={product.name}
-            className="max-h-full object-contain"
+            className="w-full object-contain"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gray-200 rounded-md">
@@ -47,11 +47,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
           </div>
         )}
       </CardHeader>
-      <CardContent className="flex-grow p-4">
-        <h3 className="font-semibold text-lg mb-2 line-clamp-2">
+      <CardContent className="flex-grow mt-4">
+        <h3 className="font-semibold text-lg mb-2 line-clamp-1">
           {product.name}
         </h3>
-        <p className="text-sm text-gray-600 mb-2 line-clamp-3">
+        <p className="text-sm text-gray-600 mb-2 line-clamp-2">
           {product.description}
         </p>
         <div className="text-primary font-bold text-lg">{formattedPrice}</div>

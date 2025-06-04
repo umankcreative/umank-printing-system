@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 // import Layout from '../components/layout/Layout';
-import UserList from '../components/users/UserList';
+import UserList from '../components/users/UserBranchList';
 import UserForm from '../components/users/UserForm';
 import Modal from '../components/ui/Modalx';
 // import Button from '../components/ui/Buttonx';
 import UserPermissions from '../components/users/UserPermissions';
 import { User } from '../types/user';
 import { useUserContext } from '../context/UserContext';
-import { UserCog, AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Edit, Filter, Trash2 } from 'lucide-react';
 import { Tab } from '@headlessui/react';
-import { Button } from '../components/ui/button';
+import  Button  from '../components/ui/Buttonx';
+import { Card } from '../components/ui/card1';
+import { userService } from '../services/userService';
+import UserCard from '../components/users/UserCard';
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
@@ -21,20 +24,32 @@ const UsersPage: React.FC = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+ const [userData,setUserData] = useState<User[]>([]);
 
-  const handleCreateUser = (
-    userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>
+  const handleCreateUser = async (
+    userData: Omit<User, 'id' | 'created_at' | 'updated_at' | 'branch' | 'last_active' | 'email_verified_at'>
   ) => {
-    addUser(userData);
-    setIsCreateModalOpen(false);
+    try {
+      await addUser(userData);
+      setIsCreateModalOpen(false);
+    } catch (error) {
+      console.error('Failed to create user:', error);
+      // Handle error (show toast notification, etc.)
+    }
   };
 
-  const handleUpdateUser = (
-    userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>
+  const handleUpdateUser = async (
+    userData: Omit<User, 'id' | 'created_at' | 'updated_at' | 'branch' | 'last_active' | 'email_verified_at'>
   ) => {
     if (selectedUser) {
-      updateUser(selectedUser.id, userData);
-      setIsEditModalOpen(false);
+      try {
+        await updateUser(selectedUser.id, userData);
+        setIsEditModalOpen(false);
+        setSelectedUser(null);
+      } catch (error) {
+        console.error('Failed to update user:', error);
+        // Handle error (show toast notification, etc.)
+      }
     }
   };
 
@@ -48,41 +63,39 @@ const UsersPage: React.FC = () => {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (selectedUser) {
-      deleteUser(selectedUser.id);
-      setIsDeleteModalOpen(false);
+      try {
+        await deleteUser(selectedUser.id);
+        setIsDeleteModalOpen(false);
+        setSelectedUser(null);
+      } catch (error) {
+        console.error('Failed to delete user:', error);
+        // Handle error (show toast notification, etc.)
+      }
     }
   };
 
   return (
-    <div>
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
-          <p className="mt-1 text-sm text-gray-600">
-            Manage user accounts, roles, and permissions for Umank Creative
-            staff.
-          </p>
-        </div>
-        <div className="mt-4 sm:mt-0">
-          <button
-            className="btn btn-md btn-primary"
-            onClick={() => setIsCreateModalOpen(true)}
-          >
-            Add New User
-          </button>
-        </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Users</h1>
+        <Button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+        >
+          Add User
+        </Button>
       </div>
 
-      <UserList onEdit={handleEditUser} onDelete={handleDeleteClick} />
-
+      <UserList onEditUser={handleEditUser} onDeleteUser={handleDeleteClick} />
+      {/* <UserCard users={userData} /> */}
       {/* Create User Modal */}
       <Modal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         title="Create New User"
-        size="lg"
+        size="xl"
       >
         <UserForm
           onSubmit={handleCreateUser}
@@ -96,7 +109,7 @@ const UsersPage: React.FC = () => {
           isOpen={isEditModalOpen}
           onClose={() => setIsEditModalOpen(false)}
           title={`Edit User: ${selectedUser.name}`}
-          size="lg"
+          size="xl"
         >
           <Tab.Group>
             <Tab.List className="flex p-1 space-x-1 bg-gray-100 rounded-lg mb-6">
@@ -146,27 +159,36 @@ const UsersPage: React.FC = () => {
       <Modal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        title="Confirm Delete"
+        title="Delete User"
         size="sm"
       >
-        <div className="text-center">
-          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 animate-pulse">
-            <AlertTriangle size={24} className="text-red-600 " />
+        <div className="p-6">
+          <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full">
+            <AlertTriangle className="w-6 h-6 text-red-600" />
           </div>
-          <h3 className="mt-3 text-lg font-medium text-gray-900">
-            Delete User
-          </h3>
-          <p className="mt-2 text-sm text-gray-500">
-            Are you sure you want to delete {selectedUser?.name}? This action
-            cannot be undone.
-          </p>
-          <div className="mt-6 flex justify-center space-x-3">
-            <button className="btn btn-sm btn-secondary"  onClick={() => setIsDeleteModalOpen(false)}>
+          <div className="mt-3 text-center sm:mt-5">
+            <h3 className="text-lg font-medium leading-6 text-gray-900">
+              Delete User
+            </h3>
+            <div className="mt-2">
+              <p className="text-sm text-gray-500">
+                Are you sure you want to delete {selectedUser?.name}? This action cannot be undone.
+              </p>
+            </div>
+          </div>
+          <div className="mt-5 sm:mt-6 flex justify-end space-x-3">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteModalOpen(false)}
+            >
               Cancel
-            </button>
-            <button className="btn btn-sm btn-danger" onClick={confirmDelete}>
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+            >
               Delete
-            </button>
+            </Button>
           </div>
         </div>
       </Modal>

@@ -7,18 +7,22 @@ export interface User {
   email: string;
   role: UserRole;
   status: UserStatus;
-  branch: string;
-  avatar?: string;
-  lastActive?: Date;
-  createdAt: Date;
-  updatedAt: Date;
+  branch_id: string;
+  avatar: string | null;
+  last_active: string | null;
+  email_verified_at: string | null;
+  created_at: string;
+  updated_at: string;
+  branch: Branch;
 }
 
 export interface Branch {
   id: string;
   name: string;
   location: string;
-  isActive: boolean;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Permission {

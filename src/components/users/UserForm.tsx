@@ -1,34 +1,48 @@
 import React, { useState, useEffect } from 'react';
-import { User, UserRole, UserStatus } from '../../types/user';
-import { branches } from '../../data/mockData';
+import { User, Branch } from '../../types/user';
 import Button from '../ui/Buttonx';
 import Select from '../ui/Selectx';
-import { useUserContext } from '../../context/UserContext';
+import { branchService } from '../../services/branchService';
 import { X, Save, UserPlus } from 'lucide-react';
 
 interface UserFormProps {
   user?: User;
-  onSubmit: (userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  onSubmit: (userData: Omit<User, 'id' | 'created_at' | 'updated_at' | 'branch' | 'last_active' | 'email_verified_at'>) => void;
   onCancel: () => void;
 }
 
 const UserForm: React.FC<UserFormProps> = ({ user, onSubmit, onCancel }) => {
-  const { branches } = useUserContext();
+  const [localBranches, setLocalBranches] = useState<Branch[]>([]);
   const [formData, setFormData] = useState<
-    Omit<User, 'id' | 'createdAt' | 'updatedAt'>
+    Omit<User, 'id' | 'created_at' | 'updated_at' | 'branch' | 'last_active' | 'email_verified_at'>
   >({
     name: '',
     email: '',
     role: 'kasir',
     status: 'active',
-    branch: '',
+    branch_id: '',
     avatar: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
+    const fetchBranches = async () => {
+      try {
+        const response = await branchService.getBranches();
+        console.log('Branches response:', response); // Debug log
+        setLocalBranches(response.data || []);
+      } catch (error) {
+        console.error('Error fetching branches:', error);
+      }
+    };
+
+    fetchBranches();
+  }, []);
+
+  useEffect(() => {
     if (user) {
-      const { id, createdAt, updatedAt, ...userData } = user;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { id, created_at, updated_at, branch, last_active, email_verified_at, ...userData } = user;
       setFormData(userData);
     }
   }, [user]);
@@ -75,8 +89,8 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSubmit, onCancel }) => {
       newErrors.email = 'Email is invalid';
     }
 
-    if (!formData.branch) {
-      newErrors.branch = 'Branch is required';
+    if (!formData.branch_id) {
+      newErrors.branch_id = 'Branch is required';
     }
 
     setErrors(newErrors);
@@ -104,7 +118,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSubmit, onCancel }) => {
     { value: 'suspended', label: 'Suspended' },
   ];
 
-  const branchOptions = branches.map((branch) => ({
+  const branchOptions = localBranches.map((branch) => ({
     value: branch.id,
     label: branch.name,
   }));
@@ -182,13 +196,13 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSubmit, onCancel }) => {
 
         <Select
           id="branch"
-          name="branch"
+          name="branch_id"
           label="Branch"
-          value={formData.branch}
-          onChange={(value) => handleSelectChange('branch', value)}
+          value={formData.branch_id}
+          onChange={(value) => handleSelectChange('branch_id', value)}
           options={branchOptions}
           required
-          error={errors.branch}
+          error={errors.branch_id}
         />
 
         <div>

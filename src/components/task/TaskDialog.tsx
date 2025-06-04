@@ -16,8 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-import { Task, TaskStatus, TaskPriority, TaskCategory } from '../../types';
-import { toast } from 'sonner';
+import { Task, TaskStatus, TaskPriority, TaskCategory } from '../../types/api';
+// import { toast } from 'sonner';
 import { Trash, Clock } from 'lucide-react';
 import {
   Form,
@@ -73,8 +73,8 @@ export function TaskDialog({
         description: task.description || '',
         status: task.status,
         priority: task.priority || 'medium',
-        category: task.category || 'preparation',
-        estimatedTime: task.estimatedTime || 2,
+        category: task.category || 'order',
+        estimatedTime: task.estimated_time || 2,
         deadline: task.deadline || '',
         assignee: task.assignee || '',
         subtasks: [],
@@ -85,7 +85,7 @@ export function TaskDialog({
         description: '',
         status: 'todo',
         priority: 'medium',
-        category: 'preparation',
+        category: 'order',
         estimatedTime: 2,
         deadline: '',
         assignee: '',
@@ -112,7 +112,7 @@ export function TaskDialog({
         title: values.title,
         description: values.description,
         status: values.status,
-        priority: values.priority,
+        priority: values.priority as TaskPriority,
         category: values.category,
         estimatedTime: values.estimatedTime,
         // dueDate: values.dueDate || undefined,
@@ -121,14 +121,14 @@ export function TaskDialog({
         subtasks: [],
         updated_at: now,
       });
-      toast.success('Task updated successfully');
+      // toast.success('Task updated successfully');
     } else {
       onAddTask({
         id: uuidv4(),
         title: values.title,
         description: values.description,
         status: values.status,
-        priority: values.priority,
+        priority: values.priority as TaskPriority,
         category: values.category,
         estimatedTime: values.estimatedTime,
         // dueDate: values.dueDate || undefined,
@@ -141,7 +141,7 @@ export function TaskDialog({
         created_at: now,
         updated_at: now,
       });
-      toast.success('Task added successfully');
+      // toast.success('Task added successfully');
     }
 
     onClose();
@@ -150,7 +150,7 @@ export function TaskDialog({
   const handleDelete = () => {
     if (task) {
       onDeleteTask(task.id);
-      toast.success('Task deleted successfully');
+      // toast.success('Task deleted successfully');
       onClose();
     }
   };
@@ -261,10 +261,12 @@ export function TaskDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="preparation">Preparation</SelectItem>
-                        <SelectItem value="cooking">Cooking</SelectItem>
-                        <SelectItem value="service">Service</SelectItem>
-                        <SelectItem value="cleaning">Cleaning</SelectItem>
+                        <SelectItem value="order">Order</SelectItem>
+                        <SelectItem value="product">Product</SelectItem>
+                        <SelectItem value="design">Design</SelectItem>
+                        <SelectItem value="production">Production</SelectItem>
+                        <SelectItem value="finishing">Finishing</SelectItem>
+                        <SelectItem value="ingredient">Ingredient</SelectItem>
                         <SelectItem value="other">Other</SelectItem>
                       </SelectContent>
                     </Select>

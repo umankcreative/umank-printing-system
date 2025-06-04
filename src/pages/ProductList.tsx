@@ -1,158 +1,267 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, LayoutGrid, Table as TableIcon } from 'lucide-react';
-import { useProductContext } from '../context/ProductContext';
+import { Plus, LayoutGrid, Table as TableIcon, Package } from 'lucide-react';
 import ProductTable from '../components/ProductTable';
 import { ToggleGroup, ToggleGroupItem } from '../components/ui/toggle-group';
 import ProductCard from '../components/ProductCard';
 import ProductFilters from '../components/ProductFilters';
+import { productService } from '../services/productService';
+import * as categoryService from '../services/categoryService';
+import Pagination from '../components/Pagination';
+import { Product } from '../types/api';
+import { toast } from 'sonner';
+const backendBaseURL = 'http://127.0.0.1:8000';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '../components/ui/dialog';
+import { Button } from '../components/ui/button';
 
 const ProductList: React.FC = () => {
-  const { products, deleteProduct } = useProductContext();
+  const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+  const [totalItems, setTotalItems] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const itemsPerPage = 12;
 
-  // Filter products based on search term
-  const filteredProducts = useMemo(() => 
-    products.filter((product) => {
-      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = !categoryFilter || product.category === categoryFilter;
-      const matchesStatus = statusFilter === '' || product.isActive === (statusFilter === 'true');
-      
-      return matchesSearch && matchesCategory && matchesStatus;
-    }),
-    [products, searchTerm, categoryFilter, statusFilter]
-  );
+  // Fetch products from API
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const [response, categories] = await Promise.all([
+          productService.getProducts({
+            page: currentPage,
+            per_page: itemsPerPage,
+            search: searchTerm || undefined,
+            category: categoryFilter || undefined,
+            is_active: statusFilter ? statusFilter === 'true' : undefined,
+          }),
+          categoryService.getCategoriesByType('product')
+        ]);
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
+        // Map API response to Product type while keeping the structure simple
+        const mappedProducts = response.data.map(p => ({
+          ...p,
+          description: p.description || '',
+          min_order: p.min_order || 0,
+          stock: p.stock || 0,
+          is_active: p.is_active ?? true,
+          paper_type: p.paper_type || null,
+          paper_grammar: p.paper_grammar || null,
+          print_type: p.print_type || "Full Color",
+          finishing_type: p.finishing_type || 'Tanpa Finishing',
+          custom_finishing: p.custom_finishing || null,
+          is_paper_enabled: p.is_paper_enabled ?? false,
+          is_printing_enabled: p.is_printing_enabled ?? false,
+          is_finishing_enabled: p.is_finishing_enabled ?? false,
+          category: categories.find(cat => cat.id === p.category_id) ? {
+            id: p.category_id,
+            name: categories.find(cat => cat.id === p.category_id)?.name || 'Unknown Category',
+            description: categories.find(cat => cat.id === p.category_id)?.description || '',
+            slug: categories.find(cat => cat.id === p.category_id)?.name.toLowerCase().replace(/\s+/g, '-') || '',
+            type: 'product',
+            is_active: categories.find(cat => cat.id === p.category_id)?.is_active || true,
+            created_at: categories.find(cat => cat.id === p.category_id)?.created_at || new Date().toISOString(),
+            updated_at: categories.find(cat => cat.id === p.category_id)?.updated_at || new Date().toISOString()
+          } : undefined,
+          thumbnail_id: p.thumbnail?.url || p.thumbnail_id || null,
+          additional_images: p.additional_images?.map(img => ({
+            id: img.id,
+            url: `${backendBaseURL}/${img.url}`,
+            is_primary: img.is_primary,
+            created_at: img.created_at,
+            updated_at: img.updated_at
+          })) || []
+        }));
+        setProducts(mappedProducts);
+        setTotalItems(response.meta.total);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    fetchProducts();
+  }, [currentPage, searchTerm, categoryFilter, statusFilter]);
+
+  const handleDeleteClick = (product: Product) => {
+    setProductToDelete(product);
+    setIsDeleteDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      deleteProduct(id);
+  const handleConfirmDelete = async () => {
+    if (!productToDelete) return;
+
+    try {
+      await productService.deleteProduct(productToDelete.id);
+      
+      // Refresh the product list
+      const [response, categories] = await Promise.all([
+        productService.getProducts({
+          page: currentPage,
+          per_page: itemsPerPage,
+          search: searchTerm || undefined,
+          category: categoryFilter || undefined,
+          is_active: statusFilter ? statusFilter === 'true' : undefined,
+        }),
+        categoryService.getCategoriesByType('product')
+      ]);
+
+      // Map API response to Product type while keeping the structure simple
+      const mappedProducts = response.data.map(p => ({
+        ...p,
+        description: p.description || '',
+        min_order: p.min_order || 0,
+        stock: p.stock || 0,
+        is_active: p.is_active ?? true,
+        paper_type: p.paper_type || null,
+        paper_grammar: p.paper_grammar || null,
+        print_type: p.print_type || "Full Color",
+        finishing_type: p.finishing_type || 'Tanpa Finishing',
+        custom_finishing: p.custom_finishing || null,
+        is_paper_enabled: p.is_paper_enabled ?? false,
+        is_printing_enabled: p.is_printing_enabled ?? false,
+        is_finishing_enabled: p.is_finishing_enabled ?? false,
+        category: categories.find(cat => cat.id === p.category_id) ? {
+          id: p.category_id,
+          name: categories.find(cat => cat.id === p.category_id)?.name || 'Unknown Category',
+          description: categories.find(cat => cat.id === p.category_id)?.description || '',
+          slug: categories.find(cat => cat.id === p.category_id)?.name.toLowerCase().replace(/\s+/g, '-') || '',
+          type: 'product',
+          is_active: categories.find(cat => cat.id === p.category_id)?.is_active || true,
+          created_at: categories.find(cat => cat.id === p.category_id)?.created_at || new Date().toISOString(),
+          updated_at: categories.find(cat => cat.id === p.category_id)?.updated_at || new Date().toISOString()
+        } : undefined,
+        thumbnail_id: p.thumbnail?.url || p.thumbnail_id || null,
+        additional_images: p.additional_images?.map(img => ({
+          id: img.id,
+          url: `${backendBaseURL}/${img.url}`,
+          is_primary: img.is_primary,
+          created_at: img.created_at,
+          updated_at: img.updated_at
+        })) || []
+      }));
+      
+      setProducts(mappedProducts);
+      setTotalItems(response.meta.total);
+      toast.success('Product deleted successfully');
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      let errorMessage = 'Failed to delete product';
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage, {
+        duration: 5000
+      });
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setProductToDelete(null);
     }
   };
 
-  const handleCategoryChange = (value: string) => {
-    setCategoryFilter(value);
-    setCurrentPage(1); // Reset to first page when filter changes
-  };
-
-  const handleStatusChange = (value: string) => {
-    setStatusFilter(value);
-    setCurrentPage(1); // Reset to first page when filter changes
-  };
-
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Products</h1>
-          <p className="mt-1 text-sm text-gray-600">
-            Manage Products for Umank Creative.
-          </p>
-        </div>
-        <ToggleGroup
-          type="single"
-          value={viewMode}
-          onValueChange={(value) => value && setViewMode(value as 'grid' | 'table')}
-          className="border rounded-md ml-auto"
-        >
-          <ToggleGroupItem value="grid" aria-label="Grid view">
-            <LayoutGrid size={16} />
-          </ToggleGroupItem>
-          <ToggleGroupItem value="table" aria-label="Table view">
-            <TableIcon size={16} />
-          </ToggleGroupItem>
-        </ToggleGroup>
-              
-                <Link
-                  to="/admin/products/create"
-                  className="btn btn-outline-primary flex items-center justify-center"
-                >
-                  <Plus size={20} className="mr-2" /> Tambah Produk
-                </Link>
-        
-        
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold flex items-center gap-2">
+          <Package className="h-6 w-6" />Products</h1>
+        <Link to="/admin/products/create" className="btn btn-primary flex items-center">
+          <Plus className="w-5 h-5 mr-1" />
+          Add Product
+        </Link>
       </div>
 
-      <div className="mb-6 flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <ProductFilters
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
           categoryFilter={categoryFilter}
-          onCategoryChange={handleCategoryChange}
+          onCategoryChange={setCategoryFilter}
           statusFilter={statusFilter}
-          onStatusChange={handleStatusChange}
-          className="flex-1 mr-4"
+          onStatusChange={setStatusFilter}
         />
-        
 
-        
+        <ToggleGroup type="single" value={viewMode} onValueChange={(value) => value && setViewMode(value as 'grid' | 'table')}>
+          <ToggleGroupItem value="grid" aria-label="Grid view">
+            <LayoutGrid className="h-4 w-4" />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="table" aria-label="Table view">
+            <TableIcon className="h-4 w-4" />
+          </ToggleGroupItem>
+        </ToggleGroup>
       </div>
 
-      {viewMode === 'table' ? (
-        <ProductTable
-          products={filteredProducts}
-          currentPage={currentPage}
-          itemsPerPage={itemsPerPage}
-          onDelete={handleDelete}
-        />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.slice(startIndex, endIndex).map((product) => (
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        </div>
+      ) : products.length === 0 ? (
+        <div className="text-center py-8">
+          <p className="text-gray-500">No products found.</p>
+        </div>
+      ) : viewMode === 'grid' ? (
+        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+          {products.map((product) => (
             <ProductCard
               key={product.id}
               product={product}
-              onDelete={handleDelete}
+              onDelete={handleDeleteClick}
             />
           ))}
         </div>
+      ) : (
+        <ProductTable
+          products={products}
+          currentPage={currentPage}
+          itemsPerPage={itemsPerPage}
+          onDelete={handleDeleteClick}
+        />
       )}
 
-      {totalPages > 1 && (
-        <div className="mt-6 flex justify-center">
-          <nav className="flex items-center space-x-2">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="px-3 py-1 rounded-md border hover:bg-gray-50 disabled:opacity-50"
-            >
-              Previous
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => handlePageChange(page)}
-                className={`px-3 py-1 rounded-md border ${
-                  currentPage === page
-                    ? 'bg-indigo-600 text-white'
-                    : 'hover:bg-gray-50'
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="px-3 py-1 rounded-md border hover:bg-gray-50 disabled:opacity-50"
-            >
-              Next
-            </button>
-          </nav>
+      {totalItems > itemsPerPage && (
+        <div className="mt-6">
+          <Pagination
+            currentPage={currentPage}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Product</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this product? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleConfirmDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
