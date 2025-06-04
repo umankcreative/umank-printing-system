@@ -1,5 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
+
 const api = axios.create({
   baseURL: 'http://127.0.0.1:8000/api',
   headers: {
@@ -69,7 +70,7 @@ api.interceptors.response.use(
       if (refreshToken) {
         try {
           // Try to refresh the token
-          const response = await axios.post('http://192.168.1.43:8000/api/auth/refresh', {
+          const response = await axios.post('http://127.0.0.1:8000/api/auth/refresh', {
             refresh_token: refreshToken
           });
           
