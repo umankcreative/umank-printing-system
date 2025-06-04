@@ -21,9 +21,9 @@ const Hero: React.FC = () => {
               </span>
             </h1>
             <p className="text-lg text-gray-700 mb-8 leading-relaxed">
-              Umank Creative delivers premium quality printing services with a
-              perfect blend of creativity and precision. Transform your ideas
-              into stunning printed materials.
+            Umank Creative memberikan layanan percetakan berkualitas premium dengan perpaduan sempurna antara kreativitas dan ketepatan. Ubah ide Anda menjadi materi cetak yang memukau.
+
+Mulai
             </p>
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
               <button className="px-6 py-3 bg-cyan-500 text-white font-medium rounded-lg hover:bg-cyan-600 transition-colors shadow-lg hover:shadow-xl flex items-center justify-center">
