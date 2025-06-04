@@ -15,7 +15,7 @@ const testimonials: Testimonial[] = [
     role: 'Marketing Director',
     company: 'Elevate Studios',
     content:
-      'Umank Creative has been our printing partner for over 3 years. Their attention to detail and color accuracy is unmatched. Our marketing materials always come out perfect!',
+      'Umank Creative telah menjadi mitra cetak kami selama lebih dari 3 tahun. Perhatian mereka terhadap detail dan akurasi warna tidak ada lawannya. Material pemasaran kami selalu keluar sempurna!',
     rating: 5,
   },
   {
@@ -23,7 +23,7 @@ const testimonials: Testimonial[] = [
     role: 'Event Coordinator',
     company: 'Global Events',
     content:
-      'We needed rush printing for a major conference, and Umank delivered everything ahead of schedule without compromising on quality. Truly impressed with their service.',
+      'Kami membutuhkan cetak cepat untuk konferensi besar, dan Umank menyelesaikan semuanya lebih awal dari jadwal tanpa mengurangi kualitas. Sangat terkesan dengan layanannya.',
     rating: 5,
   },
   {
@@ -31,7 +31,7 @@ const testimonials: Testimonial[] = [
     role: 'Brand Manager',
     company: 'Fusion Brands',
     content:
-      'The quality of their printing is excellent. Our catalog colors were exactly as designed, and the paper quality was superior. Will definitely use their services again.',
+      'Kualitas cetak mereka sangat baik. Warna katalog kami persis seperti yang dirancang, dan kualitas kertas sangat superior. Pasti akan menggunakan layanannya lagi.',
     rating: 4,
   },
 ];
@@ -59,11 +59,10 @@ const Testimonials: React.FC = () => {
           data-aos-delay="200"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            What Our Clients Say
+            Apa yang Klien Kami Katakan
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            We take pride in delivering exceptional printing services that
-            exceed our clients' expectations.
+            Kami bangga dengan memberikan layanan cetak yang luar biasa yang melebihi harapan klien kami.
           </p>
         </div>
 
@@ -108,7 +107,7 @@ const Testimonials: React.FC = () => {
           data-aos-delay="800"
         >
           <p className="text-gray-600 font-medium mb-2">
-            Trusted by 500+ businesses
+            Diandalkan oleh 500+ bisnis
           </p>
           <div className="flex flex-wrap justify-center gap-8 mt-6">
             {[

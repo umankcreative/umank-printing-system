@@ -155,6 +155,8 @@ export interface Ingredient {
 // }
 
 export interface Order {
+  customer(customer: any): unknown;
+  items(items: any): unknown;
   id: string;
   customer_id: string;
   branch_id: string;

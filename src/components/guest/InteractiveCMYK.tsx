@@ -44,12 +44,10 @@ const InteractiveCMYK: React.FC = () => {
           data-aos-delay="200"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Experience CMYK Color Model
+            Pengalaman Model Warna CMYK
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            CMYK (Cyan, Magenta, Yellow, Key/Black) is the color model used in
-            color printing. Adjust the sliders to see how different combinations
-            create various colors.
+            CMYK (Cyan, Magenta, Yellow, Key/Black) adalah model warna yang digunakan dalam cetak warna. Atur slider untuk melihat bagaimana kombinasi yang berbeda membuat berbagai warna.
           </p>
         </div>
 
@@ -189,11 +187,10 @@ const InteractiveCMYK: React.FC = () => {
           data-aos-delay="600"
         >
           <p className="text-lg text-gray-700 mb-6">
-            Our professional printing services utilize the CMYK color model to
-            produce vibrant, accurate colors for all your printing needs.
+            Layanan cetak profesional kami menggunakan model warna CMYK untuk menghasilkan warna yang cerah dan akurat untuk semua kebutuhan cetak Anda.
           </p>
           <button className="px-6 py-3 bg-gradient-to-r from-cyan-500 via-fuchsia-500 to-yellow-400 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-            Learn More About Our Color Management
+            Pelajari Lebih Lanjut tentang Manajemen Warna
           </button>
         </div>
       </div>

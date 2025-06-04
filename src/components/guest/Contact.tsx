@@ -11,11 +11,10 @@ const Contact: React.FC = () => {
           data-aos-delay="200"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Get In Touch
+            Hubungi Kami
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Ready to start your printing project? Contact us today for a free
-            consultation and quote.
+            Siap untuk memulai proyek cetak Anda? Hubungi kami hari ini untuk konsultasi gratis dan penawaran.
           </p>
         </div>
 
@@ -26,7 +25,7 @@ const Contact: React.FC = () => {
             data-aos-delay="400"
           >
             <h3 className="text-2xl font-semibold text-gray-900 mb-6">
-              Contact Information
+              Informasi Kontak
             </h3>
 
             <div className="space-y-6">
@@ -39,9 +38,9 @@ const Contact: React.FC = () => {
                 <div>
                   <h4 className="font-medium text-gray-900 mb-1">Address</h4>
                   <p className="text-gray-600">
-                    Jl. Raya Kuta No.88, Kuta
+                    Jl. Gatot Subroto, Gg.Mesjid 100 Meter dari depan gang
                     <br />
-                    Badung, Bali 80361
+                    Samarinda, Kalimantan Timur 75111
                   </p>
                 </div>
               </div>
@@ -53,8 +52,8 @@ const Contact: React.FC = () => {
               >
                 <Phone className="h-6 w-6 text-cyan-500 mt-1 mr-4" />
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-1">Phone</h4>
-                  <p className="text-gray-600">+62 361 4755575</p>
+                  <h4 className="font-medium text-gray-900 mb-1">Telepon</h4>
+                  <p className="text-gray-600">+62 812 55691234</p>
                 </div>
               </div>
 
@@ -66,25 +65,25 @@ const Contact: React.FC = () => {
                 <Mail className="h-6 w-6 text-cyan-500 mt-1 mr-4" />
                 <div>
                   <h4 className="font-medium text-gray-900 mb-1">Email</h4>
-                  <p className="text-gray-600">info@umank.com</p>
+                  <p className="text-gray-600">umank@umank.com</p>
                 </div>
               </div>
             </div>
 
             <div className="mt-8" data-aos="fade-up" data-aos-delay="900">
-              <h4 className="font-medium text-gray-900 mb-4">Business Hours</h4>
+              <h4 className="font-medium text-gray-900 mb-4">Jam Operasional</h4>
               <ul className="space-y-2 text-gray-600">
                 <li className="flex justify-between">
-                  <span>Monday - Friday:</span>
-                  <span>8:00 AM - 5:00 PM</span>
+                  <span>Senin - Jumat:</span>
+                  <span>09:00 - 18:00</span>
                 </li>
                 <li className="flex justify-between">
-                  <span>Saturday:</span>
-                  <span>9:00 AM - 2:00 PM</span>
+                  <span>Sabtu:</span>
+                  <span>09:00 - 18:00</span>
                 </li>
                 <li className="flex justify-between">
-                  <span>Sunday:</span>
-                  <span>Closed</span>
+                  <span>Minggu:</span>
+                  <span>Tutup (Via WA Saja)</span>
                 </li>
               </ul>
             </div>
@@ -98,13 +97,13 @@ const Contact: React.FC = () => {
                     htmlFor="name"
                     className="block text-sm font-medium text-gray-700 mb-1"
                   >
-                    Full Name
+                    Nama Lengkap
                   </label>
                   <input
                     type="text"
                     id="name"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                    placeholder="Your name"
+                    placeholder="Nama Lengkap"
                   />
                 </div>
                 <div>
@@ -112,13 +111,13 @@ const Contact: React.FC = () => {
                     htmlFor="email"
                     className="block text-sm font-medium text-gray-700 mb-1"
                   >
-                    Email Address
+                    Email
                   </label>
                   <input
                     type="email"
                     id="email"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                    placeholder="your.email@example.com"
+                    placeholder="Email"
                   />
                 </div>
               </div>
@@ -128,13 +127,13 @@ const Contact: React.FC = () => {
                   htmlFor="phone"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Phone Number
+                  No. Telepon
                 </label>
                 <input
                   type="tel"
                   id="phone"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                  placeholder="+62 xxx-xxxx-xxxx"
+                  placeholder="No. Telepon"
                 />
               </div>
 
@@ -143,20 +142,20 @@ const Contact: React.FC = () => {
                   htmlFor="service"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Service Interested In
+                  Layanan yang diminati
                 </label>
                 <select
                   id="service"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                 >
-                  <option value="">Select a service</option>
-                  <option value="digital-printing">Digital Printing</option>
-                  <option value="offset-printing">Offset Printing</option>
-                  <option value="packaging">Packaging Solutions</option>
-                  <option value="large-format">Large Format</option>
-                  <option value="corporate-identity">Corporate Identity</option>
-                  <option value="finishing">Finishing Services</option>
-                  <option value="other">Other</option>
+                  <option value="">Pilih Layanan</option>
+                  <option value="digital-printing">Cetak Digital</option>
+                  <option value="offset-printing">Cetak Offset</option>
+                  <option value="packaging">Pengemasan</option>
+                  <option value="large-format">Format Besar</option>
+                  <option value="corporate-identity">Identitas Perusahaan</option>
+                  <option value="finishing">Finishing</option>
+                  <option value="other">Lainnya</option>
                 </select>
               </div>
 
@@ -165,13 +164,13 @@ const Contact: React.FC = () => {
                   htmlFor="message"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Project Details
+                  Detail Proyek
                 </label>
                 <textarea
                   id="message"
                   rows={5}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                  placeholder="Tell us about your project..."
+                  placeholder="Tulis tentang proyek Anda..."
                 ></textarea>
               </div>
 
@@ -179,7 +178,7 @@ const Contact: React.FC = () => {
                 type="submit"
                 className="w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white font-medium rounded-lg flex items-center justify-center hover:from-cyan-600 hover:to-fuchsia-600 transition-colors"
               >
-                Send Message
+                Kirim Pesan
                 <Send className="ml-2 h-5 w-5" />
               </button>
             </form>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Printer } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import Logo from '../Logo';
 import { SparklesText } from '../ui/Sparkles-text';
@@ -73,7 +73,7 @@ const Header: React.FC = () => {
           <div className="fixed inset-0 bg-white z-50 flex flex-col">
             <div className="flex justify-between items-center p-4 border-b">
               <div className="flex items-center">
-                <Printer className="h-6 w-6 text-cyan-500 mr-2" />
+                <Logo width={'30pt'} height={'30pt'} color={'#6B48E5'} />
                 <span className="text-xl font-bold text-gray-800">
                   Umank Creative
                 </span>

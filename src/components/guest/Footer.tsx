@@ -26,8 +26,7 @@ const Footer: React.FC = () => {
               <span className="text-xl font-bold">Umank Creative</span>
             </div>
             <p className="text-gray-400 mb-6">
-              Premium quality printing services with a perfect blend of
-              creativity and precision.
+              Solusi cetak premium dengan kombinasi kreativitas dan presisi yang sempurna.
             </p>
             <div className="flex space-x-4">
               <a
@@ -59,7 +58,7 @@ const Footer: React.FC = () => {
 
           <div data-aos="fade-up" data-aos-delay="400">
             <h3 className="text-lg font-semibold mb-4 text-white">
-              Quick Links
+              Tautan Cepat
             </h3>
             <ul className="space-y-3">
               {['Home', 'About Us', 'Services', 'Portfolio', 'Contact'].map(
@@ -105,26 +104,25 @@ const Footer: React.FC = () => {
               Newsletter
             </h3>
             <p className="text-gray-400 mb-4">
-              Subscribe to our newsletter for the latest updates and offers.
+              Berlangganan newsletter kami untuk mendapatkan informasi terbaru dan penawaran terbaik.
             </p>
             <form className="mb-4">
               <div className="flex">
                 <input
                   type="email"
-                  placeholder="Your email address"
+                  placeholder="Email"
                   className="px-4 py-2 rounded-l-lg w-full focus:outline-none text-gray-900"
                 />
                 <button
                   type="submit"
                   className="bg-cyan-500 text-white px-4 py-2 rounded-r-lg hover:bg-cyan-600 transition-colors"
                 >
-                  Subscribe
+                  Berlangganan
                 </button>
               </div>
             </form>
             <p className="text-gray-500 text-sm">
-              By subscribing, you agree to our Privacy Policy and consent to
-              receive updates from our company.
+              Dengan berlangganan, Anda setuju dengan Kebijakan Privasi kami dan menyetujui untuk menerima pembaruan dari perusahaan kami.
             </p>
           </div>
         </div>
@@ -137,10 +135,10 @@ const Footer: React.FC = () => {
           </p>
           <div className="flex space-x-6">
             <a href="#" className="text-gray-500 hover:text-gray-400 text-sm">
-              Privacy Policy
+              Kebijakan Privasi
             </a>
             <a href="#" className="text-gray-500 hover:text-gray-400 text-sm">
-              Terms of Service
+              Syarat dan Ketentuan
             </a>
             <a href="#" className="text-gray-500 hover:text-gray-400 text-sm">
               Cookie Policy

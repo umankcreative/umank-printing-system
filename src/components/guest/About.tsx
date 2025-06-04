@@ -35,10 +35,10 @@ const About: React.FC = () => {
           data-aos-delay="200"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            About Umank Creative
+            Tentang Umank Creative
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Your trusted partner in premium printing solutions since 2005
+            Mitra terpercaya anda dalam solusi cetak premium sejak 2009
           </p>
         </div>
 
@@ -50,8 +50,8 @@ const About: React.FC = () => {
               className="rounded-lg shadow-xl"
             />
             <div className="absolute -bottom-6 -right-6 bg-white p-4 rounded-lg shadow-lg">
-              <p className="text-2xl font-bold text-gray-900">18+</p>
-              <p className="text-sm text-gray-600">Years Experience</p>
+              <p className="text-2xl font-bold text-gray-900">16+</p>
+              <p className="text-sm text-gray-600">Tahun Pengalaman</p>
             </div>
           </div>
 
@@ -61,16 +61,10 @@ const About: React.FC = () => {
                 Excellence in Every Print
               </h3>
               <p className="text-gray-600 mb-6">
-                At Umank Creative, we combine artistic vision with technical
-                expertise to deliver exceptional printing solutions. Our
-                commitment to quality and innovation has made us a trusted
-                partner for businesses across Indonesia.
+                Di Umank Creative, kami menggabungkan visi artistik dengan keahlian teknis untuk menyediakan solusi cetak yang luar biasa. Komitmen kami untuk kualitas dan inovasi telah membuat kami mitra terpercaya bagi berbagai bisnis di Indonesia.
               </p>
               <p className="text-gray-600">
-                With state-of-the-art equipment and a team of skilled
-                professionals, we handle projects of any scale with precision
-                and care. From concept to completion, we ensure every detail
-                meets our high standards of excellence.
+                Dengan peralatan teknologi terkini dan tim profesional yang terampil, kami menangani proyek dengan skala apa saja dengan presisi dan perhatian. Dari konsep hingga penyelesaian, kami memastikan setiap detail memenuhi standar kualitas yang tinggi.
               </p>
             </div>
 
