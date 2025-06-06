@@ -2,7 +2,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api',
+  baseURL: 'https://4bfb-125-160-114-11.ngrok-free.app/api',
   headers: {
     'Content-Type': 'application/json',
   },
