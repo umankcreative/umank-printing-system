@@ -59,7 +59,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred while fetching data';
       setError(errorMessage);
-      console.error(errorMessage);
+      console.error(err);
       toast({
         title: 'Error',
         description: errorMessage,

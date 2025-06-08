@@ -47,13 +47,13 @@ const IngredientList: React.FC = () => {
       setError(null);
       const response = await ingredientService.getIngredients({
         page,
-        search: searchTerm || undefined
+        search: searchTerm || ''
       });
       
       console.log('API Response:', response);
       
       // Transform API response to match local Ingredient type
-      const transformedIngredients: Ingredient[] = response.data.map(apiIngredient => {
+      const transformedIngresetIngredientsdients: Ingredient[] = response.data.map(apiIngredient => {
         console.log('Task Templates for', apiIngredient.name, ':', apiIngredient.task_templates);
         return {
           id: apiIngredient.id,
@@ -79,6 +79,7 @@ const IngredientList: React.FC = () => {
       toast.error('Failed to fetch ingredients');
     } finally {
       setIsLoading(false);
+      setIngredients([]);
     }
   };
 
@@ -292,7 +293,8 @@ const IngredientList: React.FC = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {ingredients.map((ingredient) => (
+              
+              {ingredients && ingredients.map((ingredient) => (
                 <tr key={ingredient.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-indigo-600">

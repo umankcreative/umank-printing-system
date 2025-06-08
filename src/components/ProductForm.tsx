@@ -39,7 +39,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
         setCategories(productCategories);
       } catch (error) {
         console.error('Error fetching categories:', error);
-        toast.error('Gagal mengambil kategori');
+        toast('Gagal mengambil kategori');
       } finally {
         setLoading(false);
       }

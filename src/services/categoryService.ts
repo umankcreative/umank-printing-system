@@ -3,6 +3,10 @@ import api from '../lib/axios';
 
 interface CategoryResponse {
   status: string;
+  slug: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
   data: Category[];
 }
 
@@ -20,7 +24,7 @@ export const getCategories = async (): Promise<Category[]> => {
     categoriesCache = response.data.data;
     return categoriesCache;
   }
-  throw new Error('Gagal mengambil kategori');
+  throw new Error(`Failed to fetch categories: ${response.data.status}`);
 };
 
 export const getCategoriesByType = async (type: 'product' | 'form'): Promise<Category[]> => {

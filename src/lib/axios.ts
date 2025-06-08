@@ -2,11 +2,18 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 
 const api = axios.create({
-  baseURL: 'https://4bfb-125-160-114-11.ngrok-free.app/api',
+  baseURL: 'https://d2f2-114-10-138-239.ngrok-free.app/api',
   headers: {
+    'Accept': 'application/json',
     'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true', // Skip ngrok browser warning
   },
+  //withCredentials: true,  //Enable cookies to be sent with requests
+  // timeout: 10000, // Set a timeout for requests
 });
+
+// Add interceptor to handle OPTIONS preflight
+
 
 // Request interceptor
 api.interceptors.request.use(
@@ -70,7 +77,7 @@ api.interceptors.response.use(
       if (refreshToken) {
         try {
           // Try to refresh the token
-          const response = await axios.post('https://4bfb-125-160-114-11.ngrok-free.app/api/auth/refresh', {
+          const response = await axios.post('http://4bfb-125-160-114-11.ngrok-free.app/api/auth/refresh', {
             refresh_token: refreshToken
           });
           

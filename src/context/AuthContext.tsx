@@ -37,42 +37,50 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
 
   const checkAuth = async () => {
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    
-    if (!storedToken || !storedUser) {
-      setIsAuthenticated(false);
-      setIsLoading(false);
-      return false;
-    }
-
     try {
-      // Verify token with the backend
-      const response = await api.get('/auth/verify');
-      const { authenticated, user: verifiedUser } = response.data;
+      const token = localStorage.getItem('token');
       
-      if (authenticated && verifiedUser) {
-        setToken(storedToken);
-        setUser(verifiedUser);
-        setIsAuthenticated(true);
-        setIsLoading(false);
-        return true;
-      } else {
-        throw new Error('Token verification failed');
+      if (!token) {
+        setIsAuthenticated(false);
+        setLoading(false);
+        return;
+      }
+
+      // Try to refresh token first
+      const refreshToken = localStorage.getItem('refresh_token');
+      if (!refreshToken) {
+        // If no refresh token, try to use existing token
+        const response = await api.get('/auth/verify', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        if (response.data.valid) {
+          setIsAuthenticated(true);
+          setUser(response.data.user);
+        } else {
+          handleLogout();
+        }
       }
     } catch (error) {
-      console.error('Token verification failed:', error);
-      logout();
-      setIsLoading(false);
-      return false;
+      console.error('Auth check failed:', error);
+      handleLogout();
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('refresh_token');
+    setIsAuthenticated(false);
+    setUser(null);
+    navigate('/login');
   };
 
   useEffect(() => {
@@ -83,25 +91,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('token', newToken);
     localStorage.setItem('refresh_token', refreshToken);
     localStorage.setItem('user', JSON.stringify(userData));
-    setToken(newToken);
     setUser(userData);
     setIsAuthenticated(true);
-    setIsLoading(false);
-  };
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('user');
-    setToken(null);
-    setUser(null);
-    setIsAuthenticated(false);
-    setIsLoading(false);
-    navigate('/login');
+    setLoading(false);
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, token, user, login, logout, checkAuth, isLoading }}>
+    <AuthContext.Provider value={{ isAuthenticated, token: null, user, login, logout: handleLogout, checkAuth, isLoading: loading }}>
       {children}
     </AuthContext.Provider>
   );
@@ -113,4 +109,4 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}; 
+};
