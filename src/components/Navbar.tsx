@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import Logo from './Logo';
 
 
@@ -28,12 +29,14 @@ interface NavItem {
   subMenu?: NavItem[];
 }
 
+
+
 const navigation: NavItem[] = [
     {
         name: 'Dashboard',
         icon: <Home size={20} />,
         path: '/admin/',
-        roles: ['admin'],
+        roles: ['admin', 'manager toko', 'admin gudang', 'kasir'],
       },
  
   {
@@ -67,7 +70,7 @@ const navigation: NavItem[] = [
     name: 'Todo',
     icon: <CalendarClock size={20} />,
     path: '/admin/tasks',
-    roles: ['admin'],
+    roles: ['admin','kasir', 'manager toko'],
   },
   {
     name: 'Users',
@@ -96,23 +99,20 @@ const navigation: NavItem[] = [
 ];
 
 
-  // interface SidebarProps {
-  //   userRole: string;
-  //   userName: string;
-  // }
 
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
 
-  // const filteredNavigation = useMemo(() => {
-  //   return navigation.filter((item) => item.roles.includes(userRole));
-  // }, [userRole]);
+  const filteredNavigation = useMemo(() => {
+    return navigation.filter((item) => item.roles.includes(user?.role || 'kasir'));
+  }, [user]);
 
   return (
     <nav className="sticky top-0 bg-purple-700 text-white shadow-md">
@@ -129,7 +129,7 @@ const Navbar: React.FC = () => {
           {/* Desktop menu */}
           
           <div className="hidden md:flex space-x-4">
-            {navigation.map((item) => (
+            {filteredNavigation.map((item) => (
               <Link
                 key={item.name}
                 to={item.path}
@@ -140,51 +140,17 @@ const Navbar: React.FC = () => {
               > {item.name}
               </Link>
             ))}
-            {/* <Link
-              to="/admin/ingredients"
-              className="px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
-            >
-              Bahan
-            </Link>
-            <Link
-              to="/admin/products"
-              className="px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
-            >
-              Produk
-            </Link>
-            <Link
-              to="/admin/orders"
-              className="px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
-            >
-              Order
-            </Link>
-            <Link
-              to="/admin/customers"
-              className="px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
-            >
-              Pelanggan
-            </Link>
-            <Link
-              to="/admin/tasks"
-              className="px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
-            >
-              Todo
-            </Link>
-            <Link
-              to="/admin/users"
-              className="px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
-            >
-              Users
-            </Link>
-            <Link
-              to="/admin/form-management"
-              className="px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
-            >
-              Form Management
-            </Link>
-            <Link to="/admin/settings" className="px-3 py-2 rounded-md hover:bg-purple-600 transition-colors flex items-center">
-              Setting
-            </Link> */}
+              <div className="flex items-center">
+              <img
+                className="w-10 h-10 rounded-full object-cover"
+                src={user?.avatar || 'https://via.placeholder.com/150'}
+                alt="User avatar"
+              />
+              <div className="ml-3">
+                <p className="text-sm font-medium text-white">{user?.name}</p>
+                <p className="text-xs text-gray-100 capitalize">{user?.role}</p>
+              </div>
+            </div>
           </div>
 
           {/* Mobile menu button */}
@@ -199,69 +165,19 @@ const Navbar: React.FC = () => {
       {/* Mobile menu */}
       {isOpen && (
         <div className="md:hidden bg-purple-800 pb-3 px-4">
-          <Link
-            to="/admin"
-            className="block px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
-            onClick={toggleMenu}
-          >
-            Dashboard
-          </Link>
-          <Link
-            to="/admin/ingredients"
-            className="block px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
-            onClick={toggleMenu}
-          >
-            Bahan
-          </Link>
-          <Link
-            to="/admin/products"
-            className="block px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
-            onClick={toggleMenu}
-          >
-            Produk
-          </Link>
-          <Link
-            to="/admin/orders"
-            className="block px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
-            onClick={toggleMenu}
-          >
-            Order
-          </Link>
-          <Link
-            to="/admin/customers"
-            className="block px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
-            onClick={toggleMenu}
-          >
-            Pelanggan
-          </Link>
-          <Link
-            to="/admin/tasks"
-            className="block px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
-            onClick={toggleMenu}
-          >
-            Todo
-          </Link>
-          <Link
-            to="/admin/users"
-            className="block px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
-            onClick={toggleMenu}
-          >
-            Users
-          </Link>
-          <Link
-            to="/admin/form-management"
-            className="block px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
-            onClick={toggleMenu}
-          >
-            Form Management
-          </Link>
-          <Link
-            to="/admin/settings"
-            className="block px-3 py-2 rounded-md hover:bg-purple-600 transition-colors"
-            onClick={toggleMenu}
-          >
-            Setting
-          </Link>
+          {filteredNavigation.map((item) => (
+              <Link
+                key={item.name}
+                to={item.path}
+                className={`block px-3 py-2 rounded-md hover:bg-purple-600 transition-colors ${location.pathname === item.path
+                    ? 'bg-purple-600'
+                    : 'bg-purple-700'
+                  }`}
+              onClick={toggleMenu}
+              > {item.name}
+              </Link>
+            ))}
+          
         </div>
       )}
     </nav>

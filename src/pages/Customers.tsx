@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useOrderContext } from '../context/OrderContext';
 import { useCustomerContext } from '../context/CustomerContext';
 import { Order } from '../types';
@@ -116,7 +116,6 @@ const Customers = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Basic validation
     if (!formData.name || !formData.email || !formData.phone) {
       toast.error('Mohon isi field yang wajib diisi');
       return;
@@ -124,24 +123,23 @@ const Customers = () => {
 
     try {
       if (isEditing && selectedCustomer) {
-        // Update existing customer
         await updateCustomer(selectedCustomer.id, formData);
-        await refreshCustomers(); // Refresh data after update
-        toast.success('Data pelanggan berhasil diperbarui');
       } else {
-        // Create new customer
         await addCustomer(formData);
-        await refreshCustomers(); // Refresh data after add
-        toast.success('Pelanggan baru berhasil ditambahkan');
       }
+      
+      // Force refresh customers data
+      await refreshCustomers();
+      
+      // Reset form and close dialog
       resetForm();
+      setShowAddForm(false);
+      
+      // Show success message
+      toast.success(isEditing ? 'Data pelanggan berhasil diperbarui' : 'Pelanggan baru berhasil ditambahkan');
     } catch (error: unknown) {
       const apiError = error as ApiError;
-      if (apiError.response?.data?.message) {
-        toast.error(apiError.response.data.message);
-      } else {
-        toast.error('Terjadi kesalahan saat menyimpan data');
-      }
+      toast.error(apiError.response?.data?.message || 'Terjadi kesalahan saat menyimpan data');
     }
   };
 
@@ -186,6 +184,10 @@ const Customers = () => {
   };
 
   const customerOrders = selectedCustomer ? getCustomerOrders(selectedCustomer.id) : [];
+
+  useEffect(() => {
+    refreshCustomers();
+  }, []); // Run once on mount
 
   return (
     <div>
@@ -338,9 +340,10 @@ const Customers = () => {
                 <Input
                   id="company"
                   name="company"
+                  required={true}
                   value={formData.company}
                   onChange={handleInputChange}
-                  placeholder="Nama perusahaan (opsional)"
+                  placeholder="Nama perusahaan (isi Perorangan jika tidak ada)"
                 />
               </div>
               <div className="grid gap-2">
@@ -430,7 +433,7 @@ const Customers = () => {
                       <span className="text-gray-500">Telepon:</span> {selectedCustomer.phone}
                     </p>
                     <p className="flex items-center gap-2">
-                      <span className="text-gray-500">Kontak:</span> {selectedCustomer.contact}
+                      <span className="text-gray-500">Kontak:</span> {selectedCustomer.contact || '-'}
                     </p>
                     <p className="flex items-center gap-2">
                       <span className="text-gray-500">Alamat:</span> {selectedCustomer.address}
@@ -467,7 +470,7 @@ const Customers = () => {
                         </div>
                       </div>
 
-                      {order.form_data && (
+                      {/* {order.form_data && (
                         <div className="mt-3 pt-3 border-t">
                           <p className="font-medium mb-2">Form Responses:</p>
                           <div className="grid grid-cols-2 gap-2">
@@ -479,7 +482,7 @@ const Customers = () => {
                             ))}
                           </div>
                         </div>
-                      )}
+                      )} */}
                     </div>
                   ))}
                 </div>
@@ -519,4 +522,4 @@ const Customers = () => {
   );
 };
 
-export default Customers; 
+export default Customers;

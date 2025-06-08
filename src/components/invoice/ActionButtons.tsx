@@ -15,7 +15,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
 }) => {
   return (
     <>
-      <div className="fixed top-4 left-4 flex gap-2">
+      <div className="fixed mt-10 top-4 left-4 flex gap-2">
         <button
           onClick={clearForm}
           className="bg-red-500 text-white p-2 rounded-full shadow-lg hover:bg-red-600"

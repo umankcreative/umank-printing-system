@@ -65,7 +65,7 @@ function App() {
                       <CustomerProvider>
                         <TaskProvider>
                           <FormProvider>
-                            <AdminLayout />
+                              <AdminLayout/>
                           </FormProvider>
                         </TaskProvider>
                       </CustomerProvider>

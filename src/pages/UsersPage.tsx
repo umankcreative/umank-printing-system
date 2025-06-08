@@ -26,11 +26,24 @@ const UsersPage: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
  const [userData,setUserData] = useState<User[]>([]);
 
+  // Initial default user stub
+  const defaultUser = {
+    name: '',
+    email: '',
+    password: '12345678',
+    role: 'user',
+    is_active: true,
+    permissions: [],
+    phone: '',
+    address: ''
+  };
+
   const handleCreateUser = async (
     userData: Omit<User, 'id' | 'created_at' | 'updated_at' | 'branch' | 'last_active' | 'email_verified_at'>
   ) => {
     try {
-      await addUser(userData);
+      const newUserData = { ...defaultUser, ...userData };
+      await addUser(newUserData);
       setIsCreateModalOpen(false);
     } catch (error) {
       console.error('Failed to create user:', error);

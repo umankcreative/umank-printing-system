@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { Customer } from '../types/api';
 import customerService, { CreateCustomerPayload } from '../services/customerService';
 import { toast } from 'sonner';
@@ -22,7 +22,7 @@ export const CustomerProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const refreshCustomers = async () => {
+  const refreshCustomers = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -35,13 +35,13 @@ export const CustomerProvider: React.FC<{ children: ReactNode }> = ({ children }
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     refreshCustomers();
-  }, []);
+  }, [refreshCustomers]);
 
-  const addCustomer = async (customerData: CreateCustomerPayload): Promise<Customer> => {
+  const addCustomer = useCallback(async (customerData: CreateCustomerPayload): Promise<Customer> => {
     try {
       const newCustomer = await customerService.createCustomer(customerData);
       
@@ -58,7 +58,7 @@ export const CustomerProvider: React.FC<{ children: ReactNode }> = ({ children }
       toast.error(message);
       throw err;
     }
-  };
+  }, []);
 
   const updateCustomer = async (id: string, customerData: Partial<CreateCustomerPayload>) => {
     try {
@@ -120,4 +120,4 @@ export const useCustomerContext = () => {
     throw new Error('useCustomerContext must be used within a CustomerProvider');
   }
   return context;
-}; 
+};

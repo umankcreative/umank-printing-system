@@ -236,12 +236,13 @@ const { orders} = useOrderContext();
 
   return (
     <div className="container mx-auto px-4 py-8 relative">
-      <h1 className="text-3xl font-bold mb-8 text-center">Bill Generator</h1>
+      <h1 className="text-3xl font-bold mb-8 text-center">Pembuat Invoice</h1>
       
       <ActionButtons
         clearForm={clearForm}
         fillDummyData={fillDummyData}
         navigateToReceipt={navigateToReceipt}
+        
       />
       
       <div className="flex flex-col md:flex-row gap-8">
