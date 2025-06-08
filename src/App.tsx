@@ -38,13 +38,14 @@ import { CartProvider } from './context/CartContext';
 import { FormProvider } from './context/FormContext';
 import { CustomerProvider } from './context/CustomerContext';
 import { AuthProvider } from './context/AuthContext';
-import './App.css';
 import ProtectedRoute from './components/ProtectedRoute';
 import FormBuilder from './pages/FormBuilder';
 import FormManagement from './pages/FormManagement';
-import PublicForm from './pages/PublicForm';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import PublicForm from './pages/PublicForm';
+import PublicTaskPage from './pages/PublicTaskPage';
+import './App.css';
 
 function App() {
   return (
@@ -100,6 +101,7 @@ function App() {
 
           <Route path="/" element={<GuestLayout />}>
             <Route index element={<Guest />} />
+            <Route path="/share/:shareId" element={<PublicTaskPage />} />
             <Route
               path="shop"
               element={

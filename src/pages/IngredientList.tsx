@@ -69,9 +69,9 @@ const IngredientList: React.FC = () => {
         };
       });
 
-      console.log('Transformed Ingredients:', transformedIngredients);
       
       setIngredients(transformedIngredients);
+      console.log('Transformed Ingredients:', ingredients);
       setTotalItems(response.meta.total);
       setItemsPerPage(response.meta.per_page);
       setCurrentPage(response.meta.current_page);
@@ -81,7 +81,6 @@ const IngredientList: React.FC = () => {
       toast.error('Failed to fetch ingredients');
     } finally {
       setIsLoading(false);
-      setIngredients([]);
     }
   };
 
@@ -296,7 +295,7 @@ const IngredientList: React.FC = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               
-              {ingredients && ingredients.map((ingredient) => (
+              { ingredients.map((ingredient) => (
                 <tr key={ingredient.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-indigo-600">

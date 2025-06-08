@@ -92,6 +92,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
   };
 
   return (
+    <Link to={`/task/${task.id}`} className="block">
     <div
       ref={drag}
       className={`bg-white rounded-lg shadow-sm border border-gray-200 transition-all duration-200 cursor-move p-4 ${
@@ -121,7 +122,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
           </p>
         )}
       </div>
-    </div>
+      </div>
+      </Link>
   );
 };
 

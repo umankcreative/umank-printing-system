@@ -7,43 +7,43 @@ import {
   Table as TableIcon,
   ListTodo,
 } from 'lucide-react';
-import TaskCard from '../components/task/TaskCard';
+// import TaskCard from '../components/task/TaskCard';
 import { TaskCalendar } from '../components/task/TaskCalendar';
-import { TaskColumn } from '../components/task/TaskColumn';
+// import { TaskColumn } from '../components/task/TaskColumn';
 import { TaskTable } from '../components/task/TaskTable';
 import { TaskDialog } from '../components/task/TaskDialog';
 import { Pagination } from '../components/task/Pagination';
 import { Task, TaskStatus } from '../types';
-import {
-  DndContext,
-  DragStartEvent,
-  DragEndEvent,
-  closestCorners,
-  DragOverlay,
-  useSensor,
-  useSensors,
-  PointerSensor,
-  useDroppable,
-} from '@dnd-kit/core';
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
+// import {
+//   DndContext,
+//   DragStartEvent,
+//   DragEndEvent,
+//   closestCorners,
+//   DragOverlay,
+//   useSensor,
+//   useSensors,
+//   PointerSensor,
+//   useDroppable,
+// } from '@dnd-kit/core';
+// import {
+//   SortableContext,
+//   verticalListSortingStrategy,
+// } from '@dnd-kit/sortable';
 import { ToggleGroup, ToggleGroupItem } from '../components/ui/toggle-group';
 import { useTaskContext } from '../context/TaskContext';
 // import { createPortal } from 'react-dom';
 import KanbanBoard from '../components/task/KanbanBoard';
 
-const DroppableContainer = ({
-  id,
-  children,
-}: {
-  id: string;
-  children: React.ReactNode;
-}) => {
-  const { setNodeRef } = useDroppable({ id });
-  return <div ref={setNodeRef}>{children}</div>;
-};
+// const DroppableContainer = ({
+//   id,
+//   children,
+// }: {
+//   id: string;
+//   children: React.ReactNode;
+// }) => {
+//   const { setNodeRef } = useDroppable({ id });
+//   return <div ref={setNodeRef}>{children}</div>;
+// };
 
 const TodoBoard: React.FC = () => {
   const { 
@@ -51,7 +51,7 @@ const TodoBoard: React.FC = () => {
     loading, 
     error, 
     pagination,
-    updateTaskStatus, 
+    // updateTaskStatus, 
     addTask, 
     updateTask, 
     deleteTask, 
@@ -64,7 +64,7 @@ const TodoBoard: React.FC = () => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [viewMode, setViewMode] = useState<'kanban' | 'table' | 'calendar'>('kanban');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [activeId, setActiveId] = useState<string | null>(null);
+  // const [activeId, setActiveId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchTasks(1, undefined, 15);
@@ -84,59 +84,59 @@ const TodoBoard: React.FC = () => {
     });
   }, [tasks]);
 
-  // Filter tasks by status
-  const todoTasks = tasks.filter(task => task.status === 'pending');
-  const inProgressTasks = tasks.filter(task => task.status === 'in-progress');
-  const reviewTasks = tasks.filter(task => task.status === 'review');
-  const completedTasks = tasks.filter(task => task.status === 'completed');
-  const closedTasks = tasks.filter(task => task.status === 'closed');
+  // // Filter tasks by status
+  // const todoTasks = tasks.filter(task => task.status === 'pending');
+  // const inProgressTasks = tasks.filter(task => task.status === 'in-progress');
+  // const reviewTasks = tasks.filter(task => task.status === 'review');
+  // const completedTasks = tasks.filter(task => task.status === 'completed');
+  // const closedTasks = tasks.filter(task => task.status === 'closed');
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    })
-  );
+  // const sensors = useSensors(
+  //   useSensor(PointerSensor, {
+  //     activationConstraint: {
+  //       distance: 8,
+  //     },
+  //   })
+  // );
 
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
-    console.log('Drag start:', event.active.id);
-  };
+  // const handleDragStart = (event: DragStartEvent) => {
+  //   setActiveId(event.active.id as string);
+  //   console.log('Drag start:', event.active.id);
+  // };
 
-  const handleDragEnd = async (event: DragEndEvent) => {
-    setActiveId(null);
-    const { active, over } = event;
-    if (!over) return;
+  // const handleDragEnd = async (event: DragEndEvent) => {
+  //   setActiveId(null);
+  //   const { active, over } = event;
+  //   if (!over) return;
 
-    const taskId = active.id as string;
-    const overId = over.id as string;
+  //   const taskId = active.id as string;
+  //   const overId = over.id as string;
 
-    if (overId.includes('column')) {
-      const getStatusFromColumnId = (columnId: string): TaskStatus => {
-        if (columnId.startsWith('pending')) return 'pending';
-        if (columnId.startsWith('in-progress')) return 'in-progress';
-        if (columnId.startsWith('review')) return 'review';
-        if (columnId.startsWith('completed')) return 'completed';
-        if (columnId.startsWith('closed')) return 'closed';
-        return 'pending'; // default status
-      };
+  //   if (overId.includes('column')) {
+  //     const getStatusFromColumnId = (columnId: string): TaskStatus => {
+  //       if (columnId.startsWith('pending')) return 'pending';
+  //       if (columnId.startsWith('in-progress')) return 'in-progress';
+  //       if (columnId.startsWith('review')) return 'review';
+  //       if (columnId.startsWith('completed')) return 'completed';
+  //       if (columnId.startsWith('closed')) return 'closed';
+  //       return 'pending'; // default status
+  //     };
 
-      const newStatus = getStatusFromColumnId(overId);
-      console.log('TodoBoard: Updating task status:', {
-        taskId,
-        fromColumn: overId,
-        newStatus
-      });
+  //     const newStatus = getStatusFromColumnId(overId);
+  //     console.log('TodoBoard: Updating task status:', {
+  //       taskId,
+  //       fromColumn: overId,
+  //       newStatus
+  //     });
       
-      try {
-        await updateTaskStatus(taskId, newStatus);
-        console.log('TodoBoard: Status update completed');
-      } catch (error) {
-        console.error('TodoBoard: Error updating status:', error);
-      }
-    }
-  };
+  //     try {
+  //       await updateTaskStatus(taskId, newStatus);
+  //       console.log('TodoBoard: Status update completed');
+  //     } catch (error) {
+  //       console.error('TodoBoard: Error updating status:', error);
+  //     }
+  //   }
+  // };
 
   const handleOpenDialog = (task: Task) => {
     setSelectedTask(task);
@@ -266,7 +266,7 @@ const TodoBoard: React.FC = () => {
             </ToggleGroupItem>
           </ToggleGroup>
           <div className="flex items-center gap-2">
-            <button
+            {/* <button
               onClick={() => handleOpenDialog({
                 id: 'new',
                 title: '',
@@ -282,7 +282,7 @@ const TodoBoard: React.FC = () => {
             >
               <Plus size={16} />
               <span>Add Task</span>
-            </button>
+            </button> */}
             <button className="p-2 hover:bg-muted rounded-md">
               <MoreHorizontal size={16} />
             </button>
@@ -302,7 +302,7 @@ const TodoBoard: React.FC = () => {
             <div className="mt-6">
               <button
                 type="button"
-                onClick={() => handleAddTask('todo')}
+                // onClick={() => handleAddTask('todo')}
                 className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <Plus size={16} className="-ml-1 mr-2" />

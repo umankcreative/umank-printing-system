@@ -4,6 +4,7 @@ import { Task, TaskStatus } from '../../types';
 import { useTaskContext } from '../../context/TaskContext';
 import TaskCard from './TaskCard';
 import { Plus } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface KanbanColumnProps {
   status: TaskStatus;
@@ -28,6 +29,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ status, title, color, count
   }));
 
   return (
+    
     <div
       ref={drop}
       className={`flex flex-col h-full bg-gray-50 rounded-lg ${
@@ -69,7 +71,8 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ status, title, color, count
           </div>
         )}
       </div>
-    </div>
+      </div>
+      
   );
 };
 
