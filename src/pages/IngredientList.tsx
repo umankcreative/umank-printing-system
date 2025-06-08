@@ -53,7 +53,7 @@ const IngredientList: React.FC = () => {
       console.log('API Response:', response);
       
       // Transform API response to match local Ingredient type
-      const transformedIngresetIngredientsdients: Ingredient[] = response.data.map(apiIngredient => {
+      const transformedIngredients: Ingredient[] = response.data.map(apiIngredient => {
         console.log('Task Templates for', apiIngredient.name, ':', apiIngredient.task_templates);
         return {
           id: apiIngredient.id,
@@ -63,7 +63,9 @@ const IngredientList: React.FC = () => {
           price_per_unit: apiIngredient.price_per_unit,
           quantity: apiIngredient.quantity || '0',
           notes: apiIngredient.notes || '',
-          task_templates: Array.isArray(apiIngredient.task_templates) ? apiIngredient.task_templates : []
+          task_templates: Array.isArray(apiIngredient.task_templates) ? apiIngredient.task_templates : [],
+          stock: apiIngredient.stock || 0,
+          branch_id: apiIngredient.branch_id || ''
         };
       });
 
