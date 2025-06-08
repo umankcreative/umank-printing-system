@@ -2,7 +2,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 
 const api = axios.create({
-  baseURL: 'https://fc5d-114-10-138-199.ngrok-free.app/api',
+  baseURL: 'https://c327-114-10-138-253.ngrok-free.app/api',
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ api.interceptors.response.use(
       if (refreshToken) {
         try {
           // Try to refresh the token
-          const response = await axios.post('http://4bfb-125-160-114-11.ngrok-free.app/api/auth/refresh', {
+          const response = await axios.post('https://c327-114-10-138-253.ngrok-free.app/api/auth/refresh', {
             refresh_token: refreshToken
           });
           

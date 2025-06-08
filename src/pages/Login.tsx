@@ -46,8 +46,8 @@ const Login: React.FC = () => {
          />
           
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Sign in to your account
+        <h2 className="mt-6 text-center text-2xl font-extrabold text-gray-900">
+          Masuk pake akun kamu
         </h2>
       </div>
 
@@ -61,7 +61,7 @@ const Login: React.FC = () => {
             )}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
+                Email
               </label>
               <div className="mt-1">
                 <input
@@ -103,7 +103,7 @@ const Login: React.FC = () => {
                 className="w-full btn btn-primary"
                 disabled={loading}
               >
-                {loading ? 'Signing in...' : 'Sign in'}
+                {loading ? 'Memproses...' : 'Masuk'}
               </button>
             </div>
           </form>

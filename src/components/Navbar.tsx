@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Logo from './Logo';
 
@@ -40,19 +40,19 @@ const navigation: NavItem[] = [
       },
  
   {
-    name: 'Ingredients',
+    name: 'Bahan',
     icon: <Boxes size={20} />,
     path: '/admin/ingredients',
     roles: ['admin'],
   },
   {
-    name: 'Products',
+    name: 'Produk',
     icon: <Box size={20} />,
     path: '/admin/products',
     roles: ['admin'],
   },
   {
-    name: 'Customers',
+    name: 'Pelanggan',
     icon: <Users size={20} />,
     path: '/admin/customers',
     roles: ['admin'],
@@ -60,14 +60,14 @@ const navigation: NavItem[] = [
 
 
   {
-    name: 'Orders',
+    name: 'Pesanan',
     icon: <ShoppingCart size={20} />,
     path: '/admin/orders',
     roles: ['admin'],
   },
 
   {
-    name: 'Todo',
+    name: 'Tugas',
     icon: <CalendarClock size={20} />,
     path: '/admin/tasks',
     roles: ['admin','kasir', 'manager toko'],
@@ -85,7 +85,7 @@ const navigation: NavItem[] = [
     roles: ['admin'],
     },
     {
-        name: 'Settings',
+        name: 'Pengaturan',
         icon: <Settings size={20} />,
         path: '/admin/settings',
         roles: ['admin'],
@@ -104,6 +104,7 @@ const navigation: NavItem[] = [
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useAuth();
 
   const toggleMenu = () => {
@@ -140,17 +141,38 @@ const Navbar: React.FC = () => {
               > {item.name}
               </Link>
             ))}
-              <div className="flex items-center">
-              <img
-                className="w-10 h-10 rounded-full object-cover"
-                src={user?.avatar || 'https://via.placeholder.com/150'}
-                alt="User avatar"
-              />
-              <div className="ml-3">
-                <p className="text-sm font-medium text-white">{user?.name}</p>
-                <p className="text-xs text-gray-100 capitalize">{user?.role}</p>
+            <div className="relative flex items-center">
+              <div className="relative">
+                  <button 
+                    onClick={() => setIsOpen(!isOpen)} 
+                    className="flex items-center focus:outline-none"
+                  >
+                    <img
+                      className="w-10 h-10 rounded-full object-cover"
+                      src={user?.avatar || 'https://via.placeholder.com/150'}
+                      alt="User avatar"
+                    />
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-white">{user?.name}</p>
+                      <p className="text-xs text-gray-100 capitalize">{user?.role}</p>
+                    </div>
+              </button>
               </div>
-            </div>
+                  {isOpen && (
+                    <div className="absolute right-0 top-12 w-48 py-2 bg-white rounded-md shadow-xl z-20">
+                        <button
+                        onClick={() => {
+                          // Add your logout logic here
+                          navigate('/admin/logout');
+                          setIsOpen(false);
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                        Logout
+                        </button>
+                    </div>
+                  )}
+                </div>
           </div>
 
           {/* Mobile menu button */}
