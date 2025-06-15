@@ -77,7 +77,7 @@ export const recipeIngredientService = {
     const response = await api.post<{ data: RecipeIngredient[] }>('/recipe-ingredients/bulk', {
       product_id: productId,
       ingredients: ingredients.map(ingredient => ({
-        ingredient_id: ingredient.id,
+        id: ingredient.id,
         quantity: parseFloat(ingredient.quantity) || 0,
         notes: ingredient.notes || null
       }))

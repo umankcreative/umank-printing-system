@@ -1,11 +1,15 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Product, Ingredient, RecipeIngredient } from '../types';
+import { toast } from 'sonner';
 import {
   products,
   ingredients,
   recipes,
   productImages,
 } from '../data/mockData';
+// import {Product, Ingredient} from '../types/api'; // Adjust the import based on your project structure
+import axios from 'axios';
+import api from '../lib/axios'; // Adjust the import based on your project structure
 
 interface ProductContextProps {
   products: Product[];
@@ -43,8 +47,24 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const addProduct = (product: Product) => {
-    setProductList([...productList, product]);
+  const addProduct = async (productData: Product) => {
+    console.log('🟦 ProductContext: Adding product');
+    try {
+      console.log('🟨 ProductContext: Sending to API:', productData);
+      const response = await api.post('/products', productData);
+      console.log('🟩 ProductContext: API Response:', response.data);
+      
+      setProductList((prev) => [...prev, response.data]);
+      return response.data;
+    } catch (error) {
+      console.error('🔴 ProductContext: API Error:', error);
+      if (axios.isAxiosError(error)) {
+        console.error('🔴 Response data:', error.response?.data);
+        console.error('🔴 Status code:', error.response?.status);
+        toast.error(error.response?.data?.message || 'Failed to add product');
+      }
+      throw error;
+    }
   };
 
   const updateProduct = (updatedProduct: Product) => {

@@ -19,10 +19,12 @@ import Login from './pages/Login';
 // src/App.tsx or your router configuration file
 import { Settings } from './pages/Settings';
 import Customers from './pages/Customers';
+import Invoice from './pages/Invoice';
+import ErrorBoundary from './components/ErrorBoundary';
 
-import TemplatePage from "./pages/TemplatePage";
-import ReceiptPage from "./pages/ReceiptPage";
-import IndexTemplate from "./pages/IndexTemplate";
+// import ReceiptPage from "./pages/ReceiptPage";
+// import TemplatePage from "./pages/TemplatePage";
+// import IndexTemplate from "./pages/IndexTemplate";
 
 import { Toaster } from './components/ui/toaster';
 import { Toaster as Sonner } from './components/ui/sonner';
@@ -78,7 +80,7 @@ function App() {
           >
             <Route index element={<Dashboard />} />
             <Route path="products" element={<ProductList />} />
-            <Route path="products/create" element={<ProductCreate />} />
+            <Route path="products/create" element={<ErrorBoundary><ProductCreate /></ErrorBoundary>} />
             <Route path="products/edit/:id" element={<ProductEdit />} />
             <Route path="products/:id" element={<ProductDetail />} />
             <Route path="ingredients" element={<IngredientList />} />
@@ -86,6 +88,7 @@ function App() {
             <Route path="tasks/:id" element={<TaskDetailPage />} />
             <Route path="orders" element={<Orders />} />
             <Route path="orders/:id" element={<OrderDetail />} />
+            <Route path="orders/:id/invoice" element={<Invoice />} />
             <Route path="customers" element={<Customers />} />
             <Route path="users" element={<Users />} />
             <Route path="settings" element={<Settings />} />
@@ -93,9 +96,9 @@ function App() {
             <Route path="form-builder/:id" element={<FormBuilder />} />
             <Route path="form-management" element={<FormManagement />} />
 
-            <Route path="invoice" element={<IndexTemplate />} />
+            {/* <Route path="invoice" element={<IndexTemplate />} />
             <Route path="template" element={<TemplatePage />} />
-            <Route path="receipt" element={<ReceiptPage />} />
+            <Route path="receipt" element={<ReceiptPage />} /> */}
             
           </Route>
 

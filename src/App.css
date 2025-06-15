@@ -107,6 +107,27 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* src/index.css or your styles file */
+
+/* @media print {
+  body * {
+    visibility: hidden;
+  }
+  #invoice-content,
+  #invoice-content * {
+    visibility: visible;
+  }
+  #invoice-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+  .no-print {
+    display: none;
+  }
+} */
+
 /* Scrollbar customization */
 ::-webkit-scrollbar {
   width: 6px;

@@ -14,7 +14,7 @@ const ProductDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  console.log('backendBaseURL', import.meta.env);
+  // console.log('backendBaseURL', import.meta.env);
   useEffect(() => {
     const fetchProduct = async () => {
       if (!id) return;
@@ -104,13 +104,13 @@ const ProductDetail: React.FC = () => {
             
             {/* Additional Images */}
             {product.additional_images?.map((image) => (
-              <div key={image.id} className="relative aspect-square">
+                <div key={image.id} className="relative aspect-square z-0">
                 <img
                   src={`${backendBaseURL}${image.url}`}
                   alt={`${product.name} additional`}
                   className="w-full h-full object-cover rounded-lg"
                 />
-              </div>
+                </div>
             ))}
 
             {/* Show message if no images */}

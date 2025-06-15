@@ -2,7 +2,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 
 const api = axios.create({
-  baseURL: 'https://c327-114-10-138-253.ngrok-free.app/api',
+  baseURL: 'http://127.0.0.1:8000/api',
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
@@ -25,6 +25,7 @@ api.interceptors.request.use(
     return config;
   },
   (error: AxiosError) => {
+    console.error('🔴 API Request Error:', error);
     return Promise.reject(error);
   }
 );
@@ -49,6 +50,12 @@ api.interceptors.response.use(
   async (error: AxiosError) => {
     // Handle network errors or server not responding
     if (!error.response) {
+      console.error('🔴 API Error Response:', {
+        status: error.status,
+        data: error.message,
+        url: error.config?.url,
+        method: error.config?.method
+      });
       return Promise.reject(new Error('Jaringan error - silahkan periksa koneksi Anda'));
     }
 
@@ -77,7 +84,7 @@ api.interceptors.response.use(
       if (refreshToken) {
         try {
           // Try to refresh the token
-          const response = await axios.post('https://c327-114-10-138-253.ngrok-free.app/api/auth/refresh', {
+          const response = await axios.post('http://127.0.0.1:8000/api/auth/refresh', {
             refresh_token: refreshToken
           });
           

@@ -95,7 +95,7 @@ const Customers = () => {
 
   // Get customer orders
   const getCustomerOrders = (customerId: string): Order[] => {
-    return orders.filter(order => order.customer.id === customerId);
+    return orders.filter(order => order.customer_id === customerId);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { PAPER_OPTIONS } from '../../types/';
 import { ToggleLeft, ToggleRight } from 'lucide-react';
 
@@ -36,7 +36,7 @@ const MaterialForm: React.FC<MaterialFormProps> = ({
   setMaterialCostPerCm2,
   isPaperEnabled,
   setIsPaperEnabled,
-  printType,
+  printType: initialPrintType,
   setPrintType,
   printCostPerCm2,
   setPrintCostPerCm2,
@@ -51,6 +51,8 @@ const MaterialForm: React.FC<MaterialFormProps> = ({
   isFinishingEnabled,
   setIsFinishingEnabled,
 }) => {
+  const [localPrintType, setLocalPrintType] = useState<'Black & White' | 'Full Color'>(initialPrintType as 'Black & White' | 'Full Color' || 'Full Color');
+
   const handleMaterialCostChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (value === '' || parseFloat(value) >= 0) {
@@ -186,8 +188,12 @@ const MaterialForm: React.FC<MaterialFormProps> = ({
             </label>
             <select
               id="printType"
-              value={printType || ''}
-              onChange={(e) => setPrintType((e.target.value as 'Black & White' | 'Full Color') || null)}
+              value={localPrintType || ''}
+              onChange={(e) => {
+                const value = (e.target.value as 'Black & White' | 'Full Color') || null;
+                setLocalPrintType(value);
+                setPrintType(value);
+              }}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
               required={isPrintingEnabled}
             >

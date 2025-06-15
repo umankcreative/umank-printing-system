@@ -75,7 +75,7 @@ const ProductList: React.FC = () => {
             created_at: categories.find(cat => cat.id === p.category_id)?.created_at || new Date().toISOString(),
             updated_at: categories.find(cat => cat.id === p.category_id)?.updated_at || new Date().toISOString()
           } : undefined,
-          thumbnail_id: p.thumbnail?.url || p.thumbnail_id || null,
+          thumbnail_id: p.thumbnail_id || null,
           additional_images: p.additional_images?.map(img => ({
             id: img.id,
             url: `${backendBaseURL}/${img.url}`,
@@ -144,7 +144,7 @@ const ProductList: React.FC = () => {
           created_at: categories.find(cat => cat.id === p.category_id)?.created_at || new Date().toISOString(),
           updated_at: categories.find(cat => cat.id === p.category_id)?.updated_at || new Date().toISOString()
         } : undefined,
-        thumbnail_id: p.thumbnail?.url || p.thumbnail_id || null,
+        thumbnail_id: p.thumbnail_id || null,
         additional_images: p.additional_images?.map(img => ({
           id: img.id,
           url: `${backendBaseURL}/${img.url}`,

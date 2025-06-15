@@ -90,12 +90,12 @@ const navigation: NavItem[] = [
         path: '/admin/settings',
         roles: ['admin'],
       },
-    {
-        name: 'Invoice',
-        icon: <DownloadCloud size={20} />,
-        path: '/admin/invoice',
-        roles: ['admin'],
-      },
+    // {
+    //     name: 'Invoice',
+    //     icon: <DownloadCloud size={20} />,
+    //     path: '/admin/invoice',
+    //     roles: ['admin'],
+    //   },
 ];
 
 

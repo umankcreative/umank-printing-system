@@ -25,7 +25,11 @@ export const productService = {
         search: params.search,
         category_id: params.category,
         is_active: params.is_active,
-        with: params.with?.join(','),
+        // with: params.with?.join(','),
+        with_images: true,
+        with_ingredients: true,
+        with_tasks: true,
+        with_category: true,
       },
     });
     return response.data;
@@ -36,7 +40,8 @@ export const productService = {
       params: {
         with_images: true,
         with_ingredients: true,
-        with_tasks: true
+        with_tasks: true,
+        with_category: true,
       },
     });
     return response.data.data;
@@ -44,6 +49,8 @@ export const productService = {
 
   createProduct: async (product: Omit<Product, 'id' | 'created_at' | 'updated_at'>): Promise<Product> => {
     const response = await api.post<ProductResponse>('/products', product);
+
+    console.log('Product created successfully:', response.data);
     return response.data.data;
   },
 

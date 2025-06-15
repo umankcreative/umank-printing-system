@@ -11,8 +11,8 @@ import * as categoryService from '../services/categoryService';
 import { Product as ShopProduct } from '../types';
 import Pagination from '../components/Pagination';
 import { Category } from '../types/formTypes';
-import ProductFilters from '../components/ProductFilters';
-import { ProductGrid } from '../components/ProductGrid';
+// import ProductFilters from '../components/ProductFilters';
+// import { ProductGrid } from '../components/ProductGrid';
 
 const Shop = () => {
   const [searchQuery, setSearchQuery] = useState('');

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Search, Loader2, Pencil, Trash2, ShoppingCart } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Plus, Search, Loader2, Pencil, Trash2, ShoppingCart, FileText } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import OrderForm from '../components/OrderForm';
 import { Order } from '../types';
 import { useOrderContext } from '../context/OrderContext';
@@ -18,6 +18,7 @@ import {
 } from '../components/ui/dialog';
 
 const Orders: React.FC = () => {
+  const navigate = useNavigate();
   const { 
     orders, 
     loading, 
@@ -339,6 +340,14 @@ const Orders: React.FC = () => {
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
+                          <Button
+  variant="ghost"
+  size="icon"
+  onClick={() => navigate(`/admin/orders/${order.id}/invoice`)}
+  className="h-8 w-8 text-gray-600 hover:text-gray-700"
+>
+  <FileText className="h-4 w-4" />
+</Button>
                         </div>
                       </td>
                     </tr>

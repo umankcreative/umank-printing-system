@@ -1,13 +1,13 @@
-
 import { useState, useEffect } from 'react';
 import { Contact, InvoiceInfo, Item } from '../utils/dummyData';
 import { generateRandomInvoiceNumber } from '../utils/invoiceNumberGenerator';
+import { Branch } from '../types/api';
 
 interface FormData {
   billTo: Contact;
   shipTo: Contact;
   invoice: InvoiceInfo;
-  yourCompany: Contact;
+  yourCompany: Branch;
   items: Item[];
   taxPercentage: number;
   taxAmount: number;
@@ -15,128 +15,98 @@ interface FormData {
   grandTotal: number;
   notes: string;
   selectedCurrency: string;
+  billToName: string;
+  billToPhone: string;
+  billToAddress: string;
 }
 
 export const useFormData = () => {
-  const [selectedCurrency, setSelectedCurrency] = useState<string>("IDR");
+  // Currency and order state
+  const [selectedCurrency, setSelectedCurrency] = useState<string>('IDR');
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
-  const [billTo, setBillTo] = useState<Contact>({ name: "", address: "", phone: "" });
-  const [shipTo, setShipTo] = useState<Contact>({ name: "", address: "", phone: "" });
-  
-  const [billToName, setBillToName] = useState<string>("");
-  const [billToPhone, setBillToPhone] = useState<string>("");
-  const [billToAddress, setBillToAddress] = useState<string>("");
-  
+
+  // Bill to information
+  const [billTo, setBillTo] = useState<Contact>({ name: '', address: '', phone: '' });
+  const [billToName, setBillToName] = useState<string>('');
+  const [billToPhone, setBillToPhone] = useState<string>('');
+  const [billToAddress, setBillToAddress] = useState<string>('');
+
+  // Ship to information
+  const [shipTo, setShipTo] = useState<Contact>({ name: '', address: '', phone: '' });
+
+  // Invoice details
   const [invoice, setInvoice] = useState<InvoiceInfo>({
-    date: "",
-    paymentDate: "",
-    number: "",
+    number: generateRandomInvoiceNumber(),
+    date: '',
+    paymentDate: ''
   });
-  const [yourCompany, setYourCompany] = useState<Contact>({
-    name: "",
-    address: "",
-    phone: "",
+
+  // Company information
+  const [yourCompany, setYourCompany] = useState<Branch>({ 
+    id: '', 
+    name: '', 
+    location: '',
+    is_active: true,
+    created_at: '',
+    updated_at: ''
   });
-  const [items, setItems] = useState<Item[]>([]);
+
+  // Items and calculations
+  const [items, setItems] = useState<Item[]>([{ 
+    name: '', 
+    description: '', 
+    quantity: 0, 
+    amount: 0, 
+    total: 0 
+  }]);
   const [taxPercentage, setTaxPercentage] = useState<number>(0);
-  const [taxAmount, setTaxAmount] = useState<number>(0);
-  const [subTotal, setSubTotal] = useState<number>(0);
-  const [grandTotal, setGrandTotal] = useState<number>(0);
-  const [notes, setNotes] = useState<string>("");
+  const [notes, setNotes] = useState<string>('');
 
-  useEffect(() => {
-    // Load form data from localStorage on component mount
-    const savedFormData = localStorage.getItem("formData");
-    if (savedFormData) {
-      const parsedData: FormData = JSON.parse(savedFormData);
-      setBillTo(parsedData.billTo || { name: "", address: "", phone: "" });
-      setShipTo(parsedData.shipTo || { name: "", address: "", phone: "" });
-      setInvoice(
-        parsedData.invoice || { date: "", paymentDate: "", number: "" }
-      );
-      setYourCompany(
-        parsedData.yourCompany || { name: "", address: "", phone: "" }
-      );
-      setItems(parsedData.items || []);
-      setTaxPercentage(parsedData.taxPercentage || 0);
-      setNotes(parsedData.notes || "");
-      setSelectedCurrency(parsedData.selectedCurrency || "IDR");
-    } else {
-      // If no saved data, set invoice number
-      setInvoice((prev) => ({
-        ...prev,
-        number: generateRandomInvoiceNumber(),
-      }));
-    }
-  }, []);
-
-  useEffect(() => {
-    // Save form data to localStorage whenever it changes
-    const formData: FormData = {
-      billTo: {
-        name: billToName || billTo.name,
-        address: billToAddress || billTo.address,
-        phone: billToPhone || billTo.phone
-      },
-      shipTo,
-      invoice,
-      yourCompany,
-      items,
-      taxPercentage,
-      taxAmount,
-      subTotal,
-      grandTotal,
-      notes,
-      selectedCurrency,
-    };
-    localStorage.setItem("formData", JSON.stringify(formData));
-  }, [
-    billTo,
-    billToName,
-    billToPhone,
-    billToAddress,
-    shipTo,
-    invoice,
-    yourCompany,
-    items,
-    taxPercentage,
-    notes,
-    taxAmount,
-    subTotal,
-    grandTotal,
-    selectedCurrency,
-  ]);
+  // Calculate derived values
+  const subTotal = items.reduce((sum, item) => sum + (item.quantity * item.amount), 0);
+  const taxAmount = (subTotal * taxPercentage) / 100;
+  const grandTotal = subTotal + taxAmount;
 
   return {
+    // Basic form data
     selectedCurrency,
     setSelectedCurrency,
     selectedOrderId,
     setSelectedOrderId,
+    
+    // Bill to information
     billTo,
     setBillTo,
-    shipTo,
-    setShipTo,
     billToName,
     setBillToName,
     billToPhone,
     setBillToPhone,
     billToAddress,
     setBillToAddress,
+    
+    // Ship to information
+    shipTo,
+    setShipTo,
+    
+    // Invoice details
     invoice,
     setInvoice,
+    
+    // Company information
     yourCompany,
     setYourCompany,
+    
+    // Items and calculations
     items,
     setItems,
     taxPercentage,
     setTaxPercentage,
-    taxAmount,
-    setTaxAmount,
-    subTotal,
-    setSubTotal,
-    grandTotal,
-    setGrandTotal,
     notes,
     setNotes,
+    
+    // Calculated values
+    subTotal,
+    taxAmount,
+    grandTotal
   };
 };

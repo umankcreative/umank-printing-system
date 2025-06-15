@@ -224,6 +224,8 @@ const TaskDetailPage: React.FC = () => {
                   'review',
                   'completed',
                   'closed',
+                  'blocked',
+                  'pending'
                 ] as Task['status'][]
               ).map((status) => (
                 <button

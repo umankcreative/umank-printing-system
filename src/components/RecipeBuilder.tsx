@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Plus, Minus, Trash2 } from 'lucide-react';
 import { Ingredient, RecipeIngredient } from '../types/api';
-import { ingredientService } from '../services/ingredientService';
+import { ingredientService,CreateIngredientPayload } from '../services/ingredientService';
 import { recipeIngredientService } from '../services/recipeIngredientService';
 import { formatCurrency } from '../lib/utils';
 import debounce from 'lodash/debounce';
@@ -14,7 +14,8 @@ import {
 } from '../components/ui/dialog';
 import { Button } from '../components/ui/button';
 import IngredientForm from './IngredientForm';
-import { CreateIngredientPayload } from '../services/ingredientService';
+
+
 import { toast } from 'sonner';
 import axios from 'axios';
 
@@ -118,6 +119,8 @@ const RecipeBuilder: React.FC<RecipeBuilderProps> = ({
       }
       
       console.log('Calling onChange with updated ingredients:', updatedIngredients);
+         // Debounced bulk update to the server
+         debouncedBulkUpdate(updatedIngredients);
       onChange(updatedIngredients);
     } catch (error) {
       console.error('Error in handleAddIngredient:', error);
@@ -129,6 +132,7 @@ const RecipeBuilder: React.FC<RecipeBuilderProps> = ({
   const handleUpdateQuantity = async (index: number, newQuantity: number) => {
     if (newQuantity <= 0) {
       handleRemoveIngredient(index);
+
       return;
     }
 
@@ -155,7 +159,10 @@ const RecipeBuilder: React.FC<RecipeBuilderProps> = ({
   };
 
   const handleRemoveIngredient = (index: number) => {
+    // recipeIngredientService.deleteRecipeIngredient(ingredients[index].id);
+    console.log('Removing ingredient at index:', ingredients[index]);
     onChange(ingredients.filter((_, i) => i !== index));
+    
   };
 
   const calculateIngredientCost = (ingredient: RecipeIngredient) => {

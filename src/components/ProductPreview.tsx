@@ -65,9 +65,9 @@ export const ProductPreview = ({
               {/* Product Image */}
               <div className="w-full">
                 <div className="bg-gray-100 rounded-lg overflow-hidden aspect-square">
-                  {product.thumbnail?.url ? (
+                  {product.thumbnail_id ? (
                     <img
-                      src={product.thumbnail.url}
+                      src={product.thumbnail_id}
                       alt={product.name}
                       className="w-full h-full object-cover"
                     />

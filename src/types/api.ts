@@ -206,7 +206,7 @@ export interface Order {
   total_amount: string;
   status: 'pending' | 'processing' | 'ready' | 'delivered' | 'cancelled';
   payment_status: 'unpaid' | 'partial' | 'paid';
-  payment_method: 'cash' | 'transfer' | 'other';
+  payment_method: 'cash' | 'transfer' | 'debit' | 'credit';
   notes: string | null;
   delivery_date: string | null;
   created_at: string;

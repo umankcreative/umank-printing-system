@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Upload } from 'lucide-react';
+import { X, Upload, PictureInPicture } from 'lucide-react';
 import { toast } from 'sonner';
 import { productService } from '../../services/productService';
 import { ProductImage } from '../../types/api';
@@ -8,12 +8,14 @@ interface ProductImagesUploadProps {
   productId: string;
   onImagesUploaded?: () => void;
   existingImages?: ProductImage[];
+  onSetThumbnail?: (imageUrl: string) => void;
 }
 
 const ProductImagesUpload: React.FC<ProductImagesUploadProps> = ({
   productId,
   onImagesUploaded,
-  existingImages = []
+  existingImages = [],
+  onSetThumbnail
 }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -120,7 +122,7 @@ const ProductImagesUpload: React.FC<ProductImagesUploadProps> = ({
       {/* Existing Images */}
       {existingImages.length > 0 && (
         <div className="space-y-4">
-          <h4 className="text-sm font-medium text-gray-700">Existing Images</h4>
+          <h4 className="text-sm font-medium text-gray-700">Gambar Produk</h4>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {existingImages.map((image) => (
               <div key={image.id} className="relative group">
@@ -131,17 +133,29 @@ const ProductImagesUpload: React.FC<ProductImagesUploadProps> = ({
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <button
-                  type="button"
-                  onClick={() => handleDeleteImage(image.id)}
-                  disabled={isDeleting === image.id}
-                  className={`absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 
-                    ${isDeleting === image.id ? 'opacity-50 cursor-not-allowed' : 'opacity-0 group-hover:opacity-100'} 
-                    transition-opacity duration-200`}
-                  aria-label="Delete image"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+                <div className="absolute -top-2 -right-2 flex space-x-1">
+                  <button
+                    type="button"
+                    onClick={() => onSetThumbnail?.(`${'http://127.0.0.1:8000'}${image.url}`)}
+                    className={`bg-blue-500 text-white rounded-full p-1
+                      opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-blue-600`}
+                    aria-label="Atur sebagai thumbnail"
+                    title="Atur sebagai thumbnail"
+                  >
+                    <PictureInPicture className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteImage(image.id)}
+                    disabled={isDeleting === image.id}
+                    className={`bg-red-500 text-white rounded-full p-1 
+                      ${isDeleting === image.id ? 'opacity-50 cursor-not-allowed' : 'opacity-0 group-hover:opacity-100'} 
+                      transition-opacity duration-200 hover:bg-red-600`}
+                    aria-label="Hapus gambar"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
                 {isDeleting === image.id && (
                   <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-md">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
@@ -163,9 +177,9 @@ const ProductImagesUpload: React.FC<ProductImagesUploadProps> = ({
       >
         <div className="flex flex-col items-center justify-center py-4">
           <Upload className="w-10 h-10 text-gray-400 mb-2" />
-          <p className="text-sm text-gray-700 mb-1">Drag & drop product images here</p>
-          <p className="text-xs text-gray-500 mb-1">Allowed types: JPG, PNG, GIF, WEBP</p>
-          <p className="text-xs text-gray-500 mb-3">Max size: 2MB per image</p>
+          <p className="text-sm text-gray-700 mb-1">Drag & drop Gambar produk disini</p>
+          <p className="text-xs text-gray-500 mb-1">Type yang dibolehkan : JPG, PNG, GIF, WEBP</p>
+          <p className="text-xs text-gray-500 mb-3">Max : 2MB per gambar</p>
           <label className={`cursor-pointer bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-md transition-colors duration-200 ${
             isUploading ? 'opacity-50 cursor-not-allowed' : ''
           }`}>

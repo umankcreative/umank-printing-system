@@ -63,12 +63,12 @@ const ProductEdit: React.FC = () => {
 
   const handleSubmit = async (updatedProduct: Product) => {
     try {
-      console.log('Submitting product with ingredients:', updatedProduct.ingredients);
+      console.log(' with ingredients:', updatedProduct.ingredients);
       
       // Clean up the thumbnail_id if it's a URL
       const cleanedProduct = {
         ...updatedProduct,
-        thumbnail_id: updatedProduct.thumbnail_id?.startsWith('http') ? undefined : updatedProduct.thumbnail_id
+        thumbnail_id: updatedProduct.thumbnail_id
       };
       
       const response = await productService.updateProduct(id!, cleanedProduct, ['ingredients', 'thumbnail', 'additional_images']);
@@ -198,6 +198,7 @@ const ProductEdit: React.FC = () => {
                   cost_price: '0',
                   price: '0',
                   min_order: 0,
+                  thumbnail_id: '',
                   stock: 0,
                   branch_id: '',
                   is_active: true,
