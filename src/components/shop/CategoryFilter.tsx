@@ -1,9 +1,9 @@
 import React from 'react';
 import { Button } from '../../components/ui/button';
-import { ProductCategory } from '../../types/api';
+import { Category } from '../../types/api';
 
 interface CategoryFilterProps {
-  categories: ProductCategory[];
+  categories: Category[];
   selectedCategory: string | null;
   onSelectCategory: (category: string | null) => void;
 }

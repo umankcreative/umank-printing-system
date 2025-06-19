@@ -48,6 +48,8 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import PublicForm from './pages/PublicForm';
 import PublicTaskPage from './pages/PublicTaskPage';
 import './App.css';
+import FormSubmissionList from './pages/FormSubmisssionList';
+import FormSubmissionDetail from './pages/FormSubmissionDetail';
 
 function App() {
   return (
@@ -95,6 +97,9 @@ function App() {
             <Route path="form-builder/new" element={<FormBuilder />} />
             <Route path="form-builder/:id" element={<FormBuilder />} />
             <Route path="form-management" element={<FormManagement />} />
+            <Route path="form-submissions" element={<FormSubmissionList />} />
+            <Route path="form-submissions/:id" element={<FormSubmissionDetail />} />
+            
 
             {/* <Route path="invoice" element={<IndexTemplate />} />
             <Route path="template" element={<TemplatePage />} />

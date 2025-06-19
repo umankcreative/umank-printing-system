@@ -1,3 +1,4 @@
+import { Category } from './api';
 export interface FormElement {
   id: string;
   template_id: string;
@@ -16,17 +17,6 @@ export interface FormElement {
   options: FormElementOption[];
 }
 
-export interface Category {
-  id: string;
-  name: string;
-  description: string;
-  slug: string;
-  type: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
 export interface FormTemplate {
   id: string;
   name: string;
@@ -41,6 +31,7 @@ export interface FormTemplate {
 export interface FormElementOption {
   label: string;
   value: string;
+  validation: string;
 }
 
 export type FormElementType = 'input' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'number' | 'date' | 'file' | 'email' | 'phone';

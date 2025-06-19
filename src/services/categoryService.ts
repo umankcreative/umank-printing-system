@@ -1,5 +1,5 @@
-import { Category } from '../types/formTypes';
-import api from '../lib/axios';
+import api  from '../lib/axios';
+import { Category } from '../types/api';
 
 interface CategoryResponse {
   status: string;
@@ -57,4 +57,49 @@ export const getCategoryTemplates = async (id: string) => {
 // Method to clear cache if needed (e.g., after updates)
 export const clearCache = () => {
   categoriesCache = null;
-}; 
+};
+
+/**
+ * Add a new category
+ * @param categoryData The category data to create
+ * @returns Promise<Category>
+ */
+export const addCategory = async (categoryData: Omit<Category, 'id' | 'created_at' | 'updated_at'>): Promise<Category> => {
+  try {
+    const response = await api.post<Category>('/categories', categoryData);
+    return response.data;
+  } catch (error) {
+    console.error('Error adding category:', error);
+    throw error;
+  }
+};
+
+/**
+ * Update an existing category
+ * @param id The category ID to update
+ * @param categoryData The updated category data
+ * @returns Promise<Category>
+ */
+export const updateCategory = async (id: string, categoryData: Partial<Category>): Promise<Category> => {
+  try {
+    const response = await api.put<Category>(`/categories/${id}`, categoryData);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating category:', error);
+    throw error;
+  }
+};
+
+/**
+ * Delete a category
+ * @param id The category ID to delete
+ * @returns Promise<void>
+ */
+export const deleteCategory = async (id: string): Promise<void> => {
+  try {
+    await api.delete(`/categories/${id}`);
+  } catch (error) {
+    console.error('Error deleting category:', error);
+    throw error;
+  }
+};

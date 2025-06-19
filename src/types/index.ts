@@ -117,7 +117,7 @@ export interface Task {
   estimated_time: number | null;
   created_at: string;
   updated_at: string;
-  ingredient: any | null; // Replace 'any' with proper Ingredient interface if available
+  ingredient: Ingredient[] | null; // Replace 'any' with proper Ingredient interface if available
   order: Order | null;
   parent_task: Task | null;
   child_tasks: Task[];
@@ -155,8 +155,8 @@ export interface Ingredient {
 // }
 
 export interface Order {
-  customer(customer: any): unknown;
-  items(items: any): unknown;
+  customer(customer: Customer[]): unknown;
+  items(items: OrderItem[]): unknown;
   id: string;
   customer_id: string;
   branch_id: string;

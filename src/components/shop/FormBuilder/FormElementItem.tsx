@@ -27,7 +27,8 @@ const FormElementItem: React.FC<FormElementItemProps> = ({
   console.log('Rendering form element preview:', {
     id: element.id,
     type: element.type,
-    label: element.label
+    label: element.label,
+    options:element?.options
   });
 
   const renderPreview = () => {
@@ -69,6 +70,7 @@ const FormElementItem: React.FC<FormElementItemProps> = ({
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>
+                  
                 ))}
               </SelectContent>
             </Select>

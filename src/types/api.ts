@@ -33,16 +33,7 @@ export interface Ingredient {
   task_templates: TaskTemplate[];
 }
 
-export interface ProductCategory {
-  id: string;
-  name: string;
-  description?: string;
-  slug: string;
-  type: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
+
 
 export interface ProductImage {
   id: string;
@@ -92,7 +83,7 @@ export interface Product {
   is_finishing_enabled: boolean;
   created_at?: string;
   updated_at?: string;
-  category?: ProductCategory;
+  category?: Category;
   thumbnail?: ProductImage;
   additional_images?: ProductImage[];
   ingredients?: RecipeIngredient[];
@@ -214,3 +205,15 @@ export interface Order {
   items?: OrderItem[];
   tasks?: Task[];
 } 
+
+export interface Category {
+  id: string;
+  name: string;
+  description?: string;
+  slug: string;
+  type: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+

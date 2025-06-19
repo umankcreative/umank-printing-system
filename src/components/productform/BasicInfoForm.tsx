@@ -1,5 +1,5 @@
 import React from 'react';
-import { PRODUCT_CATEGORIES } from '../../types/product';
+import { PRODUCT_CATEGORIES } from '../../types/index';
 import ImageUpload from './ImageUpload';
 
 interface BasicInfoFormProps {

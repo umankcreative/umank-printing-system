@@ -1,4 +1,5 @@
-import { FormTemplate, FormElement, Category, PaginatedApiResponse } from '../types/formTypes';
+import { FormTemplate, FormElement, PaginatedApiResponse } from '../types/formTypes';
+import { Category } from '../types/api';
 import api from '../lib/axios';
 import * as categoryService from './categoryService';
 import { AxiosError } from 'axios';
@@ -97,6 +98,7 @@ export const getFormTemplate = async (id: string): Promise<FormTemplate> => {
   try {
     // First get the template
     const templateResponse = await api.get(`/form-templates/${id}`);
+    console.log('template:', templateResponse);
     
       // console.log('Raw template response:', {
       //   status: templateResponse.status,
@@ -112,13 +114,18 @@ export const getFormTemplate = async (id: string): Promise<FormTemplate> => {
     }
 
     
-    const elements = templateData.elements?.map((element: FormElement) => {
-      console.log('Element:', element);
-      return {
-        ...element
-      };
-    }) || [];
+    // Get form elements from the dedicated endpoint
+    const elementsResponse = await api.get(`/form-templates/${templateData.id}/elements`);
+    const elements = elementsResponse.data.data?.map((element: FormElement) => ({
+      ...element
+    })) || [];
 
+    // const elements = templateData.elements?.map((element: FormElement) => {
+    //   // console.log('Element:', element);
+    //   return {
+    //     ...element
+    //   };
+    // }) || [];
     // The elements are now included in the response, no need for separate call
     const template: FormTemplate = {
       id: templateData.id,

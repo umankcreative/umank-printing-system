@@ -78,6 +78,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
     switch (status) {
       case 'todo':
         return 'To Do';
+      case 'pending':
+        return 'Pending';
       case 'in-progress':
         return 'In Progress';
       case 'review':
@@ -86,6 +88,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
         return 'Completed';
       case 'closed':
         return 'Closed';
+      case 'blocked':
+        return 'Blocked';
       default:
         return 'To Do';
     }
@@ -95,13 +99,13 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
     <Link to={`/admin/tasks/${task.id}`} className="block">
     <div
       ref={drag}
-      className={`bg-white rounded-lg shadow-sm border border-gray-200 transition-all duration-200 cursor-move p-4 ${
+      className={`bg-white rounded-lg shadow-sm border border-${task.status}-border transition-all duration-200 cursor-move p-1 ${
         isDragging ? 'opacity-50' : 'opacity-100'
       }`}
       style={{ width: '100%' }}
     >
       <div className="flex items-center justify-between mb-2">
-        <span className={`status-badge ${getStatusBadgeClass(task.status)}`}>
+        <span className={`text-xs status-badge ${getStatusBadgeClass(task.status)}`}>
           {getStatusText(task.status)}
         </span>
         <div className="flex items-center justify-between">
@@ -115,9 +119,9 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
         </div>
       </div>
       <div>
-        <h4 className="font-medium mb-1 text-left">{task.title}</h4>
+        <span className="text-sm font-medium mb-1 text-left">{task.title}</span>
         {task.description && (
-          <p className="text-sm mb-2 text-left line-clamp-2">
+          <p className="text-xs mb-2 text-left line-clamp-1">
             {task.description}
           </p>
         )}

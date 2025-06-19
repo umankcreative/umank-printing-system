@@ -18,7 +18,7 @@ import {
   Menu,
   X,
   ArchiveRestore,
-  DownloadCloud,
+  // DownloadCloud,
 } from 'lucide-react';
 
 interface NavItem {
@@ -83,13 +83,19 @@ const navigation: NavItem[] = [
     icon: <ArchiveRestore size={20} />,
     path: '/admin/form-management',
     roles: ['admin'],
+  },
+  {
+    name: 'Formulir Submissions',
+    icon: <ArchiveRestore size={20} />,
+    path: '/admin/form-submissions',
+    roles: ['admin'],
+  },
+  {
+      name: 'Pengaturan',
+      icon: <Settings size={20} />,
+      path: '/admin/settings',
+      roles: ['admin'],
     },
-    {
-        name: 'Pengaturan',
-        icon: <Settings size={20} />,
-        path: '/admin/settings',
-        roles: ['admin'],
-      },
     // {
     //     name: 'Invoice',
     //     icon: <DownloadCloud size={20} />,

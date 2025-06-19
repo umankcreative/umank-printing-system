@@ -14,36 +14,9 @@ import { TaskTable } from '../components/task/TaskTable';
 import { TaskDialog } from '../components/task/TaskDialog';
 import { Pagination } from '../components/task/Pagination';
 import { Task, TaskStatus } from '../types';
-// import {
-//   DndContext,
-//   DragStartEvent,
-//   DragEndEvent,
-//   closestCorners,
-//   DragOverlay,
-//   useSensor,
-//   useSensors,
-//   PointerSensor,
-//   useDroppable,
-// } from '@dnd-kit/core';
-// import {
-//   SortableContext,
-//   verticalListSortingStrategy,
-// } from '@dnd-kit/sortable';
 import { ToggleGroup, ToggleGroupItem } from '../components/ui/toggle-group';
 import { useTaskContext } from '../context/TaskContext';
-// import { createPortal } from 'react-dom';
 import KanbanBoard from '../components/task/KanbanBoard';
-
-// const DroppableContainer = ({
-//   id,
-//   children,
-// }: {
-//   id: string;
-//   children: React.ReactNode;
-// }) => {
-//   const { setNodeRef } = useDroppable({ id });
-//   return <div ref={setNodeRef}>{children}</div>;
-// };
 
 const TodoBoard: React.FC = () => {
   const { 
@@ -76,6 +49,7 @@ const TodoBoard: React.FC = () => {
       total: tasks.length,
       byStatus: {
         pending: tasks.filter(t => t.status === 'pending').length,
+        todo: tasks.filter(t => t.status === 'todo').length,
         inProgress: tasks.filter(t => t.status === 'in-progress').length,
         review: tasks.filter(t => t.status === 'review').length,
         completed: tasks.filter(t => t.status === 'completed').length,
@@ -213,7 +187,7 @@ const TodoBoard: React.FC = () => {
   if (loading) {
     return (
       <div className="container mx-auto p-4 flex items-center justify-center h-screen">
-        <div className="text-lg">Loading tasks...</div>
+        <div className="text-lg">Memuad tugas...</div>
       </div>
     );
   }
@@ -222,7 +196,7 @@ const TodoBoard: React.FC = () => {
     return (
       <div className="container mx-auto p-4">
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-          <p className="font-medium">Error loading tasks</p>
+          <p className="font-medium">Gagal memuat tugas</p>
           <p className="text-sm">{error}</p>
         </div>
       </div>

@@ -22,9 +22,9 @@ function GuestLayout() {
         <Outlet />
       </main>
 
-      <footer>
+      {/* <footer>
         <Footer />
-      </footer>
+      </footer> */}
 
       {/* <Hero />
       <About />
