@@ -31,16 +31,14 @@ const FormSubmissionList: React.FC = () => {
 
   useEffect(() => {
     getFormSubmissions()
-      .then(res => setSubmissions(res.data)
-      )
-      
+      .then(res => setSubmissions(res.data))
       .catch(() => setSubmissions([]))
       .finally(() => setLoading(false));
   }, []);
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-2xl font-bold mb-4">Form Submissions</h1>
+    <div>
+      <h1 className="text-2xl font-bold mb-4">Isian Form</h1>
       {loading ? (
         <p>Loading...</p>
       ) : (
@@ -49,8 +47,8 @@ const FormSubmissionList: React.FC = () => {
             <tr>
               <th className="px-4 py-2 border">Template</th>
               <th className="px-4 py-2 border">Status</th>
-              <th className="px-4 py-2 border">Submitted At</th>
-              <th className="px-4 py-2 border">Action</th>
+              <th className="px-4 py-2 border">Dikirim pada</th>
+              <th className="px-4 py-2 border">Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -68,7 +66,7 @@ const FormSubmissionList: React.FC = () => {
             ))}
             {submissions.length === 0 && (
               <tr>
-                <td colSpan={4} className="text-center py-4">No submissions found.</td>
+                <td colSpan={4} className="text-center py-4">Tidak ada isian form yang dikirimkan.</td>
               </tr>
             )}
           </tbody>

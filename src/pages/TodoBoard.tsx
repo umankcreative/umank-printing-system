@@ -13,7 +13,7 @@ import { TaskCalendar } from '../components/task/TaskCalendar';
 import { TaskTable } from '../components/task/TaskTable';
 import { TaskDialog } from '../components/task/TaskDialog';
 import { Pagination } from '../components/task/Pagination';
-import { Task, TaskStatus } from '../types';
+import { Task } from '../types';
 import { ToggleGroup, ToggleGroupItem } from '../components/ui/toggle-group';
 import { useTaskContext } from '../context/TaskContext';
 import KanbanBoard from '../components/task/KanbanBoard';
@@ -194,7 +194,7 @@ const TodoBoard: React.FC = () => {
 
   if (error) {
     return (
-      <div className="container mx-auto p-4">
+      <div>
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
           <p className="font-medium">Gagal memuat tugas</p>
           <p className="text-sm">{error}</p>
@@ -208,7 +208,7 @@ const TodoBoard: React.FC = () => {
 
   
   return (
-    <div className="container mx-auto p-4">
+    <div>
       <div className="flex items-center justify-between mb-6 px-2">
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>

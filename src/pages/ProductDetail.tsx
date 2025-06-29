@@ -3,8 +3,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Edit, Clock, AlertCircle } from 'lucide-react';
 import { formatCurrency } from '../lib/utils';
 import { productService } from '../services/productService';
-import { Product } from '../types/api';
-import { TaskTemplate } from '../types/api';
+import { Product, TaskTemplate } from '../types/api';
+
 
 const ProductDetail: React.FC = () => {
   const backendBaseURL = 'http://127.0.0.1:8000';
@@ -81,10 +81,10 @@ const ProductDetail: React.FC = () => {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Product Images */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+        <div className="bg-white rounded-lg shadow-md p-4">
+          <h2 className="text-lg font-semibold text-gray-800 mb-2">
             Gambar Produk
           </h2>
           <div className="grid grid-cols-2 gap-4">
@@ -123,31 +123,31 @@ const ProductDetail: React.FC = () => {
         </div>
 
         {/* Product Information */}
-        <div className="space-y-6">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+        <div className="space-y-4 col-span-2">
+          <div className="bg-white rounded-lg shadow-md p-4">
+            <h2 className="text-md font-semibold text-gray-800 mb-2">
               Informasi Produk
             </h2>
-            <div className="space-y-4">
+            <div className="space-y-2">
               <div>
-                <h3 className="text-sm font-medium text-gray-500">Deskripsi</h3>
-                <p className="mt-1 text-gray-800">{product.description}</p>
+                <h3 className="text-xs font-medium text-gray-500">Deskripsi</h3>
+                <p className="text-sm mt-1 text-gray-800">{product.description}</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500">
+                  <h3 className="text-xs font-medium text-gray-500">
                     Harga Modal
                   </h3>
-                  <p className="mt-1 text-lg font-semibold text-gray-800">
+                  <p className="text-sm mt-1 text-md font-semibold text-gray-800">
                     {formatCurrency(product.cost_price)}
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500">
+                  <h3 className="text-xs font-medium text-gray-500">
                     Harga Jual
                   </h3>
-                  <p className="mt-1 text-lg font-semibold text-purple-600">
+                  <p className="text-sm mt-1 text-md font-semibold text-purple-600">
                     {formatCurrency(product.price)}
                   </p>
                 </div>
@@ -155,10 +155,10 @@ const ProductDetail: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500">
+                  <h3 className="text-xs font-medium text-gray-500">
                     Minimum Order
                   </h3>
-                  <p className="mt-1 text-gray-800">{product.min_order}</p>
+                  <p className="text-sm mt-1 text-gray-800">{product.min_order}</p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Stok</h3>
@@ -177,33 +177,33 @@ const ProductDetail: React.FC = () => {
               </div>
 
               {/* Additional Product Details */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500">
+                  <h3 className="text-xs font-medium text-gray-500">
                     Jenis Kertas
                   </h3>
-                  <p className="mt-1 text-gray-800">{product.paper_type || '-'}</p>
+                  <p className="text-sm mt-1 text-gray-800">{product.paper_type || '-'}</p>
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500">
+                  <h3 className="text-xs font-medium text-gray-500">
                     Gramasi Kertas
                   </h3>
-                  <p className="mt-1 text-gray-800">{product.paper_grammar || '-'}</p>
+                  <p className="text-sm mt-1 text-gray-800">{product.paper_grammar || '-'}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500">
+                  <h3 className="text-xs font-medium text-gray-500">
                     Jenis Print
                   </h3>
-                  <p className="mt-1 text-gray-800">{product.print_type || '-'}</p>
+                  <p className="text-sm mt-1 text-gray-800">{product.print_type || '-'}</p>
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500">
+                  <h3 className="text-xs font-medium text-gray-500">
                     Finishing
                   </h3>
-                  <p className="mt-1 text-gray-800">
+                  <p className="text-sm mt-1 text-gray-800">
                     {product.finishing_type === 'Lainnya'
                       ? product.custom_finishing
                       : product.finishing_type || '-'}
@@ -214,30 +214,30 @@ const ProductDetail: React.FC = () => {
           </div>
 
           {/* Recipe/Ingredients */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-md font-semibold text-gray-800 mb-4">
+          <div className="bg-white rounded-lg shadow-md p-4">
+            <h2 className="text-md font-semibold text-gray-800 mb-2">
               Bahan Produk (Resep)
             </h2>
             {!product.ingredients || product.ingredients.length === 0 ? (
-              <p className="text-gray-500 text-sm">No ingredients added to this product.</p>
+              <p className="text-gray-500 text-sm">Produk ini belum memiliki bahan.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead>
                     <tr>
-                      <th className="table-header px-4 py-3 text-left text-sm">
+                      <th className="table-header px-4 py-3 text-left text-xs">
                         No
                       </th>
-                      <th className="table-header px-4 py-3 text-left text-sm">
+                      <th className="table-header px-4 py-3 text-left text-xs">
                         Nama Bahan
                       </th>
-                      <th className="table-header px-4 py-3 text-center text-sm">
+                      <th className="table-header px-4 py-3 text-center text-xs">
                         Jumlah
                       </th>
-                      <th className="table-header px-4 py-3 text-left text-sm">
+                      <th className="table-header px-4 py-3 text-left text-xs">
                         Unit
                       </th>
-                      <th className="table-header px-4 py-3 text-left text-sm">
+                      <th className="table-header px-4 py-3 text-left text-xs">
                         Notes
                       </th>
                     </tr>
@@ -273,15 +273,12 @@ const ProductDetail: React.FC = () => {
               </div>
             )}
           </div>
-        </div>
-
-        {/* Tasks Section */}
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+          <div className="lg:col-span-2">
+          <div className="bg-white rounded-lg shadow-md p-4">
+            <h2 className="text-md font-semibold text-gray-800 mb-2">
               Tugas Produksi
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {product.ingredients?.map((ingredient) =>
                 ingredient.task_templates?.map((task: TaskTemplate) => (
                   <div
@@ -317,6 +314,10 @@ const ProductDetail: React.FC = () => {
             </div>
           </div>
         </div>
+        </div>
+
+        {/* Tasks Section */}
+        
       </div>
     </div>
   );

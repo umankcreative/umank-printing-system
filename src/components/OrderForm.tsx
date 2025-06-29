@@ -499,6 +499,78 @@ const OrderForm: React.FC<OrderFormProps> = ({
         </div>
       </div>
 
+      <div className="bg-white p-6 rounded-lg shadow-sm border">
+        <h2 className="text-lg font-semibold mb-4">Info Pemesanan</h2>
+        <div className="flex gap-4">
+          <div>
+            <Label htmlFor="delivery_date">Tanggal Pengiriman</Label>
+            <Input
+              id="delivery_date"
+              type="date"
+              value={orderDetails.delivery_date}
+              onChange={(e) =>
+                setOrderDetails((prev) => ({
+                  ...prev,
+                  delivery_date: e.target.value,
+                }))
+              }
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="payment_method">Metode Pembayaran</Label>
+            <select
+              id="payment_method"
+              value={orderDetails.payment_method || 'cash'}
+              onChange={(e) =>
+                setOrderDetails((prev) => ({
+                  ...prev,
+                  payment_method: e.target.value as 'cash' | 'transfer' | 'debit' | 'credit',
+                }))
+              }
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option value="cash">Cash</option>
+              <option value="transfer">Transfer</option>
+              <option value="debit">Kartu Debit</option>
+              <option value="credit">Kartu Kredit</option>
+            </select>
+          </div>
+          <div>
+            <Label htmlFor="payment_status">Status Pembayaran</Label>
+            <select
+              id="payment_status"
+              value={orderDetails.payment_status || 'unpaid'}
+              onChange={(e) =>
+                setOrderDetails((prev) => ({
+                  ...prev,
+                  payment_status: e.target.value as 'unpaid' | 'partial' | 'paid',
+                }))
+              }
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option value="unpaid">Belum Dibayar</option>
+              <option value="partial">Sebagian</option>
+              <option value="paid">Lunas</option>
+            </select>
+          </div>
+          <div className='flex-1'>
+            <Label htmlFor="notes">Catatan</Label>
+            <Input
+              id="notes"
+              value={orderDetails.notes}
+              onChange={(e) =>
+                setOrderDetails((prev) => ({
+                  ...prev,
+                  notes: e.target.value,
+                }))
+              }
+              placeholder="Tambahkan catatan pesanan (opsional)"
+            />
+          </div>
+        </div>
+      </div>
+      
       {/* Order Items */}
       <div className="bg-white p-6 rounded-lg shadow-sm border">
         <div className="flex justify-between items-center mb-4">
@@ -590,77 +662,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
       </div>
 
       {/* Order Details */}
-      <div className="bg-white p-6 rounded-lg shadow-sm border">
-        <h2 className="text-lg font-semibold mb-4">Detail Pesanan</h2>
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="delivery_date">Tanggal Pengiriman</Label>
-            <Input
-              id="delivery_date"
-              type="date"
-              value={orderDetails.delivery_date}
-              onChange={(e) =>
-                setOrderDetails((prev) => ({
-                  ...prev,
-                  delivery_date: e.target.value,
-                }))
-              }
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="payment_method">Metode Pembayaran</Label>
-            <select
-              id="payment_method"
-              value={orderDetails.payment_method || 'cash'}
-              onChange={(e) =>
-                setOrderDetails((prev) => ({
-                  ...prev,
-                  payment_method: e.target.value as 'cash' | 'transfer' | 'debit' | 'credit',
-                }))
-              }
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <option value="cash">Cash</option>
-              <option value="transfer">Transfer</option>
-              <option value="debit">Kartu Debit</option>
-              <option value="credit">Kartu Kredit</option>
-            </select>
-          </div>
-          <div>
-            <Label htmlFor="payment_status">Status Pembayaran</Label>
-            <select
-              id="payment_status"
-              value={orderDetails.payment_status || 'unpaid'}
-              onChange={(e) =>
-                setOrderDetails((prev) => ({
-                  ...prev,
-                  payment_status: e.target.value as 'unpaid' | 'partial' | 'paid',
-                }))
-              }
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <option value="unpaid">Belum Dibayar</option>
-              <option value="partial">Sebagian</option>
-              <option value="paid">Lunas</option>
-            </select>
-          </div>
-          <div>
-            <Label htmlFor="notes">Catatan</Label>
-            <Input
-              id="notes"
-              value={orderDetails.notes}
-              onChange={(e) =>
-                setOrderDetails((prev) => ({
-                  ...prev,
-                  notes: e.target.value,
-                }))
-              }
-              placeholder="Tambahkan catatan pesanan (opsional)"
-            />
-          </div>
-        </div>
-      </div>
+      
 
       {/* Form Actions */}
       <div className="flex justify-end gap-4">

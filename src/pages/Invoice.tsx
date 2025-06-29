@@ -88,7 +88,7 @@ const Invoice = () => {
               <p className="mt-2">{order.branch?.location}</p>
             </div>
             <div>
-              <h2 className="text-xl font-semibold mb-2">BILLED TO</h2>
+              <h2 className="text-xl font-semibold mb-2">DITAGIHKAN KE</h2>
               <p>{order.customer?.name}</p>
               <p>{order.customer?.address}</p>
               <p>{order.customer?.phone}</p>
@@ -96,7 +96,7 @@ const Invoice = () => {
           </div>
           <div className="flex justify-between mb-8">
             <div>
-              <h2 className="text-xl font-semibold mb-2">DELIVERY INFO</h2>
+              <h2 className="text-xl font-semibold mb-2">INFO PENGIRIMAN</h2>
               <p>Status: {order.status}</p>
               <p>Payment: {order.payment_status}</p>
               <p>Method: {order.payment_method}</p>
@@ -114,10 +114,10 @@ const Invoice = () => {
           <div id="item-data" className="w-full mb-8">
             <div className="bg-blue-200 flex rounded-t">
               <div className="p-2 w-12"></div>
-              <div className="p-2 flex-grow text-left">ITEM NAME/DESCRIPTION</div>
+              <div className="p-2 flex-grow text-left">NAMA ITEM/DESKRIPSI</div>
               <div className="p-2 flex-1 text-right">QTY.</div>
-              <div className="p-2 flex-1 text-right">PRICE</div>
-              <div className="p-2 flex-1 text-right">AMOUNT</div>
+              <div className="p-2 flex-1 text-right">HARGA</div>
+              <div className="p-2 flex-1 text-right">JUMLAH</div>
             </div>
             {order.items?.map((item, index) => (
               <div key={index} className="flex border-t border-b">

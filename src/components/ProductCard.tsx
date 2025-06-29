@@ -55,7 +55,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete }) => {
               className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-left"
             >
               <Trash className="h-4 w-4 mr-2" />
-              Delete
+              Hapus
             </button>
           </div>
         )}
@@ -67,34 +67,34 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete }) => {
         </div>
         <div className="mt-4 flex items-center justify-between">
           <div className="flex flex-col">
-            <span className="text-sm text-gray-500">Price</span>
+            <span className="text-sm text-gray-500">Harga</span>
             <span className="font-medium text-gray-900">
               {formatCurrency(product.price)}
             </span>
           </div>
           <div className="flex flex-col items-end">
-            <span className="text-sm text-gray-500">Stock</span>
+            <span className="text-sm text-gray-500">Stok</span>
             <span className="font-medium text-gray-900">{product.stock}</span>
           </div>
         </div>
-        <div className="mt-4 flex justify-end space-x-2">
+        <div className="mt-4 flex justify-center space-x-2">
           <Link
             to={`/admin/products/${product.id}`}
             className="btn btn-sm btn-outline-secondary flex items-center"
           >
-            <EyeIcon size={16} className="mr-1" /> Detail
+            <EyeIcon size={16} className="mr-1" />
           </Link>
           <Link
             to={`/admin/products/edit/${product.id}`}
             className="btn btn-sm btn-outline-primary flex items-center"
           >
-            <Edit size={16} className="mr-1" /> Edit
+            <Edit size={16} className="mr-1" />
           </Link>
           <button
             onClick={() => onDelete(product)}
             className="btn btn-sm btn-outline-danger flex items-center"
           >
-            <Trash size={16} className="mr-1" /> Delete
+            <Trash size={16} className="mr-1" />
           </button>
         </div>
       </div>

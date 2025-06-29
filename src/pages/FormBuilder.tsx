@@ -183,8 +183,8 @@ useEffect(() => {
     setIsEditorOpen(true);
   } catch (err) {
     toast({
-      title: 'Error',
-      description: err instanceof Error ? err.message : 'Failed to add element',
+      title: 'Gagal',
+      description: err instanceof Error ? err.message : 'Gagal menambahkan elemen',
       variant: 'destructive',
     });
   }
@@ -198,7 +198,7 @@ useEffect(() => {
 
   const handleSaveElement = async (updatedElement: FormElement) => {
     try {
-      console.log('Saving form element:', {
+      console.log('Menyimpan elemen form:', {
         id: updatedElement.id,
         template_id: template.id,
         type: updatedElement.type,
@@ -220,9 +220,9 @@ useEffect(() => {
       setIsEditorOpen(false);
       setEditingElement(null);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to save element';
+      const errorMessage = err instanceof Error ? err.message : 'Gagal menyimpan elemen';
       toast({
-        title: 'Error',
+        title: 'Gagal',
         description: errorMessage,
         variant: 'destructive',
       });
@@ -234,25 +234,25 @@ useEffect(() => {
     try {
       // Show confirmation dialog
       const confirmed = window.confirm('Apakah Anda yakin ingin menghapus elemen ini?');
-      console.log('Delete confirmation:', confirmed);
+      console.log('Konfirmasi penghapusan:', confirmed);
 
       if (!confirmed) {
-        console.log('Delete cancelled by user');
+        console.log('Penghapusan dibatalkan oleh pengguna');
         return;
       }
 
-      console.log('Sending delete request for element:', elementId);
+      console.log('Mengirim permintaan penghapusan untuk elemen:', elementId);
       // Delete from server first
       await formService.deleteFormElement(elementId);
-      console.log('Element deleted from server successfully');
+      console.log('Elemen berhasil dihapus dari server');
 
       // Then update local state
       setTemplate(prevTemplate => {
         const updatedElements = (prevTemplate.elements || []).filter((elem) => {
-          console.log('Checking element:', elem.id, 'against:', elementId);
+          console.log('Memeriksa elemen:', elem.id, 'terhadap:', elementId);
           return elem.id !== elementId;
         });
-        console.log('Updated elements length:', updatedElements.length);
+        console.log('Panjang elemen yang diperbarui:', updatedElements.length);
         return {
           ...prevTemplate,
           elements: updatedElements,
@@ -264,10 +264,10 @@ useEffect(() => {
         description: 'Elemen form berhasil dihapus',
       });
     } catch (err) {
-      console.error('Error deleting element:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to delete element';
+      console.error('Error menghapus elemen:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Gagal menghapus elemen';
       toast({
-        title: 'Error',
+        title: 'Gagal',
         description: errorMessage,
         variant: 'destructive',
       });
@@ -287,17 +287,17 @@ useEffect(() => {
     });
 
     if (!over) {
-      console.warn('Drag ended without a target (over is null) - ignoring event');
+      console.warn('Drag berakhir tanpa target (over adalah null) - mengabaikan event');
       return;
     }
 
     if (!active?.id) {
-      console.error('Active element has no ID - ignoring event');
+      console.error('Elemen aktif tidak memiliki ID - mengabaikan event');
       return;
     }
 
     if (active.id === over.id) {
-      console.log('Element dropped in same position - no reordering needed');
+      console.log('Elemen dijatuhkan di posisi yang sama - tidak perlu pengurutan ulang');
       return;
     }
 
@@ -305,8 +305,8 @@ useEffect(() => {
     const originalElements = (template.elements || []).filter(element => element.id);
     
     try {
-      // Debug log untuk elements sebelum reorder
-      console.log('Debug - Elements before reorder:', originalElements.map(e => ({
+      // Debug log untuk elemen sebelum reorder
+      console.log('Debug - Elemen sebelum reorder:', originalElements.map(e => ({
         id: e.id,
         label: e.label,
         order: e.order
@@ -317,7 +317,7 @@ useEffect(() => {
       const overId = String(over.id);
 
       if (!activeId || !overId) {
-        console.error('Invalid element IDs:', { activeId, overId });
+        console.error('ID elemen tidak valid:', { activeId, overId });
         return;
       }
 
@@ -325,8 +325,8 @@ useEffect(() => {
       const oldIndex = originalElements.findIndex(item => String(item.id) === activeId);
       const newIndex = originalElements.findIndex(item => String(item.id) === overId);
 
-      // Log more details about the indices
-      console.log('Index lookup details:', {
+      // Log lebih detail tentang indeks
+      console.log('Detail pencarian indeks:', {
         activeId,
         overId,
         oldIndex,
@@ -336,7 +336,7 @@ useEffect(() => {
 
       // Validate indices
       if (oldIndex === -1 || newIndex === -1) {
-        console.error('Invalid indices found:', { 
+        console.error('Indeks tidak valid ditemukan:', { 
           oldIndex, 
           newIndex, 
           activeId, 
@@ -352,8 +352,8 @@ useEffect(() => {
 
       const reorderedElements = arrayMove(originalElements, oldIndex, newIndex);
 
-      // Debug log untuk elements setelah reorder
-      console.log('Debug - Elements after reorder:', reorderedElements.map(e => ({
+      // Debug log untuk elemen setelah reorder
+      console.log('Debug - Elemen setelah reorder:', reorderedElements.map(e => ({
         id: e.id,
         label: e.label,
         order: e.order
@@ -369,7 +369,7 @@ useEffect(() => {
       const elementIds = reorderedElements.map(element => String(element.id));
 
       // Debug log untuk data yang akan dikirim ke server
-      console.log('Sending reorder request:', {
+      console.log('Mengirim permintaan pengurutan ulang:', {
         templateId: template.id,
         elementIds
       });
@@ -381,10 +381,10 @@ useEffect(() => {
         description: 'Urutan elemen form telah diperbarui',
       });
       } catch (err) {
-      console.error('Error during reorder:', err);
+      console.error('Error saat pengurutan ulang:', err);
       const errorMessage = err instanceof Error ? err.message : 'Gagal mengubah urutan elemen';
         toast({
-          title: 'Error',
+          title: 'Gagal',
           description: errorMessage,
           variant: 'destructive',
         });
@@ -400,7 +400,7 @@ useEffect(() => {
   const handleSaveTemplate = async () => {
     if (!template.name.trim()) {
       toast({
-        title: 'Error',
+        title: 'Gagal',
         description: 'Nama template tidak boleh kosong',
         variant: 'destructive',
       });
@@ -416,7 +416,7 @@ useEffect(() => {
           description: template.description || '',
           category_id: template.category_id || '',
         };
-        console.log('FormBuilder sending update data:', updateData);
+        console.log('FormBuilder mengirim data pembaruan:', updateData);
         await updateFormTemplate(updateData);
       } else {
         // For new template, include only required fields
@@ -434,9 +434,9 @@ useEffect(() => {
         description: `Template form "${template.name}" telah disimpan`,
       });
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to save template';
+      const errorMessage = err instanceof Error ? err.message : 'Gagal menyimpan template';
       toast({
-        title: 'Error',
+        title: 'Gagal',
         description: errorMessage,
         variant: 'destructive',
       });
@@ -540,7 +540,7 @@ useEffect(() => {
                         element={element}
                         onEdit={() => handleEditElement(element)}
                             onDelete={() => handleDeleteElement(element.id)}
-                            onClick={() => console.log('Rendering form element:', {
+                            onClick={() => console.log('Rendering elemen form:', {
                               id: element.id,
                               type: element.type,
                               label: element.label

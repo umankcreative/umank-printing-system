@@ -11,7 +11,7 @@ interface Testimonial {
 
 const testimonials: Testimonial[] = [
   {
-    name: 'Sarah Johnson',
+    name: 'Sarah Andita',
     role: 'Marketing Director',
     company: 'Elevate Studios',
     content:
@@ -19,7 +19,7 @@ const testimonials: Testimonial[] = [
     rating: 5,
   },
   {
-    name: 'Michael Chen',
+    name: 'Michael Tanujaya',
     role: 'Event Coordinator',
     company: 'Global Events',
     content:
@@ -27,7 +27,7 @@ const testimonials: Testimonial[] = [
     rating: 5,
   },
   {
-    name: 'Ava Williams',
+    name: 'Eva Mardianti',
     role: 'Brand Manager',
     company: 'Fusion Brands',
     content:

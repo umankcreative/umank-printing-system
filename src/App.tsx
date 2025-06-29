@@ -16,6 +16,7 @@ import Shop from './pages/Shop';
 import Cart from './pages/Cart';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
+import { TooltipProvider } from './components/ui/tooltip';
 // src/App.tsx or your router configuration file
 import { Settings } from './pages/Settings';
 import Customers from './pages/Customers';
@@ -69,7 +70,9 @@ function App() {
                       <CustomerProvider>
                         <TaskProvider>
                           <FormProvider>
+                            <TooltipProvider>
                               <AdminLayout/>
+                            </TooltipProvider>
                           </FormProvider>
                         </TaskProvider>
                       </CustomerProvider>
@@ -99,11 +102,6 @@ function App() {
             <Route path="form-management" element={<FormManagement />} />
             <Route path="form-submissions" element={<FormSubmissionList />} />
             <Route path="form-submissions/:id" element={<FormSubmissionDetail />} />
-            
-
-            {/* <Route path="invoice" element={<IndexTemplate />} />
-            <Route path="template" element={<TemplatePage />} />
-            <Route path="receipt" element={<ReceiptPage />} /> */}
             
           </Route>
 
@@ -138,6 +136,7 @@ function App() {
             />
             <Route path="form/:id" element={<PublicForm />} />
             <Route path='login' element={<Login />} />
+            <Route path="logout" element={<Login />} />
             
           </Route>
           <Route path="*" element={<NotFoundPage />} />

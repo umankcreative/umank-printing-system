@@ -11,53 +11,61 @@ const portfolioItems: PortfolioItem[] = [
   {
     image:
       'https://images.pexels.com/photos/434346/pexels-photo-434346.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750',
-    title: 'Premium Business Cards',
+    title: 'Kartu Nama Premium',
     category: 'Digital Printing',
-    description: 'Luxury business cards with spot UV and gold foil stamping.',
+    description: 'Kartu nama mewah dengan spot UV dan Foil emas.',
+  },
+  {
+    image:
+      'https://images.pexels.com/photos/434347/pexels-photo-434347.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750',
+    title: 'Buku Yasin',
+    category: 'Yasin',
+    description: 'Buku Yasin Hard Cover dan SOft Cover Full Color.',
   },
   {
     image:
       'https://images.pexels.com/photos/851213/pexels-photo-851213.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750',
-    title: 'Product Catalogs',
+    title: 'Katalog Produk',
     category: 'Offset Printing',
     description:
-      'High-volume product catalogs with perfect binding and premium paper.',
+      'Katalog produk dengan jumlah banyak, dengan jilid premium dahan bahan eksklusif.',
   },
   {
     image:
       'https://images.pexels.com/photos/5611073/pexels-photo-5611073.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750',
-    title: 'Custom Food Packaging',
+    title: 'Kemasan Makanan',
     category: 'Packaging',
     description:
-      'Food-grade packaging with custom designs and protective coatings.',
+      'Kemasan makanan yang Food-grade dengan desain yang unik.',
   },
   {
     image:
       'https://images.pexels.com/photos/4467734/pexels-photo-4467734.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750',
-    title: 'Exhibition Graphics',
+    title: 'Grafis Pameran',
     category: 'Large Format',
-    description: 'Large format prints for trade shows and exhibitions.',
+    description: 'Cetakan dengan Format besar, cocok untuk pameran .',
   },
   {
     image:
       'https://images.pexels.com/photos/6243745/pexels-photo-6243745.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750',
-    title: 'Corporate Stationery',
+    title: 'Alat Tulis Perusahaan',
     category: 'Corporate Identity',
-    description: 'Complete corporate identity package with premium finishes.',
+    description: 'Finishing premium untuk Alat tulis perusahaan.',
   },
   {
     image:
       'https://images.pexels.com/photos/3182750/pexels-photo-3182750.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750',
-    title: 'Special Finish Products',
+    title: 'Finishing Premium',
     category: 'Finishing Services',
-    description: 'Products showcasing various premium finishing techniques.',
+    description: 'Menampilkan teknik premium finishing berkualitas tinggi.',
   },
 ];
 
 const Portfolio: React.FC = () => {
   const [filter, setFilter] = useState('All');
   const categories = [
-    'All',
+    'Semua',
+    'Yasin',
     'Digital Printing',
     'Offset Printing',
     'Packaging',
@@ -67,7 +75,7 @@ const Portfolio: React.FC = () => {
   ];
 
   const filteredItems =
-    filter === 'All'
+    filter === 'Semua'
       ? portfolioItems
       : portfolioItems.filter((item) => item.category === filter);
 
@@ -80,7 +88,7 @@ const Portfolio: React.FC = () => {
           data-aos-delay="200"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Our Portfolio
+            Portfolio kami
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
             Explore our diverse range of printing projects that showcase our
@@ -127,7 +135,7 @@ const Portfolio: React.FC = () => {
                     {item.description}
                   </p>
                   <button className="bg-white text-gray-900 px-4 py-2 rounded-lg text-sm font-medium">
-                    View Details
+                    Lihat Detail
                   </button>
                 </div>
               </div>
@@ -149,7 +157,7 @@ const Portfolio: React.FC = () => {
           data-aos-delay="800"
         >
           <button className="px-6 py-3 border-2 border-gray-900 text-gray-900 font-medium rounded-lg hover:bg-gray-900 hover:text-white transition-colors">
-            View All Projects
+            Lihat Semua Project
           </button>
         </div>
       </div>

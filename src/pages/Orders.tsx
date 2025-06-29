@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Search, Loader2, Pencil, Trash2, ShoppingCart, FileText } from 'lucide-react';
+import { Plus, Search, Loader2, ShoppingCart } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import OrderForm from '../components/OrderForm';
-import { Order } from '../types';
+import {OrderActions} from '../components/OrderActions';
+import { Order } from '../types/api';
 import { useOrderContext } from '../context/OrderContext';
 import { formatCurrency } from '../lib/utils';
+import { createFormSubmission } from  '../services/formService';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
@@ -16,6 +18,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '../components/ui/dialog';
+// import { v4 as uuidv4 } from 'uuid';
 
 const Orders: React.FC = () => {
   const navigate = useNavigate();
@@ -51,6 +54,44 @@ const Orders: React.FC = () => {
   useEffect(() => {
     fetchOrders({ search: debouncedSearchTerm || undefined });
   }, [debouncedSearchTerm, fetchOrders]);
+
+  const getTemplatesForOrder = () => {
+      if (order.items.length === 0) return [];
+      
+      // Get unique category IDs from cart items
+      const uniqueCategories = [...new Set(order.items.map(item => orders.item.category))];
+      // console.log('Unique categories:', uniqueCategories);
+      const templates: FormTemplate[] = [];
+      
+      // Find matching templates using formCategoryMappings
+      uniqueCategories.forEach(categoryName => {
+        // Find the mapping for this category
+        const mapping = formCategoryMappings.find(m => m.categoryName === categoryName);
+        if (mapping) {
+          // console.log('Found mapping for category:', {
+          //   categoryId: mapping.categoryId,
+          //   categoryName: mapping.categoryName,
+          //   formTemplateId: mapping.formTemplateId
+          // });
+  
+          // Use the existing getFormTemplateForCategory function
+          const template = getFormTemplateForCategory(mapping.categoryId);
+        if (template) {
+          // console.log('Found template:', {
+          //   id: template.id,
+          //   name: template.name,
+          //   categoryId: template.category_id
+          // });
+          templates.push(template);
+        }
+        }
+        
+        
+        console.log(templates);
+      });
+      
+      return templates;
+    };
 
   const handleSubmit = async (order: Order) => {
     try {
@@ -168,7 +209,7 @@ const Orders: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <ShoppingCart className="h-6 w-6" />Orders</h1>
@@ -261,14 +302,16 @@ const Orders: React.FC = () => {
                   });
                   
                   return (
-                    <tr key={order.id} className="hover:bg-gray-50">
+                    
+                    <tr key={order.id} onClick={() => navigate(`/admin/orders/${order.id}`)} className="hover:bg-gray-50 cursor-pointer">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <Link
+                      <Link
                           to={`/admin/orders/${order.id}`}
                           className="text-purple-600 hover:text-purple-800"
-                        >
+                    >
                           #{order.id.slice(0, 8)}
-                        </Link>
+                      </Link>
+                        
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex flex-col">
@@ -276,16 +319,16 @@ const Orders: React.FC = () => {
                             {order.customer?.name || 'N/A'}
                           </span>
                           {order.customer?.company && (
-                            <span className="text-sm text-gray-500">
+                            <span className="text-xs text-gray-500">
                               {order.customer.company}
                             </span>
                           )}
-                          <span className="text-sm text-gray-500">
+                          <span className="text-xs text-gray-500">
                             {order.customer?.phone || 'N/A'}
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500">
                         {order.branch?.name || 'N/A'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -320,11 +363,12 @@ const Orders: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <span className="text-sm font-medium text-gray-600">
                           {order.items?.length || 0} items
+                      
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <div className="flex items-center justify-center gap-2">
-                          <Button
+                          {/* <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => handleEdit(order)}
@@ -347,13 +391,24 @@ const Orders: React.FC = () => {
   className="h-8 w-8 text-gray-600 hover:text-gray-700"
 >
   <FileText className="h-4 w-4" />
-</Button>
+                          </Button> */}
+                          
+                          <OrderActions
+    onEdit={() => handleEdit(order)}
+    onDelete={() => handleDelete(order)}
+    onDuplicate={() => handleAddForm(order)}
+    onPrint={() => navigate(`/admin/orders/${order.id}/invoice`)}
+    onMarkPaid={() => handleMarkPaid(order)}
+  />
                         </div>
                       </td>
-                    </tr>
+                      </tr>
+                      
                   );
                 })
-              )}
+                
+              )
+              }
             </tbody>
           </table>
         </div>

@@ -70,6 +70,11 @@ const ProductTable: React.FC<ProductTableProps> = ({
       {
         accessorKey: 'category',
         header: 'Kategori',
+        cell: ({ row }: { row: Row<Product> }) => (
+          <span className="text-sm text-gray-700">
+            {row.original.category?.name || 'Tidak ada kategori'}
+          </span>
+        ),
         size: 128,
       },
       {

@@ -1,18 +1,36 @@
 // src/pages/Settings.tsx
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Plus, Pencil, Trash2, Save, X, Settings2 } from 'lucide-react';
 import { PRODUCT_CATEGORIES, PAPER_OPTIONS, PaperOption } from '../types';
+import * as categoryService from '../services/categoryService';
+import { Category } from '../types/api';
 
 const Settings: React.FC = () => {
-  const [categories, setCategories] = useState<string[]>(PRODUCT_CATEGORIES);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [paperOptions, setPaperOptions] = useState<PaperOption[]>(PAPER_OPTIONS);
   const [newCategory, setNewCategory] = useState('');
   const [editingCategory, setEditingCategory] = useState<{ index: number; value: string } | null>(null);
   const [editingPaperOption, setEditingPaperOption] = useState<{ index: number; option: PaperOption } | null>(null);
-
-  
   const [newPaperOption, setNewPaperOption] = useState<PaperOption>({ name: '', grammars: [''] });
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+      const fetchCategories = async () => {
+        try {
+          const data = await categoryService.getCategories();
+          // Filter for product type categories only
+          const productCategories = data.filter(cat => cat.type === 'product');
+          setCategories(productCategories);
+        } catch (error) {
+          console.error('Error fetching categories:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchCategories();
+  }, []);
+  
   const handleAddCategory = () => {
     if (newCategory.trim()) {
       setCategories([...categories, newCategory.trim()]);
@@ -25,7 +43,7 @@ const Settings: React.FC = () => {
   };
 
   const handleEditCategory = (index: number) => {
-    setEditingCategory({ index, value: categories[index] });
+    setEditingCategory({ index, value: categories[index].name });
   };
 
   const handleSaveCategory = () => {
@@ -112,7 +130,7 @@ const handleEditPaperOption = (index: number) => {
                   </div>
                 ) : (
                   <>
-                    <span>{category}</span>
+                    <span>{category.name}</span>
                     <div className="flex gap-2">
                       <button onClick={() => handleEditCategory(index)} className="btn btn-ghost">
                         <Pencil size={18} className="text-purple-500" />

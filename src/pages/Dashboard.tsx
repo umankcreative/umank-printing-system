@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Box, ShoppingCart, ClipboardList, LayoutDashboard, Users, DollarSign, Utensils } from 'lucide-react';
+import { Package, ShoppingCart, ClipboardList, LayoutDashboard, Users, DollarSign, Utensils } from 'lucide-react';
 import { dashboardService, DashboardStats } from '../services/dashboardService';
 import { formatCurrency } from '../lib/utils';
 
@@ -28,37 +28,37 @@ const Dashboard: React.FC = () => {
 
   const statCards = [
     {
-      title: 'Total Products',
+      title: 'Total Produk',
       value: stats?.total_products || 0,
       icon: Package,
       color: 'bg-blue-500',
     },
     {
-      title: 'Total Ingredients',
+      title: 'Total Bahan',
       value: stats?.total_ingredients || 0,
       icon: Utensils,
       color: 'bg-green-500',
     },
     {
-      title: 'Total Orders',
+      title: 'Total Pesanan',
       value: stats?.total_orders || 0,
       icon: ShoppingCart,
       color: 'bg-purple-500',
     },
     {
-      title: 'Total Tasks',
+      title: 'Total Tugas',
       value: stats?.total_tasks || 0,
       icon: ClipboardList,
       color: 'bg-amber-500',
     },
     {
-      title: 'Total Customers',
+      title: 'Total Pelanggan',
       value: stats?.total_customers || 0,
       icon: Users,
       color: 'bg-pink-500',
     },
     {
-      title: 'Total Revenue',
+      title: 'Total Pendapatan',
       value: formatCurrency(stats?.total_revenue?.toString() || '0'),
       icon: DollarSign,
       color: 'bg-emerald-500',
@@ -117,19 +117,19 @@ const Dashboard: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           {/* Recent Orders */}
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-lg font-semibold mb-4">Recent Orders</h2>
+            <h2 className="text-lg font-semibold mb-4">Pesanan Terbaru</h2>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead>
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Customer
+                      Pelanggan
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Amount
+                      Jumlah
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
+                      Status Pesanan
                     </th>
                   </tr>
                 </thead>
@@ -160,19 +160,19 @@ const Dashboard: React.FC = () => {
 
           {/* Top Products */}
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-lg font-semibold mb-4">Top Products</h2>
+            <h2 className="text-lg font-semibold mb-4">Produk Terlaris</h2>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead>
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Product
+                      Produk
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Sales
+                      Penjualan
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Revenue
+                      Pendapatan
                     </th>
                   </tr>
                 </thead>

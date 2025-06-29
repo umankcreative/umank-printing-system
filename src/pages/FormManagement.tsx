@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { Edit, Plus, Trash } from 'lucide-react';
+import { Edit, FileText, Plus, Trash } from 'lucide-react';
 
 const FormManagement: React.FC = () => {
   const { formTemplates, formCategoryMappings, deleteFormTemplate, updateCategoryMapping } = useForm();
@@ -48,18 +48,28 @@ const FormManagement: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div>
+       {/* className="container mx-auto py-8 px-4" */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold">Manajemen Form</h1>
           <p className="text-gray-500">Kelola template form dan hubungkan dengan kategori produk</p>
         </div>
+        <div className="flex flex-wrap gap-2">
+        <Link to="/admin/form-submissions">
+          <Button>
+            <FileText className="w-4 h-4 mr-2" />
+            Lihat Isian Form
+          </Button>
+        </Link>
+        
         <Link to="/admin/form-builder/new">
           <Button>
             <Plus className="w-4 h-4 mr-2" />
             Buat Template Baru
           </Button>
         </Link>
+        </div>
       </div>
 
       <Tabs defaultValue="templates" className="w-full">

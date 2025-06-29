@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import * as categoryService from '../services/categoryService';
-import { Category } from '../types/formTypes';
+import { Category } from '../types/api';
 
 interface ProductFiltersProps {
   searchTerm: string;

@@ -211,10 +211,10 @@ const ProductList: React.FC = () => {
         </div>
       ) : products.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-gray-500">No products found.</p>
+          <p className="text-gray-500">Tidak ada produk.</p>
         </div>
       ) : viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {products.map((product) => (
             <ProductCard
               key={product.id}
@@ -247,17 +247,17 @@ const ProductList: React.FC = () => {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Product</DialogTitle>
+            <DialogTitle>Hapus Produk</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this product? This action cannot be undone.
+              Yakin ingin menghapus produk ini? Setelah terhapus produk tidak bisa dikembalikan.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-              Cancel
+              Batal
             </Button>
             <Button variant="destructive" onClick={handleConfirmDelete}>
-              Delete
+              Hapus
             </Button>
           </DialogFooter>
         </DialogContent>

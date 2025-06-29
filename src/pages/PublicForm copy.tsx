@@ -84,7 +84,7 @@ const PublicForm: React.FC = () => {
         status: 'submitted',
         values: values as Record<string, string | File>[],
       };
-      
+      console.log('Order Id:', order_id);
       console.log('Submitting form:', submission);
       await formService.createFormSubmission(submission);
       

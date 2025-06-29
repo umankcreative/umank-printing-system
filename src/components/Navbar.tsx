@@ -84,12 +84,12 @@ const navigation: NavItem[] = [
     path: '/admin/form-management',
     roles: ['admin'],
   },
-  {
-    name: 'Formulir Submissions',
-    icon: <ArchiveRestore size={20} />,
-    path: '/admin/form-submissions',
-    roles: ['admin'],
-  },
+  // {
+  //   name: 'Isian Form',
+  //   icon: <ArchiveRestore size={20} />,
+  //   path: '/admin/form-submissions',
+  //   roles: ['admin'],
+  // },
   {
       name: 'Pengaturan',
       icon: <Settings size={20} />,
@@ -140,7 +140,7 @@ const Navbar: React.FC = () => {
               <Link
                 key={item.name}
                 to={item.path}
-                className={`px-2 py-2 rounded-md hover:bg-purple-600 transition-colors ${location.pathname === item.path
+                className={`px-2 py-1 text-sm rounded-md hover:bg-purple-600 transition-colors ${location.pathname === item.path
                     ? 'bg-purple-600'
                     : 'bg-purple-700'
                   }`}
@@ -154,7 +154,7 @@ const Navbar: React.FC = () => {
                     className="flex items-center focus:outline-none"
                   >
                     <img
-                      className="w-10 h-10 rounded-full object-cover"
+                      className="w-8 h-8 rounded-full object-cover"
                       src={user?.avatar || 'https://via.placeholder.com/150'}
                       alt="User avatar"
                     />
@@ -169,7 +169,7 @@ const Navbar: React.FC = () => {
                         <button
                         onClick={() => {
                           // Add your logout logic here
-                          navigate('/admin/logout');
+                          navigate('/logout');
                           setIsOpen(false);
                         }}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

@@ -6,6 +6,7 @@ import {
   Package,
   Image,
   BookOpen,
+  MagnetIcon,
 } from 'lucide-react';
 
 const serviceItems = [
@@ -14,6 +15,12 @@ const serviceItems = [
     title: 'Digital Printing',
     description:
       'High-quality digital printing services for business cards, brochures, flyers, and marketing materials with fast turnaround times.',
+  },
+  {
+    icon: <BookOpen className="h-10 w-10 mb-4 text-amber-500" />,
+    title: 'Buku Yasin',
+    description:
+      'Professional offset printing for books, ensuring consistent quality and vibrant colors.',
   },
   {
     icon: <PenTool className="h-10 w-10 mb-4 text-fuchsia-500" />,
@@ -40,7 +47,7 @@ const serviceItems = [
       'Complete corporate identity packages including business cards, letterheads, envelopes, and promotional materials.',
   },
   {
-    icon: <BookOpen className="h-10 w-10 mb-4 text-yellow-400" />,
+    icon: <MagnetIcon className="h-10 w-10 mb-4 text-yellow-400" />,
     title: 'Finishing Services',
     description:
       'Professional finishing options including lamination, UV coating, die-cutting, embossing, and special effects.',

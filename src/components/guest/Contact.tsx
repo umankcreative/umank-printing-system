@@ -2,6 +2,7 @@ import React from 'react';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
 
 const Contact: React.FC = () => {
+
   return (
     <section id="contact" className="py-16 bg-white">
       <div className="container mx-auto px-4 md:px-6">
@@ -90,96 +91,111 @@ const Contact: React.FC = () => {
           </div>
 
           <div data-aos="fade-left" data-aos-delay="400">
-            <form className="space-y-6">
+            <form
+              className="space-y-6"
+              onSubmit={(e) => {
+              e.preventDefault();
+              const form = e.target as HTMLFormElement;
+              const formData = new FormData(form);
+              const formatMessage = `Saya ${formData.get('name')}\nEmail: ${formData.get('email')}\nTelepon: ${formData.get('phone')}\nTertarik dengan Layanan: ${formData.get('service')}\nPesan: ${formData.get('message')}\nTerima Kasih!`;
+              const url = 'https://wa.me/6281255691234?text=' + encodeURIComponent(formatMessage);
+              window.open(url, '_blank');
+              }}
+            >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Nama Lengkap
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                    placeholder="Nama Lengkap"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                    placeholder="Email"
-                  />
-                </div>
-              </div>
-
               <div>
                 <label
-                  htmlFor="phone"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  No. Telepon
+                Nama Lengkap
                 </label>
                 <input
-                  type="tel"
-                  id="phone"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                  placeholder="No. Telepon"
+                type="text"
+                id="name"
+                name="name"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                placeholder="Nama Lengkap"
                 />
               </div>
-
               <div>
                 <label
-                  htmlFor="service"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Layanan yang diminati
+                Email
                 </label>
-                <select
-                  id="service"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                >
-                  <option value="">Pilih Layanan</option>
-                  <option value="digital-printing">Cetak Digital</option>
-                  <option value="offset-printing">Cetak Offset</option>
-                  <option value="packaging">Pengemasan</option>
-                  <option value="large-format">Format Besar</option>
-                  <option value="corporate-identity">Identitas Perusahaan</option>
-                  <option value="finishing">Finishing</option>
-                  <option value="other">Lainnya</option>
-                </select>
+                <input
+                type="email"
+                id="email"
+                name="email"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                placeholder="Email"
+                />
+              </div>
               </div>
 
               <div>
-                <label
-                  htmlFor="message"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Detail Proyek
-                </label>
-                <textarea
-                  id="message"
-                  rows={5}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                  placeholder="Tulis tentang proyek Anda..."
-                ></textarea>
+              <label
+                htmlFor="phone"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                No. Telepon
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                placeholder="No. Telepon"
+              />
+              </div>
+
+              <div>
+              <label
+                htmlFor="service"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Layanan yang diminati
+              </label>
+              <select
+                id="service"
+                name="service"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+              >
+                <option value="">Pilih Layanan</option>
+                <option value="digital-printing">Cetak Digital</option>
+                <option value="offset-printing">Cetak Offset</option>
+                <option value="packaging">Pengemasan</option>
+                <option value="large-format">Format Besar</option>
+                <option value="corporate-identity">Identitas Perusahaan</option>
+                <option value="finishing">Finishing</option>
+                <option value="other">Lainnya</option>
+              </select>
+              </div>
+
+              <div>
+              <label
+                htmlFor="message"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Detail Proyek
+              </label>
+              <textarea
+                id="message"
+                name="message"
+                rows={5}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                placeholder="Tulis tentang proyek Anda..."
+              ></textarea>
               </div>
 
               <button
-                type="submit"
-                className="w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white font-medium rounded-lg flex items-center justify-center hover:from-cyan-600 hover:to-fuchsia-600 transition-colors"
+              type="submit"
+              className="w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white font-medium rounded-lg flex items-center justify-center hover:from-cyan-600 hover:to-fuchsia-600 transition-colors"
               >
-                Kirim Pesan
-                <Send className="ml-2 h-5 w-5" />
+              Kirim Pesan
+              <Send className="ml-2 h-5 w-5" />
               </button>
             </form>
           </div>

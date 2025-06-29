@@ -230,13 +230,13 @@ const IngredientList: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div>
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
           <Utensils className="h-6 w-6" /> Bahan Baku</h1>
           <p className="mt-1 text-sm text-gray-500">
-            Manage your ingredients and their properties
+            Kelola Bahan Baku dan Propertinya
           </p>
         </div>
         <button
@@ -244,7 +244,7 @@ const IngredientList: React.FC = () => {
           className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
           <Plus className="-ml-1 mr-2 h-5 w-5" />
-          Add Ingredient
+          Tambah Bahan
         </button>
       </div>
 
@@ -274,22 +274,22 @@ const IngredientList: React.FC = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Name
+                  Nama
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Description
+                  Deskripsi
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Unit
+                  Satuan
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Price per Unit
+                  Harga  Per Satuan
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Stock
+                  Stok
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
+                  Aksi
                 </th>
               </tr>
             </thead>
@@ -297,26 +297,26 @@ const IngredientList: React.FC = () => {
               
               { ingredients.map((ingredient) => (
                 <tr key={ingredient.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-2 whitespace-nowrap">
                     <div className="text-sm font-medium text-indigo-600">
                       {ingredient.name}
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-2">
                     <div className="text-sm text-gray-900 max-w-md truncate">
                       {ingredient.description}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-2 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{ingredient.unit}</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-2 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{formatCurrency(ingredient.price_per_unit)}</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{ingredient.quantity}</div>
+                  <td className="px-6 py-2 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{ingredient.stock}</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <td className="px-6 py-2 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end space-x-3">
                       <button
                         onClick={() => handleManageTaskTemplates(ingredient)}
