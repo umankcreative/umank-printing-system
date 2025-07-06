@@ -13,7 +13,7 @@ import Pagination from '../components/Pagination';
 import { Product } from '../types/api';
 import { toast } from 'sonner';
 
-const backendBaseURL = 'http://127.0.0.1:8000';
+const backendBaseURL = 'https://373b-114-10-139-244.ngrok-free.app'; // Update with your backend URL
 import {
   Dialog,
   DialogContent,
