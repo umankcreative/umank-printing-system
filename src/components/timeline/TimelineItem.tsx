@@ -75,7 +75,7 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ event, isLast }) => {
                   rel="noopener noreferrer"
                   className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800"
                 >
-                  View attachment
+                  Lihat Lampiran
                 </a>
               </div>
             )}

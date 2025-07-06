@@ -8,8 +8,8 @@ import {
   ListTodo,
 } from 'lucide-react';
 // import TaskCard from '../components/task/TaskCard';
-import { TaskCalendar } from '../components/task/TaskCalendar';
 // import { TaskColumn } from '../components/task/TaskColumn';
+import { TaskCalendar } from '../components/task/TaskCalendar';
 import { TaskTable } from '../components/task/TaskTable';
 import { TaskDialog } from '../components/task/TaskDialog';
 import { Pagination } from '../components/task/Pagination';
@@ -187,7 +187,7 @@ const TodoBoard: React.FC = () => {
   if (loading) {
     return (
       <div className="container mx-auto p-4 flex items-center justify-center h-screen">
-        <div className="text-lg">Memuad tugas...</div>
+        <div className="text-lg">Memuat tugas...</div>
       </div>
     );
   }

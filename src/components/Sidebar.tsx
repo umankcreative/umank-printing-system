@@ -1,6 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import {
   Users,
   UserCog,
@@ -15,6 +16,7 @@ import {
   ChevronDown,
   ArchiveRestore,
 } from 'lucide-react';
+import Logo from './Logo';
 
 interface NavItem {
   name: string;
@@ -25,53 +27,16 @@ interface NavItem {
 }
 
 const navigation: NavItem[] = [
-    {
-        name: 'Dashboard',
-        icon: <Home size={20} />,
-        path: '/admin/',
-        roles: ['admin'],
-      },
-  {
-    name: 'Inventory',
-    icon: <Box size={20} />,
-    path: '/products',
-    roles: ['admin', 'manager toko', 'admin gudang'],
+{name: 'Dashboard', icon: <Home size={20} />, path: '/admin/', roles: ['admin'],},
+{name: 'Inventory',icon: <Box size={20} />,path: '/products',roles: ['admin', 'manager toko', 'admin gudang'],
     subMenu: [
-        {
-            name: 'Ingredients',
-            icon: <Boxes size={20} />,
-            path: '/admin/ingredients',
-            roles: ['admin'],
-          },
-          {
-            name: 'Products',
-            icon: <Box size={20} />,
-            path: '/admin/products',
-            roles: ['admin'],
-          },
+        {name: 'Ingredients', icon: <Boxes size={20} />, path: '/admin/ingredients',roles: ['admin'],},
+        {name: 'Products', icon: <Box size={20} />,path: '/admin/products',roles: ['admin'],},
     ],
   },
-  {
-    name: 'Customers',
-    icon: <Users size={20} />,
-    path: '/admin/customers',
-    roles: ['admin'],
-  },
-
-
-  {
-    name: 'Orders',
-    icon: <ShoppingCart size={20} />,
-    path: '/admin/orders',
-    roles: ['admin'],
-  },
-
-  {
-    name: 'Todo',
-    icon: <CalendarClock size={20} />,
-    path: '/admin/tasks',
-    roles: ['admin'],
-  },
+{name: 'Customers', icon: <Users size={20} />, path: '/admin/customers', roles: ['admin'],},
+{ name: 'Orders', icon: <ShoppingCart size={20} />, path: '/admin/orders', roles: ['admin'], },
+{ name: 'Todo', icon: <CalendarClock size={20} />, path: '/admin/tasks', roles: ['admin'],},
   {
     name: 'Users',
     icon: <UserCog size={20} />,
@@ -84,12 +49,12 @@ const navigation: NavItem[] = [
     path: '/admin/form-management',
     roles: ['admin'],
     },
-    {
-        name: 'Settings',
-        icon: <Settings size={20} />,
-        path: '/admin/settings',
-        roles: ['admin'],
-      },
+  {
+      name: 'Settings',
+      icon: <Settings size={20} />,
+      path: '/admin/settings',
+      roles: ['admin'],
+  },
 ];
 
 interface SidebarProps {
@@ -101,6 +66,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole, userName }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
   const location = useLocation();
+  
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -115,7 +81,8 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole, userName }) => {
   }, [userRole]);
 
   return (
-    <>
+    <div className="print:hidden">
+      {/* Desktop header */}
       {/* Mobile menu button */}
       <div className="fixed top-4 left-4 z-40 md:hidden">
         <button
@@ -136,13 +103,17 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole, userName }) => {
           {/* Logo */}
           <div className="flex items-center justify-center h-16 border-b">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center">
+              {/* <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center">
                 <span className="text-3xl">UC</span>
-              </div>
-              <span className="text-xl font-semibold text-gray-800">
-                Umank Creative
-              </span>
+              </div> */}
+              <Logo color='#000' />
+             <Link to="/admin" className="flex items-center text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-fuchsia-500 to-yellow-400">
+
+                <span className="font-bold text-xl ml-2">Umank Creative</span>
+                
+            </Link>
             </div>
+                {/* <span className="font-bold text-sm ml-2">printing system</span> */}
           </div>
 
           {/* Navigation */}
@@ -189,7 +160,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole, userName }) => {
                               : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600'
                           }`}
                         >
-                          <div className="mr-3 text-gray-500 group-hover:text-indigo-600">
+                          <div className="mr-3 group-hover:text-indigo-600">
                             {subItem.icon}
                           </div>
                           <span className="font-medium">{subItem.name}</span>
@@ -206,7 +177,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole, userName }) => {
                         : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600'
                     }`}
                   >
-                    <div className="mr-3 text-gray-500 group-hover:text-indigo-600">
+                    <div className="mr-3 group-hover:text-indigo-600">
                       {item.icon}
                     </div>
                     <span className="font-medium">{item.name}</span>
@@ -240,7 +211,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole, userName }) => {
           onClick={toggleMobileMenu}
         ></div>
       )}
-    </>
+    </div>
   );
 };
 

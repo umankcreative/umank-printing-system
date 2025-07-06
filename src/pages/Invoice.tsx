@@ -6,6 +6,7 @@ import { useOrderContext } from '../context/OrderContext';
 import { formatCurrency } from '../utils/formatCurrency';
 import { generatePDF } from '../utils/pdfGenerator';
 import { format } from 'date-fns';
+import Logo from '../components/Logo';
 
 const Invoice = () => {
   const { id } = useParams();
@@ -54,7 +55,7 @@ const Invoice = () => {
   return (
     <>
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8 flex justify-between items-center no-print">
+      <div className="mb-8 flex justify-between items-center no-print print:hidden">
         <Button
           variant="outline"
           onClick={() => navigate(-1)}
@@ -79,13 +80,16 @@ const Invoice = () => {
       <div id="invoice-content">
         <div className="bg-blue-500 text-white p-12">
           <div className="flex justify-between items-start mb-8">
-            <div>
-              <div className="text-white inline-block">
-                <h1 className="text-2xl font-bold" id="company-name">
-                  {order.branch?.name}
-                </h1>
-              </div>
-              <p className="mt-2">{order.branch?.location}</p>
+              <div className='flex items-center'>
+                <Logo color='#caeefa' className="mt-2 w-16 h-16 mb-4 print:bg-gray-500" />
+                <div>
+                    <div className="text-white inline-block pl-2">
+                       <h1 className="text-2xl font-bold" id="company-name">
+                        {order.branch?.name}
+                        </h1>
+                    </div>
+                    <p className="mt-2 pl-2">{order.branch?.location}</p>
+                  </div>
             </div>
             <div>
               <h2 className="text-xl font-semibold mb-2">DITAGIHKAN KE</h2>
@@ -113,7 +117,7 @@ const Invoice = () => {
         <div className="rounded-lg border border-blue-500 -mt-[42px] w-[92%] mx-auto">
           <div id="item-data" className="w-full mb-8">
             <div className="bg-blue-200 flex rounded-t">
-              <div className="p-2 w-12"></div>
+              {/* <div className="p-2 w-12"></div> */}
               <div className="p-2 flex-grow text-left">NAMA ITEM/DESKRIPSI</div>
               <div className="p-2 flex-1 text-right">QTY.</div>
               <div className="p-2 flex-1 text-right">HARGA</div>

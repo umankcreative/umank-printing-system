@@ -98,16 +98,18 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
   return (
     <Link to={`/admin/tasks/${task.id}`} className="block">
     <div
-      ref={drag}
-      className={`bg-white rounded-lg shadow-sm border border-${task.status}-border transition-all duration-200 cursor-move p-1 ${
-        isDragging ? 'opacity-50' : 'opacity-100'
+        ref={drag}
+        
+      className={` bg-white status-badge ${getStatusBadgeClass(task.status)} shadow-sm border border-${task.status}-border transition-all duration-200 cursor-move p-2 ${
+        isDragging ? 'opacity-50' : 'opacity-100' 
       }`}
-      style={{ width: '100%' }}
+        style={{ width: '100%' }}
+        
     >
-      <div className="flex items-center justify-between mb-2">
-        <span className={`text-xs status-badge ${getStatusBadgeClass(task.status)}`}>
+        <div className={`flex items-center justify-between mb-2`}>
+        {/* <span className={`text-xs status-badge ${getStatusBadgeClass(task.status)}`}>
           {getStatusText(task.status)}
-        </span>
+        </span> */}
         <div className="flex items-center justify-between">
           {/* <Link to={`/admin/tasks/${task.id}`} className="block">
             <ArrowRight size={16} className="mr-1" />
@@ -120,11 +122,11 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
       </div>
       <div>
         <span className="text-sm font-medium mb-1 text-left">{task.title}</span>
-        {task.description && (
+        {/* {task.description && (
           <p className="text-xs mb-2 text-left line-clamp-1">
             {task.description}
           </p>
-        )}
+        )} */}
       </div>
       </div>
       </Link>

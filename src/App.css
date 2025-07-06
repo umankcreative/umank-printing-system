@@ -212,7 +212,7 @@ body {
 }
 
 .task-card {
-  @apply bg-background rounded-md border p-3 shadow-sm transition-shadow hover:shadow;
+  @apply bg-background rounded-none border p-3 shadow-sm transition-shadow hover:shadow;
 }
 
 .status-badge {

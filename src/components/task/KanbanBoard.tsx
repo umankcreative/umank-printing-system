@@ -4,7 +4,7 @@ import { Task, TaskStatus } from '../../types';
 import { useTaskContext } from '../../context/TaskContext';
 import TaskCard from './TaskCard';
 import { Plus } from 'lucide-react';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 
 interface KanbanColumnProps {
   status: TaskStatus;
@@ -85,13 +85,13 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ onAddTask, onTaskClick }) => 
   const { tasks } = useTaskContext();
   
   const columns: { status: TaskStatus; title: string; color: string }[] = [
-    { status: 'pending', title: 'Pending', color: 'bg-gray-400' },
-    { status: 'todo', title: 'Todo', color: 'bg-blue-400' },
-    { status: 'in-progress', title: 'In Progress', color: 'bg-yellow-400' },
-    { status: 'review', title: 'Review', color: 'bg-purple-400' },
-    { status: 'completed', title: 'Completed', color: 'bg-green-400' },
-    { status: 'closed', title: 'Closed', color: 'bg-gray-400' },
-    { status: 'blocked', title: 'Blocked', color: 'bg-red-400' },
+    // { status: 'pending', title: 'Pending', color: 'bg-gray-400' },
+    { status: 'todo', title: 'Harus dikerjakan', color: 'bg-gray-400' },
+    { status: 'in-progress', title: 'Sedang Dikerjakan', color: 'bg-blue-400' },
+    { status: 'review', title: 'Di Review', color: 'bg-yellow-400' },
+    { status: 'completed', title: 'Selesai', color: 'bg-green-400' },
+    { status: 'closed', title: 'Ditutup', color: 'bg-red-400' },
+    // { status: 'blocked', title: 'Blocked', color: 'bg-red-400' },
   ];
 
   const countTasksByStatus = (status: TaskStatus) => {
@@ -99,7 +99,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ onAddTask, onTaskClick }) => 
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 h-[calc(100vh-12rem)]">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 h-[calc(100vh-12rem)]">
       {columns.map(({ status, title, color }) => (
         <KanbanColumn
           key={status}

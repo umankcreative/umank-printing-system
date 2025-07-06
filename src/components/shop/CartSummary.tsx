@@ -8,6 +8,7 @@ import { FormTemplate } from '../../types/formTypes';
 import { formatCurrency } from '../../lib/utils';
 import { useOrderContext } from '../../context/OrderContext';
 import { Order, Customer, OrderItem } from '../../types/api';
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   Card,
@@ -80,7 +81,7 @@ const CartSummary = () => {
   const handleFormSubmit = (formData: Record<string, unknown>) => {
     // Create customer data
     const customer: Customer = {
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       name: formData.name as string || '',
       email: formData.email as string || '',
       phone: formData.phone as string || '',
@@ -94,7 +95,7 @@ const CartSummary = () => {
 
     // Create order items from cart items
     const orderItems: OrderItem[] = items.map(item => ({
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       order_id: '', // Will be set after order creation
       product_id: item.id,
       product: item,
@@ -106,7 +107,7 @@ const CartSummary = () => {
 
     // Create the order
     const order: Order = {
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       customer,
       items: orderItems,
       total_amount: getTotalPrice(),

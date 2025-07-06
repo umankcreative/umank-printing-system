@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { MoreVertical, Edit, Trash, EyeIcon } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { MoreVertical, Edit, Trash, EyeIcon, CopyCheck } from 'lucide-react';
 import { Product } from '../types/api';
 import { formatCurrency } from '../lib/utils';
+import { Button } from '../components/ui/button';
 
 interface ProductCardProps {
+  // key: string;
   product: Product;
   onDelete: (product: Product) => void;
+  onClone: (product: Product) => void;
+  // onEdit?: (product: Product) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete, onClone }) => {
   const [showDropdown, setShowDropdown] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="bg-white rounded-lg shadow-sm border relative">
@@ -35,15 +40,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete }) => {
             {product.is_active ? 'Aktif' : 'Nonaktif'}
           </span>
         </div>
-        <button
+        <Button
           onClick={() => setShowDropdown(!showDropdown)}
-          className="absolute top-2 right-2 p-1 hover:bg-black/5 rounded-full"
+          className="absolute top-2 right-2 p-1 hover:bg-black/5 rounded-full mouse-pointer  hover:-translate-x-1 hover:scale-150 transition-transform duration-200"
         >
-          <MoreVertical className="h-5 w-5 text-gray-600" />
-        </button>
+          <MoreVertical className="h-5 w-5 text-gray-200  " />
+        </Button>
         {showDropdown && (
           <div className="absolute top-10 right-2 bg-white rounded-lg shadow-lg border py-1 z-10">
+            <button
+              onClick={() => onClone(product)}
+              className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            >
+              <CopyCheck className="h-4 w-4 mr-2" />
+              Clone
+            </button>
             <Link
+              
               to={`/admin/products/edit/${product.id}`}
               className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
             >
@@ -61,7 +74,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete }) => {
         )}
       </div>
       <div className="p-4">
-        <h3 className="font-medium text-gray-900">{product.name}</h3>
+        <h3 onClick={() => navigate(`/admin/products/${product.id}`)} className="font-medium text-gray-900 cursor-pointer"   >{product.name}</h3>
         <div className="mt-1 flex items-center gap-1">
           <span className="text-sm text-gray-500">{product.category?.name || ''}</span>
         </div>
@@ -74,10 +87,22 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete }) => {
           </div>
           <div className="flex flex-col items-end">
             <span className="text-sm text-gray-500">Stok</span>
-            <span className="font-medium text-gray-900">{product.stock}</span>
+            <span
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+              parseInt(product.stock.toString()) > 100
+                ? 'bg-green-100 text-green-800'
+                : 'bg-amber-100 text-amber-800'
+            }`}
+          >{product.stock}</span>
           </div>
         </div>
-        <div className="mt-4 flex justify-center space-x-2">
+        <div className="mt-4 hidden justify-center space-x-2">
+          <Button
+            onClick={() => onClone?.(product)}
+            className="btn btn-sm btn-outline-success flex items-center"
+          >
+              <CopyCheck size={18} /> Clone
+            </Button>
           <Link
             to={`/admin/products/${product.id}`}
             className="btn btn-sm btn-outline-secondary flex items-center"

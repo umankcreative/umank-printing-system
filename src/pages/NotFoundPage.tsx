@@ -28,6 +28,7 @@ export function NotFoundPage() {
               <Button
                 variant="default"
                 onClick={() => navigate('/')}
+                
                 className="my-5 bg-green-600 hover:bg-green-700 "
               >
                 Ke Beranda

@@ -39,13 +39,13 @@ export const getFormCategories = async (): Promise<Category[]> => {
   return categoryService.getCategoriesByType('product');
 };
 
-export const getFormCategory = async (id: string): Promise<Category | null> => {
-  const category = await categoryService.getCategory(id);
-  if (category?.type !== 'product') {
-    return null;
-  }
-  return category;
-};
+// export const getFormCategory = async (id: string): Promise<Category | null> => {
+//   const category = await categoryService.getCategory(id);
+//   if (category?.type !== 'product') {
+//     return null;
+//   }
+//   return category;
+// };
 
 export const getFormCategoryTemplates = async (id: string) => {
   return categoryService.getCategoryTemplates(id);

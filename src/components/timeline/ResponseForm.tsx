@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTaskContext } from '../../context/TaskContext';
 import type { TaskResponse } from '../../types';
+import { v4 as uuidv4 } from 'uuid';
 
 interface ResponseFormProps {
   taskId: string;
@@ -19,7 +20,7 @@ const ResponseForm: React.FC<ResponseFormProps> = ({ taskId, onResponseAdded }) 
     }
 
     const newResponse: TaskResponse = {
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       author: 'Current User', // This would come from auth context in a real app
       content: content.trim(),
       timestamp: new Date().toISOString()

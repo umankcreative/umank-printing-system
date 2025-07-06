@@ -6,7 +6,6 @@ import {OrderActions} from '../components/OrderActions';
 import { Order } from '../types/api';
 import { useOrderContext } from '../context/OrderContext';
 import { formatCurrency } from '../lib/utils';
-import { createFormSubmission } from  '../services/formService';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
@@ -55,43 +54,7 @@ const Orders: React.FC = () => {
     fetchOrders({ search: debouncedSearchTerm || undefined });
   }, [debouncedSearchTerm, fetchOrders]);
 
-  const getTemplatesForOrder = () => {
-      if (order.items.length === 0) return [];
-      
-      // Get unique category IDs from cart items
-      const uniqueCategories = [...new Set(order.items.map(item => orders.item.category))];
-      // console.log('Unique categories:', uniqueCategories);
-      const templates: FormTemplate[] = [];
-      
-      // Find matching templates using formCategoryMappings
-      uniqueCategories.forEach(categoryName => {
-        // Find the mapping for this category
-        const mapping = formCategoryMappings.find(m => m.categoryName === categoryName);
-        if (mapping) {
-          // console.log('Found mapping for category:', {
-          //   categoryId: mapping.categoryId,
-          //   categoryName: mapping.categoryName,
-          //   formTemplateId: mapping.formTemplateId
-          // });
   
-          // Use the existing getFormTemplateForCategory function
-          const template = getFormTemplateForCategory(mapping.categoryId);
-        if (template) {
-          // console.log('Found template:', {
-          //   id: template.id,
-          //   name: template.name,
-          //   categoryId: template.category_id
-          // });
-          templates.push(template);
-        }
-        }
-        
-        
-        console.log(templates);
-      });
-      
-      return templates;
-    };
 
   const handleSubmit = async (order: Order) => {
     try {
@@ -251,9 +214,9 @@ const Orders: React.FC = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Customer
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Branch
-                </th>
+                </th> */}
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Order Date
                 </th>
@@ -297,13 +260,12 @@ const Orders: React.FC = () => {
                 orders.map((order) => {
                   console.log('Order data:', {
                     id: order.id,
-                    customer: order.customer,
-                    branch: order.branch
+                    customer: order.customer
                   });
                   
                   return (
                     
-                    <tr key={order.id} onClick={() => navigate(`/admin/orders/${order.id}`)} className="hover:bg-gray-50 cursor-pointer">
+                    <tr key={order.id}  className="hover:bg-gray-50 cursor-pointer">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       <Link
                           to={`/admin/orders/${order.id}`}
@@ -328,9 +290,9 @@ const Orders: React.FC = () => {
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500">
+                      {/* <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500">
                         {order.branch?.name || 'N/A'}
-                      </td>
+                      </td> */}
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {formatDate(order.created_at)}
                       </td>
@@ -394,12 +356,13 @@ const Orders: React.FC = () => {
                           </Button> */}
                           
                           <OrderActions
-    onEdit={() => handleEdit(order)}
-    onDelete={() => handleDelete(order)}
-    onDuplicate={() => handleAddForm(order)}
-    onPrint={() => navigate(`/admin/orders/${order.id}/invoice`)}
-    onMarkPaid={() => handleMarkPaid(order)}
-  />
+                              orderId={order.id}
+                              onEdit={() => handleEdit(order)}
+                              onDelete={() => handleDelete(order)}
+                              onDuplicate={() => handleAddForm(order)}
+                              onPrint={() => navigate(`/admin/orders/${order.id}/invoice`)}
+                              onShareForm={() => onShareForm(order)}
+                          />
                         </div>
                       </td>
                       </tr>

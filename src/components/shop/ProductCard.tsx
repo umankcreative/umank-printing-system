@@ -39,7 +39,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
             // src={`/images/products/${product.thumbnail_id}`}
             src={product.thumbnail_id}
             alt={product.name}
-            className="w-full object-contain"
+            className="w-full object-cover overflow-hidden h-full rounded-t-md transition-transform transform hover:scale-105"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gray-200 rounded-md">

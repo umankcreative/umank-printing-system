@@ -87,6 +87,8 @@ export interface Product {
   thumbnail?: ProductImage;
   additional_images?: ProductImage[];
   ingredients?: RecipeIngredient[];
+  customer(customer: Customer[]): unknown;
+  items(items: OrderItem[]): unknown;
 }
 
 export interface User {

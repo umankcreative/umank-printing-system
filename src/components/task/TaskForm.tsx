@@ -19,7 +19,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
 }) => {
   const [task, setTask] = useState<Task>(
     initialTask || {
-      id: crypto.randomUUID(),
+      id: ,
       title: '',
       description: '',
       status: 'todo',
@@ -51,7 +51,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
     if (!subtaskTitle.trim()) return;
 
     const newSubtask: Task = {
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       title: subtaskTitle,
       description: '',
       status: 'todo',

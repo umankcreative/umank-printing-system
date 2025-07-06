@@ -1,6 +1,6 @@
 import React from 'react';
 import { useUsers } from '../../hooks/useUsers';
-import { User } from '../../types/api';
+// import { User } from '../../types/api';
 import { Search } from 'lucide-react';
 
 const UserList: React.FC = () => {

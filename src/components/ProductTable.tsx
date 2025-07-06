@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { Link } from 'react-router-dom';
-import { Edit, Trash2, ArrowUpDown, Eye } from 'lucide-react';
+import { Edit, Trash2, ArrowUpDown, Eye, CopyCheck } from 'lucide-react';
 import { Product } from '../types/api';
 import { formatCurrency } from '../lib/utils';
 import {
@@ -14,12 +14,14 @@ import {
   HeaderGroup,
   Header,
 } from '@tanstack/react-table';
+import { Button } from './ui/button';
 
 interface ProductTableProps {
   products: Product[];
   currentPage: number;
   itemsPerPage: number;
   onDelete: (product: Product) => void;
+  onClone?: (product: Product) => void;
 }
 
 const ProductTable: React.FC<ProductTableProps> = ({
@@ -27,6 +29,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
   currentPage,
   itemsPerPage,
   onDelete,
+  onClone // Default no-op function if not provided
 }) => {
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
@@ -40,7 +43,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
         accessorKey: 'index',
         header: 'No',
         cell: ({ row }: { row: Row<Product> }) => startIndex + row.index + 1,
-        size: 64,
+        size: 32,
       },
       {
         accessorKey: 'name',
@@ -65,7 +68,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
             </div>
           </div>
         ),
-        size: 384,
+        size: 352,
       },
       {
         accessorKey: 'category',
@@ -75,19 +78,19 @@ const ProductTable: React.FC<ProductTableProps> = ({
             {row.original.category?.name || 'Tidak ada kategori'}
           </span>
         ),
-        size: 128,
+        size: 112,
       },
       {
         accessorKey: 'cost_price',
         header: 'Harga Modal',
         cell: ({ row }: { row: Row<Product> }) => formatCurrency(row.original.cost_price),
-        size: 128,
+        size: 112,
       },
       {
         accessorKey: 'price',
         header: 'Harga Jual',
         cell: ({ row }: { row: Row<Product> }) => formatCurrency(row.original.price),
-        size: 128,
+        size: 112,
       },
       {
         accessorKey: 'stock',
@@ -126,6 +129,13 @@ const ProductTable: React.FC<ProductTableProps> = ({
         header: 'Aksi',
         cell: ({ row }: { row: Row<Product> }) => (
           <div className="flex justify-end space-x-2">
+            <Button
+              onClick={() => onClone?.(row.original)}
+              className="inline-flex items-center justify-center p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors border border-gray-200"
+            
+            >
+              <CopyCheck size={18} />
+            </Button>
             <Link
               to={`/admin/products/${row.original.id}`}
               className="inline-flex items-center justify-center p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors border border-gray-200"
@@ -146,7 +156,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
             </button>
           </div>
         ),
-        size: 128,
+        size: 192, // Auto size based on content
       },
     ],
     [startIndex, onDelete]

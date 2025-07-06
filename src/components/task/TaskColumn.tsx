@@ -84,11 +84,11 @@ export function TaskColumn({
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <StatusIcon status={status} />
-          <h3 className="font-medium text-sm">{title}</h3>
+          <h3 className="font-medium text-xs">{title}</h3>
           <span className="text-xs text-muted-foreground">({count})</span>
         </div>
         <div className="flex items-center">
-          <button className="p-1 hover:bg-muted rounded-md">
+          <button className="p-1 text-purple-600 hover:bg-muted rounded-md">
             <MoreHorizontal size={14} />
           </button>
         </div>

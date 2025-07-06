@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { FormCategoryMapping, FormElement, FormTemplate, Category } from '../types/formTypes';
+import { FormCategoryMapping, FormElement, FormTemplate } from '../types/formTypes';
+import { Category} from '../types/api';
 import { toast } from '../hooks/use-toast';
 import * as formService from '../services/formService';
 

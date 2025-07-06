@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
-import { Order, OrderItem, Product as LocalProduct, Customer } from '../types';
-import { Product as ApiProduct } from '../types/api';
+// import {  } from '../types';
+import { Product as ApiProduct, Order, OrderItem, Customer } from '../types/api';
 import { useCustomerContext } from '../context/CustomerContext';
 import { useAuth } from '../context/AuthContext';
 import { productService } from '../services/productService';
@@ -16,28 +16,13 @@ import {
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Label } from './ui/label';
+import { v4 as uuidv4 } from 'uuid';
 
-const mapApiProductToLocal = (apiProduct: ApiProduct): LocalProduct => ({
-  id: apiProduct.id,
-  name: apiProduct.name,
-  description: apiProduct.description || '',
-  category: apiProduct.category?.name || 'Unknown Category',
-  category_id: apiProduct.category_id,
-  price: parseFloat(apiProduct.price),
-  cost_price: parseFloat(apiProduct.cost_price),
-  stock: apiProduct.stock,
-  minOrder: apiProduct.min_order,
-  isActive: apiProduct.is_active,
-  branch_id: apiProduct.branch_id,
-  thumbnail_id: apiProduct.thumbnail_id,
-  paperType: apiProduct.paper_type,
-  paperGrammar: apiProduct.paper_grammar,
-  printType: apiProduct.print_type,
-  finishingType: apiProduct.finishing_type,
-  customFinishing: apiProduct.custom_finishing,
-  created_at: apiProduct.created_at || new Date().toISOString(),
-  updated_at: apiProduct.updated_at || new Date().toISOString(),
-});
+
+/**
+ * No mapping needed, just use ApiProduct directly.
+ */
+
 
 interface OrderFormProps {
   onSubmit: (order: Order) => Promise<void>;
@@ -57,7 +42,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
   const [showProductSelector, setShowProductSelector] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [showCustomerSearch, setShowCustomerSearch] = useState(false);
-  const [isNewCustomer, setIsNewCustomer] = useState(!initialOrder?.customer.id);
+  const [isNewCustomer, setIsNewCustomer] = useState(!(initialOrder?.customer && initialOrder.customer.id));
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [customerSearchTerm, setCustomerSearchTerm] = useState('');
 
@@ -93,8 +78,22 @@ const OrderForm: React.FC<OrderFormProps> = ({
   // Update form data when initialOrder changes
   useEffect(() => {
     if (initialOrder) {
-      setCustomer(initialOrder.customer);
-      setOrderItems(initialOrder.items);
+      setCustomer(
+        initialOrder.customer ||
+        {
+          id: '',
+          name: '',
+          email: '',
+          phone: '',
+          company: '',
+          contact: '',
+          address: '',
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }
+      );
+      setOrderItems(initialOrder.items || []);
       setOrderDetails({
         delivery_date: initialOrder.delivery_date ? new Date(initialOrder.delivery_date).toISOString().split('T')[0] : '',
         notes: initialOrder.notes || '',
@@ -201,12 +200,12 @@ const OrderForm: React.FC<OrderFormProps> = ({
 
   const handleAddProduct = (apiProduct: ApiProduct) => {
     // Validate product ID from API
-    if (!apiProduct.id || !isValidUUID(apiProduct.id)) {
+    if (!apiProduct.id) {
       toast.error('Invalid product ID format from server');
       return;
     }
 
-    const product = mapApiProductToLocal(apiProduct);
+    const product = apiProduct;
     const existingItem = orderItems.find(
       (item) => item.product_id === product.id
     );
@@ -224,13 +223,16 @@ const OrderForm: React.FC<OrderFormProps> = ({
         )
       );
     } else {
+      const now = new Date().toISOString();
       const newItem: OrderItem = {
-        id: crypto.randomUUID(), // This is temporary and will be replaced by server
+        id: uuidv4(), // Use uuid instead of crypto.randomUUID
         order_id: '', // Will be set by server
         product_id: product.id, // This is the valid UUID from server
-        quantity: product.minOrder,
-        price: product.price,
+        quantity: product.min_order || 1,
+        price: parseFloat(product.price),
         product,
+        created_at: now,
+        updated_at: now,
       };
       setOrderItems((prev) => [...prev, newItem]);
     }
@@ -321,6 +323,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
       const order: Order = {
         id: initialOrder?.id || '', // Will be set by server for new orders
         customer: finalCustomer,
+        customer_id: finalCustomer.id,
         branch: initialOrder?.branch || {
           id: user.branch_id,
           name: '',
@@ -349,6 +352,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
       };
 
       await onSubmit(order);
+      console.log(order); // Debug log
     } catch (error) {
       console.error('Error creating order:', error);
       const message = error instanceof Error ? error.message : 'Failed to create order';
@@ -593,7 +597,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
           <div className="space-y-4">
             {orderItems.map((item) => (
               <div
-                key={item.id}
+                key={item.product_id}
                 className="flex items-center justify-between p-4 border rounded-lg"
               >
                 <div className="flex-1">

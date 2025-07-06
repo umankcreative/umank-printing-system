@@ -4,12 +4,15 @@ import { Plus, LayoutGrid, Table as TableIcon, Package } from 'lucide-react';
 import ProductTable from '../components/ProductTable';
 import { ToggleGroup, ToggleGroupItem } from '../components/ui/toggle-group';
 import ProductCard from '../components/ProductCard';
+import { MoreVertical } from 'lucide-react';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '../components/ui/dropdown-menu';
 import ProductFilters from '../components/ProductFilters';
 import { productService } from '../services/productService';
 import * as categoryService from '../services/categoryService';
 import Pagination from '../components/Pagination';
 import { Product } from '../types/api';
 import { toast } from 'sonner';
+
 const backendBaseURL = 'http://127.0.0.1:8000';
 import {
   Dialog,
@@ -19,7 +22,12 @@ import {
   DialogDescription,
   DialogFooter,
 } from '../components/ui/dialog';
+
+// Move mapping utility to a separate file to avoid Fast Refresh warning
+import { mapApiProductToLocalProduct } from '../lib/utils';
 import { Button } from '../components/ui/button';
+
+
 
 const ProductList: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -51,39 +59,7 @@ const ProductList: React.FC = () => {
         ]);
 
         // Map API response to Product type while keeping the structure simple
-        const mappedProducts = response.data.map(p => ({
-          ...p,
-          description: p.description || '',
-          min_order: p.min_order || 0,
-          stock: p.stock || 0,
-          is_active: p.is_active ?? true,
-          paper_type: p.paper_type || null,
-          paper_grammar: p.paper_grammar || null,
-          print_type: p.print_type || "Full Color",
-          finishing_type: p.finishing_type || 'Tanpa Finishing',
-          custom_finishing: p.custom_finishing || null,
-          is_paper_enabled: p.is_paper_enabled ?? false,
-          is_printing_enabled: p.is_printing_enabled ?? false,
-          is_finishing_enabled: p.is_finishing_enabled ?? false,
-          category: categories.find(cat => cat.id === p.category_id) ? {
-            id: p.category_id,
-            name: categories.find(cat => cat.id === p.category_id)?.name || 'Unknown Category',
-            description: categories.find(cat => cat.id === p.category_id)?.description || '',
-            slug: categories.find(cat => cat.id === p.category_id)?.name.toLowerCase().replace(/\s+/g, '-') || '',
-            type: 'product',
-            is_active: categories.find(cat => cat.id === p.category_id)?.is_active || true,
-            created_at: categories.find(cat => cat.id === p.category_id)?.created_at || new Date().toISOString(),
-            updated_at: categories.find(cat => cat.id === p.category_id)?.updated_at || new Date().toISOString()
-          } : undefined,
-          thumbnail_id: p.thumbnail_id || null,
-          additional_images: p.additional_images?.map(img => ({
-            id: img.id,
-            url: `${backendBaseURL}/${img.url}`,
-            is_primary: img.is_primary,
-            created_at: img.created_at,
-            updated_at: img.updated_at
-          })) || []
-        }));
+        const mappedProducts = response.data.map(p => mapApiProductToLocalProduct(p, categories, backendBaseURL));
         setProducts(mappedProducts);
         setTotalItems(response.meta.total);
       } catch (error) {
@@ -120,39 +96,7 @@ const ProductList: React.FC = () => {
       ]);
 
       // Map API response to Product type while keeping the structure simple
-      const mappedProducts = response.data.map(p => ({
-        ...p,
-        description: p.description || '',
-        min_order: p.min_order || 0,
-        stock: p.stock || 0,
-        is_active: p.is_active ?? true,
-        paper_type: p.paper_type || null,
-        paper_grammar: p.paper_grammar || null,
-        print_type: p.print_type || "Full Color",
-        finishing_type: p.finishing_type || 'Tanpa Finishing',
-        custom_finishing: p.custom_finishing || null,
-        is_paper_enabled: p.is_paper_enabled ?? false,
-        is_printing_enabled: p.is_printing_enabled ?? false,
-        is_finishing_enabled: p.is_finishing_enabled ?? false,
-        category: categories.find(cat => cat.id === p.category_id) ? {
-          id: p.category_id,
-          name: categories.find(cat => cat.id === p.category_id)?.name || 'Unknown Category',
-          description: categories.find(cat => cat.id === p.category_id)?.description || '',
-          slug: categories.find(cat => cat.id === p.category_id)?.name.toLowerCase().replace(/\s+/g, '-') || '',
-          type: 'product',
-          is_active: categories.find(cat => cat.id === p.category_id)?.is_active || true,
-          created_at: categories.find(cat => cat.id === p.category_id)?.created_at || new Date().toISOString(),
-          updated_at: categories.find(cat => cat.id === p.category_id)?.updated_at || new Date().toISOString()
-        } : undefined,
-        thumbnail_id: p.thumbnail_id || null,
-        additional_images: p.additional_images?.map(img => ({
-          id: img.id,
-          url: `${backendBaseURL}/${img.url}`,
-          is_primary: img.is_primary,
-          created_at: img.created_at,
-          updated_at: img.updated_at
-        })) || []
-      }));
+      const mappedProducts = response.data.map(p => mapApiProductToLocalProduct(p, categories, backendBaseURL));
       
       setProducts(mappedProducts);
       setTotalItems(response.meta.total);
@@ -174,6 +118,41 @@ const ProductList: React.FC = () => {
     }
   };
 
+  // Clone product handler
+  const handleCloneProduct = async (product: Product) => {
+    try {
+      // Remove id and adjust fields for new product
+      const { id, created_at, updated_at, ...rest } = product;
+      const clonePayload = {
+        ...rest,
+        name: product.name + ' (Copy)',
+        // Optionally reset stock, images, etc.
+        stock: 0,
+        additional_images: [],
+        thumbnail_id: '', // must be string, not null
+        is_active: false,
+      };
+      await productService.createProduct(clonePayload);
+      toast.success('Product cloned successfully');
+      // Optionally refresh product list
+      const [response, categories] = await Promise.all([
+        productService.getProducts({
+          page: currentPage,
+          per_page: itemsPerPage,
+          search: searchTerm || undefined,
+          category: categoryFilter || undefined,
+          is_active: statusFilter ? statusFilter === 'true' : undefined,
+        }),
+        categoryService.getCategoriesByType('product')
+      ]);
+      const mappedProducts = response.data.map(p => mapApiProductToLocalProduct(p, categories, backendBaseURL));
+      setProducts(mappedProducts as Product[]);
+      setTotalItems(response.meta.total);
+    } catch {
+      toast.error('Failed to clone product');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -185,7 +164,7 @@ const ProductList: React.FC = () => {
         </Link>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-start space-x-4 mb-4">
         <ProductFilters
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
@@ -195,7 +174,7 @@ const ProductList: React.FC = () => {
           onStatusChange={setStatusFilter}
         />
 
-        <ToggleGroup type="single" value={viewMode} onValueChange={(value) => value && setViewMode(value as 'grid' | 'table')}>
+        <ToggleGroup className='bg-gray-200 rounded-md' type="single" value={viewMode} onValueChange={(value) => value && setViewMode(value as 'grid' | 'table')}>
           <ToggleGroupItem value="grid" aria-label="Grid view">
             <LayoutGrid className="h-4 w-4" />
           </ToggleGroupItem>
@@ -214,12 +193,13 @@ const ProductList: React.FC = () => {
           <p className="text-gray-500">Tidak ada produk.</p>
         </div>
       ) : viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {products.map((product) => (
             <ProductCard
               key={product.id}
               product={product}
               onDelete={handleDeleteClick}
+              onClone={handleCloneProduct}
             />
           ))}
         </div>
@@ -228,7 +208,8 @@ const ProductList: React.FC = () => {
           products={products}
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}
-          onDelete={handleDeleteClick}
+                onDelete={handleDeleteClick}
+          onClone={handleCloneProduct}
         />
       )}
 

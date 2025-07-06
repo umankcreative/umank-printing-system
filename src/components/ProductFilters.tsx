@@ -45,7 +45,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   return (
     <div className={`bg-white shadow-sm rounded-lg border border-gray-200 p-4 ${className || ''}`}>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-        <div className="relative flex min-w-[400px] max-w-md">
+        <div className="relative flex min-w-[300px] max-w-md">
           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
             <Search className="w-4 h-4 text-gray-500" />
           </div>
@@ -54,17 +54,17 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
-            placeholder="Search products..."
+            placeholder="Cari Produk..."
           />
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 justify-evenly">
           <select
             value={categoryFilter}
             onChange={(e) => onCategoryChange(e.target.value)}
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            className="bg-gray-50 min-w-[200px] border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
           >
-            <option value="">All Categories</option>
+            <option value="">Semua Kategori</option>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
@@ -75,11 +75,11 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
           <select
             value={statusFilter}
             onChange={(e) => onStatusChange(e.target.value)}
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            className="bg-gray-50 min-w-[200px] border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
           >
-            <option value="">All Status</option>
-            <option value="true">Active</option>
-            <option value="false">Inactive</option>
+            <option value="">Semua Status</option>
+            <option value="true">Aktif</option>
+            <option value="false">Nonaktif</option>
           </select>
         </div>
       </div>

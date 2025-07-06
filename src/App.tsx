@@ -51,6 +51,7 @@ import PublicTaskPage from './pages/PublicTaskPage';
 import './App.css';
 import FormSubmissionList from './pages/FormSubmisssionList';
 import FormSubmissionDetail from './pages/FormSubmissionDetail';
+import OrderItemForms from './pages/OrderItemForms';
 
 function App() {
   return (
@@ -102,6 +103,7 @@ function App() {
             <Route path="form-management" element={<FormManagement />} />
             <Route path="form-submissions" element={<FormSubmissionList />} />
             <Route path="form-submissions/:id" element={<FormSubmissionDetail />} />
+            <Route path="orders/:orderId/item-forms" element={<OrderItemForms />} />
             
           </Route>
 
@@ -134,7 +136,18 @@ function App() {
                 </ProductProvider>
               }
             />
-            <Route path="form/:id" element={<PublicForm />} />
+            <Route path="form/:orderId" element={
+              <ProductProvider>
+                <FormProvider>
+                  <CartProvider>
+                    <OrderProvider>
+                      <OrderItemForms />
+                    </OrderProvider>
+                  </CartProvider>
+                </FormProvider>
+              </ProductProvider>
+            } />
+          
             <Route path='login' element={<Login />} />
             <Route path="logout" element={<Login />} />
             

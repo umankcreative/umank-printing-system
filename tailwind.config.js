@@ -82,9 +82,9 @@ export default {
         // Task status colors
         todo: "#F8F9FA",
         "todo-border": "#E9ECEF",
-        "in-progress": "#E7F5FF",
+        "in-progress": "#FFF9DB",
         "inprogress-border": "#D0EBFF",
-        review: "#FFF9DB",
+        review: "#E7F5FF",
         "review-border": "#FFEC99",
         completed: "#D3F9D8",
         "completed-border": "#B2F2BB",

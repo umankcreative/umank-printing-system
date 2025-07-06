@@ -20,6 +20,7 @@ const ProductImagesUpload: React.FC<ProductImagesUploadProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const backendUrl = 'http://127.0.0.1:8000';
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -88,15 +89,22 @@ const ProductImagesUpload: React.FC<ProductImagesUploadProps> = ({
     try {
       const result = await productService.uploadProductImages(productId, selectedFiles);
       console.log('Upload successful, updated product:', result);
-      toast.success('Images uploaded successfully');
       setSelectedFiles([]);
       onImagesUploaded?.();
+      toast.success('Images uploaded successfully');
     } catch (error) {
       console.error('Error uploading images:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to upload images');
     } finally {
       setIsUploading(false);
+      console.log('Upload process completed');
+      // if (result && Array.isArray(result.images)) {
+        // Update existingImages if parent doesn't control it
+        // If existingImages is controlled by parent, call onImagesUploaded to trigger refresh
+        // onImagesUploaded?.();
+      // }
     }
+    
   };
 
   const handleDeleteImage = async (imageId: string) => {
@@ -128,7 +136,7 @@ const ProductImagesUpload: React.FC<ProductImagesUploadProps> = ({
               <div key={image.id} className="relative group">
                 <div className="w-full h-24 bg-gray-100 rounded-md overflow-hidden">
                   <img
-                    src={`${'http://127.0.0.1:8000'}${image.url}`}
+                    src={`${backendUrl}${image.url}`}
                     alt="Product image"
                     className="w-full h-full object-cover"
                   />
@@ -136,7 +144,7 @@ const ProductImagesUpload: React.FC<ProductImagesUploadProps> = ({
                 <div className="absolute -top-2 -right-2 flex space-x-1">
                   <button
                     type="button"
-                    onClick={() => onSetThumbnail?.(`${'http://127.0.0.1:8000'}${image.url}`)}
+                    onClick={() => onSetThumbnail?.(`${backendUrl}${image.url}`)}
                     className={`bg-blue-500 text-white rounded-full p-1
                       opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-blue-600`}
                     aria-label="Atur sebagai thumbnail"

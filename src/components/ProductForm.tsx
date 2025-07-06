@@ -398,9 +398,15 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 
               >
                 {product.is_active ? (
-                  <ToggleRight className="w-10 h-10" />
+                  <div className="flex items-center">
+                                  <span className="mr-2 text-sm text-green-600">Active</span>
+                                  <ToggleRight className="h-12 w-12 text-green-500" />
+                                </div>
                 ) : (
-                  <ToggleLeft className="w-10 h-10" />
+                  <div className="flex items-center">
+                                  <span className="mr-2 text-sm text-red-500">Inactive</span>
+                                  <ToggleLeft className="h-12 w-12 text-red-400" />
+                                </div>
                 )}
               </button>
             </div>
@@ -435,62 +441,64 @@ const ProductForm: React.FC<ProductFormProps> = ({
               />
             </div>
 
-            <div>
-              <label htmlFor="category_id" className="block text-sm font-medium text-gray-700">
-                Kategori
-              </label>
-              <select
-                name="category_id"
-                id="category_id"
-                value={product.category_id}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm"
-                required
-                disabled={loading}
-              >
-                <option value="">Select Category</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-              {loading && (
-                <p className="mt-1 text-sm text-gray-500">Loading categories...</p>
-              )}
-            </div>
+              <div className="flex w-full items-stretch space-x-4">
+                    <div>
+                      <label htmlFor="category_id" className="block text-sm font-medium text-gray-700">
+                        Kategori
+                      </label>
+                      <select
+                        name="category_id"
+                        id="category_id"
+                        value={product.category_id}
+                        onChange={handleChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm"
+                        required
+                        disabled={loading}
+                      >
+                        <option value="">Select Category</option>
+                        {categories.map((category) => (
+                          <option key={category.id} value={category.id}>
+                            {category.name}
+                          </option>
+                        ))}
+                      </select>
+                      {loading && (
+                        <p className="mt-1 text-sm text-gray-500">Loading categories...</p>
+                      )}
+                    </div>
 
-            <div>
-              <label htmlFor="min_order" className="block text-sm font-medium text-gray-700">
-                Minimum Order
-              </label>
-              <input
-                type="number"
-                name="min_order"
-                id="min_order"
-                value={product.min_order}
-                onChange={handleChange}
-                min="1"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm"
-                required
-              />
-            </div>
+                    <div>
+                      <label htmlFor="min_order" className="block text-sm font-medium text-gray-700">
+                        Minimum Order
+                      </label>
+                      <input
+                        type="number"
+                        name="min_order"
+                        id="min_order"
+                        value={product.min_order}
+                        onChange={handleChange}
+                        min="1"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm"
+                        required
+                      />
+                    </div>
 
-            <div>
-              <label htmlFor="stock" className="block text-sm font-medium text-gray-700">
-                Stock
-              </label>
-              <input
-                type="number"
-                name="stock"
-                id="stock"
-                value={product.stock}
-                onChange={handleChange}
-                min="0"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm"
-                required
-              />
-            </div>
+                    <div>
+                      <label htmlFor="stock" className="block text-sm font-medium text-gray-700">
+                        Stock
+                      </label>
+                      <input
+                        type="number"
+                        name="stock"
+                        id="stock"
+                        value={product.stock}
+                        onChange={handleChange}
+                        min="0"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm"
+                        required
+                      />
+                    </div>
+              </div>
 
             {/* Thumbnail Upload */}
             <div>
@@ -527,9 +535,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
             {/* Additional Images Upload */}
             {product.id && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Gambar lainnya
-                </label>
+                
                 {/* <BoxFileUpload/> */}
                 <ProductImagesUpload
                   productId={product.id}
@@ -644,16 +650,22 @@ const ProductForm: React.FC<ProductFormProps> = ({
               <label htmlFor="markup" className="block text-sm font-medium text-gray-700">
                 Persentasi Markup
               </label>
+            <div className="flex w-full items-center space-x-4 mt-2">
               <input
-                type="number"
-                name="markup"
-                id="markup"
-                value={markup}
-                onChange={handleMarkupChange}
-                min="0"
-                max="1000"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm"
+            type="range"
+            value={markup}
+            onChange={handleMarkupChange}
+            name="markup"
+            id="markup"
+            min="0"
+            max="200"
+            step="1"
+            className="flex-grow h-2 w-full rounded-lg appearance-none bg-gray-200 cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500"
               />
+              <span className="ml-4 bg-gray-100 py-1 px-2 rounded text-sm min-w-[60px] text-center">
+            {markup}%
+                </span>
+            </div>
               <p className="mt-2 text-sm text-gray-500">
                 Ini akan otomatis menghitung Harga jual berdasarkan harga modal
               </p>

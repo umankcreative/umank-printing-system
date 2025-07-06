@@ -49,7 +49,7 @@ const Settings: React.FC = () => {
   const handleSaveCategory = () => {
     if (editingCategory && editingCategory.value.trim()) {
       const newCategories = [...categories];
-      newCategories[editingCategory.index] = editingCategory.value;
+      newCategories[editingCategory.index].name = editingCategory.value;
       setCategories(newCategories);
       setEditingCategory(null);
     }

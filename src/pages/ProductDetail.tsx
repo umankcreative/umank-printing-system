@@ -7,7 +7,7 @@ import { Product, TaskTemplate } from '../types/api';
 
 
 const ProductDetail: React.FC = () => {
-  const backendBaseURL = 'http://127.0.0.1:8000';
+  const backendUrl = 'http://127.0.0.1:8000';
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
@@ -106,7 +106,7 @@ const ProductDetail: React.FC = () => {
             {product.additional_images?.map((image) => (
                 <div key={image.id} className="relative aspect-square z-0">
                 <img
-                  src={`${backendBaseURL}${image.url}`}
+                  src={`${backendUrl}${image.url}`}
                   alt={`${product.name} additional`}
                   className="w-full h-full object-cover rounded-lg"
                 />

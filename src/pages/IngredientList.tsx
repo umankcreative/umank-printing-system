@@ -276,9 +276,9 @@ const IngredientList: React.FC = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Nama
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Deskripsi
-                </th>
+                </th> */}
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Satuan
                 </th>
@@ -297,26 +297,29 @@ const IngredientList: React.FC = () => {
               
               { ingredients.map((ingredient) => (
                 <tr key={ingredient.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-2 whitespace-nowrap">
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-indigo-600">
-                      {ingredient.name}
+                    <div className="flex-row items-center gap-y-2">
+                      <span className='text-sm text-gray-900'>{ingredient.name}</span>
+                      {/* <span className='text-xs text-gray-400'>{ingredient.description}</span> */}
+                    </div>
                     </div>
                   </td>
-                  <td className="px-6 py-2">
+                  {/* <td className="px-6 py-2">
                     <div className="text-sm text-gray-900 max-w-md truncate">
-                      {ingredient.description}
+                      
                     </div>
-                  </td>
-                  <td className="px-6 py-2 whitespace-nowrap">
+                  </td> */}
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{ingredient.unit}</div>
                   </td>
-                  <td className="px-6 py-2 whitespace-nowrap">
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{formatCurrency(ingredient.price_per_unit)}</div>
                   </td>
-                  <td className="px-6 py-2 whitespace-nowrap">
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{ingredient.stock}</div>
                   </td>
-                  <td className="px-6 py-2 whitespace-nowrap text-right text-sm font-medium">
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end space-x-3">
                       <button
                         onClick={() => handleManageTaskTemplates(ingredient)}

@@ -34,7 +34,7 @@ const ProductCreate: React.FC = () => {
     // Add timestamp and ID
     const newProduct = {
       ...product,
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
