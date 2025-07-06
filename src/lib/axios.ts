@@ -84,7 +84,7 @@ api.interceptors.response.use(
       if (refreshToken) {
         try {
           // Try to refresh the token
-          const response = await axios.post('http://127.0.0.1:8000/api/auth/refresh', {
+          const response = await axios.post('https://373b-114-10-139-244.ngrok-free.app/api/auth/refresh', {
             refresh_token: refreshToken
           });
           
