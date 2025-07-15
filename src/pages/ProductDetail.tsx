@@ -7,7 +7,7 @@ import { Product, TaskTemplate } from '../types/api';
 
 
 const ProductDetail: React.FC = () => {
-  const backendUrl = 'http://127.0.0.1:8000'; // Update with your backend URL
+  const backendUrl = 'https://373b-114-10-139-244.ngrok-free.app'; // Update with your backend URL
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);

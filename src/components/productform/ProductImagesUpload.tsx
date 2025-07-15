@@ -20,7 +20,7 @@ const ProductImagesUpload: React.FC<ProductImagesUploadProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
-  const backendUrl = 'http://127.0.0.1:8000';
+  const backendUrl = 'https://373b-114-10-139-244.ngrok-free.app';
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
