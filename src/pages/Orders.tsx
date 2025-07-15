@@ -205,38 +205,38 @@ const Orders: React.FC = () => {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="w-full">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Order ID
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Customer
                 </th>
                 {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Branch
                 </th> */}
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Order Date
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Delivery Date
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Payment
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Total
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Items
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -253,7 +253,7 @@ const Orders: React.FC = () => {
                 </tr>
               ) : orders.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={10} className="px-2 py-4 text-center text-gray-500">
                     No orders found
                   </td>
                 </tr>
@@ -264,7 +264,7 @@ const Orders: React.FC = () => {
                   return (
                     
                     <tr key={order.id}  className="hover:bg-gray-50 cursor-pointer">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-900">
                       <Link
                           to={`/admin/orders/${order.id}`}
                           className="text-purple-600 hover:text-purple-800"
@@ -273,7 +273,7 @@ const Orders: React.FC = () => {
                       </Link>
                         
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-2 py-4 whitespace-nowrap">
                         <div className="flex flex-col">
                           <span className="text-sm font-medium text-gray-900">
                             {order.customer?.name || 'N/A'}
@@ -291,13 +291,13 @@ const Orders: React.FC = () => {
                       {/* <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500">
                         {order.branch?.name || 'N/A'}
                       </td> */}
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
                         {formatDate(order.created_at)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
                         {formatDate(order.delivery_date)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <td className="px-2 py-4 whitespace-nowrap text-center">
                         <span
                           className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
                             order.status
@@ -307,7 +307,7 @@ const Orders: React.FC = () => {
                             order.status.slice(1)}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <td className="px-2 py-4 whitespace-nowrap text-center">
                         <span
                           className={`px-2 py-1 text-xs font-medium rounded-full ${getPaymentStatusColor(
                             order.payment_status
@@ -317,16 +317,16 @@ const Orders: React.FC = () => {
                             order.payment_status.slice(1)}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-gray-900">
+                      <td className="px-2 py-4 whitespace-nowrap text-sm text-right font-medium text-gray-900">
                         {formatCurrency(order.total_amount)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <td className="px-2 py-4 whitespace-nowrap text-center">
                         <span className="text-sm font-medium text-gray-600">
                           {order.items?.length || 0} items
                       
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <td className="px-2 py-4 whitespace-nowrap text-center">
                         <div className="flex items-center justify-center gap-2">
                           {/* <Button
                             variant="ghost"
