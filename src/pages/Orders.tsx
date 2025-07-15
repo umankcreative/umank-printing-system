@@ -69,6 +69,7 @@ const Orders: React.FC = () => {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Gagal menyimpan order';
       toast.error(message);
+      console.log(error);
     }
   };
 
@@ -182,9 +183,9 @@ const Orders: React.FC = () => {
             setSelectedOrder(null);
             setShowOrderForm(true);
           }} 
-          className="flex items-center gap-2"
+          className="btn btn-outline-primary flex items-center"
         >
-          <Plus className="w-4 h-4" /> New Order
+          <Plus className="w-4 h-4" />Order Baru
         </Button>
       </div>
 
@@ -258,10 +259,7 @@ const Orders: React.FC = () => {
                 </tr>
               ) : (
                 orders.map((order) => {
-                  console.log('Order data:', {
-                    id: order.id,
-                    customer: order.customer
-                  });
+                  
                   
                   return (
                     
@@ -361,7 +359,7 @@ const Orders: React.FC = () => {
                               onDelete={() => handleDelete(order)}
                               onDuplicate={() => handleAddForm(order)}
                               onPrint={() => navigate(`/admin/orders/${order.id}/invoice`)}
-                              onShareForm={() => onShareForm(order)}
+                              viewTasks={() => navigate(`/admin/tasks?order_id=${order.id}`)}
                           />
                         </div>
                       </td>

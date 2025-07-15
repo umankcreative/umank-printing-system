@@ -9,7 +9,7 @@ import { User } from '../types/user';
 import { useUserContext } from '../context/UserContext';
 import { AlertTriangle, Edit, Filter, Trash2 } from 'lucide-react';
 import { Tab } from '@headlessui/react';
-import  Button  from '../components/ui/Buttonx';
+import { Button }  from '../components/ui/button';
 import { Card } from '../components/ui/card1';
 import { userService } from '../services/userService';
 import UserCard from '../components/users/UserCard';
@@ -95,9 +95,9 @@ const UsersPage: React.FC = () => {
         <h1 className="text-2xl font-bold text-gray-900">Users</h1>
         <Button
           onClick={() => setIsCreateModalOpen(true)}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+          className="btn btn-outline-primary flex items-center"
         >
-          Add User
+          Tambah User
         </Button>
       </div>
 
@@ -107,7 +107,7 @@ const UsersPage: React.FC = () => {
       <Modal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        title="Create New User"
+        title="Buat User Baru"
         size="xl"
       >
         <UserForm

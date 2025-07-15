@@ -120,14 +120,25 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
           />
         </div>
       </div>
-      <div>
-        <span className="text-sm font-medium mb-1 text-left">{task.title}</span>
-        {/* {task.description && (
-          <p className="text-xs mb-2 text-left line-clamp-1">
-            {task.description}
-          </p>
-        )} */}
-      </div>
+        <div className='flex flex-col w-full'>
+
+          <span className="flex text-sm font-medium mb-1 text-left">{task.title}</span>
+          {/* {task.description && (
+            <p className="text-xs mb-2 text-left line-clamp-1">
+              {task.description}
+            </p>
+          )} */}
+          <div className="flex flex-row items-center justify-between p-2 mt-2 border-t-2 border-white ">
+          <span className={`text-xs font-medium rounded-full px-2 ${getPriorityColor(task.priority)}`}>
+            {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+            </span>
+            <span>{task.assignee}</span>
+          <span className="text-xs text-gray-500">
+            {new Date(task.order?.delivery_date).toLocaleDateString()}
+          </span> 
+          </div>
+          </div>
+        
       </div>
       </Link>
   );

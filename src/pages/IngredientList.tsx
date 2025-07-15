@@ -230,7 +230,7 @@ const IngredientList: React.FC = () => {
   }
 
   return (
-    <div>
+    <div className="w-full max-w-7xl mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
@@ -241,7 +241,7 @@ const IngredientList: React.FC = () => {
         </div>
         <button
           onClick={handleAdd}
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="btn btn-outline-primary text-sm font-medium"
         >
           <Plus className="-ml-1 mr-2 h-5 w-5" />
           Tambah Bahan
@@ -270,84 +270,138 @@ const IngredientList: React.FC = () => {
 
       <div className="bg-white shadow overflow-hidden rounded-lg">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Nama
-                </th>
-                {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Deskripsi
-                </th> */}
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Satuan
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Harga  Per Satuan
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Stok
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Aksi
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              
-              { ingredients.map((ingredient) => (
-                <tr key={ingredient.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-indigo-600">
-                    <div className="flex-row items-center gap-y-2">
-                      <span className='text-sm text-gray-900'>{ingredient.name}</span>
-                      {/* <span className='text-xs text-gray-400'>{ingredient.description}</span> */}
-                    </div>
-                    </div>
-                  </td>
-                  {/* <td className="px-6 py-2">
-                    <div className="text-sm text-gray-900 max-w-md truncate">
-                      
-                    </div>
-                  </td> */}
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{ingredient.unit}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{formatCurrency(ingredient.price_per_unit)}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{ingredient.stock}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex justify-end space-x-3">
-                      <button
-                        onClick={() => handleManageTaskTemplates(ingredient)}
-                        className="text-emerald-600 hover:text-emerald-900 hover:-translate-x-1 hover:scale-150"
-                        title="Manage Task Templates"
-                      >
-                        <ListChecks className="h-5 w-5" />
-                      </button>
-                      <button
-                        onClick={() => handleEdit(ingredient)}
-                        className="text-indigo-600 hover:text-indigo-900 hover:-translate-x-1 hover:scale-150"
-                        title="Edit Ingredient"
-                      >
-                        <Edit className="h-5 w-5" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteClick(ingredient)}
-                        className="text-red-600 hover:text-red-900 hover:-translate-x-1 hover:scale-150"
-                        title="Delete Ingredient"
-                      >
-                        <Trash2 className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <>
+  {/* Table for medium and larger screens */}
+  <div className="hidden md:block overflow-auto rounded-lg shadow"> {/* Hide on small, show on medium+ */}
+    <table className="min-w-full divide-y divide-gray-200">
+      <thead className="bg-gray-200">
+        <tr>
+          <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+            Nama
+          </th>
+          <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+            Satuan
+          </th>
+          <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+            Harga Per Satuan
+          </th>
+          <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+            Stok
+          </th>
+          <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+            Aksi
+          </th>
+        </tr>
+      </thead>
+      <tbody className="bg-white divide-y divide-gray-200">
+        {ingredients.map((ingredient) => (
+          <tr key={ingredient.id} className="hover:bg-gray-50">
+            <td className="px-6 py-4 whitespace-nowrap">
+              <div className="text-sm font-medium text-indigo-600">
+                <div className="flex-row items-center gap-y-2">
+                  <span className='text-sm text-gray-900'>{ingredient.name}</span>
+                </div>
+              </div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+              <div className="text-sm text-gray-900">{ingredient.unit}</div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+              <div className="text-sm text-gray-900">{formatCurrency(ingredient.price_per_unit)}</div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+              <div className="text-sm text-gray-900">{ingredient.stock}</div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => handleManageTaskTemplates(ingredient)}
+                  className="text-emerald-600 hover:text-emerald-900 hover:-translate-x-1 hover:scale-150"
+                  title="Manage Task Templates"
+                >
+                  <ListChecks className="h-5 w-5" />
+                </button>
+                <button
+                  onClick={() => handleEdit(ingredient)}
+                  className="text-indigo-600 hover:text-indigo-900 hover:-translate-x-1 hover:scale-150"
+                  title="Edit Ingredient"
+                >
+                  <Edit className="h-5 w-5" />
+                </button>
+                <button
+                  onClick={() => handleDeleteClick(ingredient)}
+                  className="text-red-600 hover:text-red-900 hover:-translate-x-1 hover:scale-150"
+                  title="Delete Ingredient"
+                >
+                  <Trash2 className="h-5 w-5" />
+                </button>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  {/* Grid for small screens */}
+  <div className="grid grid-cols-1 m-2 gap-4 md:hidden"> {/* Show on small, hide on medium+ */}
+    {ingredients.map((ingredient) => (
+      <div key={ingredient.id} className="bg-white p-4 rounded-lg shadow space-y-3">
+        {/* Nama */}
+        <div>
+          <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</div>
+          <div className="text-sm font-medium text-gray-900">{ingredient.name}</div>
+        </div>
+
+        {/* Satuan */}
+        <div>
+          <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">Satuan</div>
+          <div className="text-sm text-gray-900">{ingredient.unit}</div>
+        </div>
+
+        {/* Harga Per Satuan */}
+        <div>
+          <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">Harga Per Satuan</div>
+          <div className="text-sm text-gray-900">{formatCurrency(ingredient.price_per_unit)}</div>
+        </div>
+
+        {/* Stok */}
+        <div>
+          <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">Stok</div>
+          <div className="text-sm text-gray-900">{ingredient.stock}</div>
+        </div>
+
+        {/* Aksi */}
+        <div>
+          <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</div>
+          <div className="flex justify-start space-x-3 mt-2"> {/* Changed justify-end to justify-start for mobile */}
+            <button
+              onClick={() => handleManageTaskTemplates(ingredient)}
+              className="text-emerald-600 hover:text-emerald-900"
+              title="Manage Task Templates"
+            >
+              <ListChecks className="h-5 w-5" />
+            </button>
+            <button
+              onClick={() => handleEdit(ingredient)}
+              className="text-indigo-600 hover:text-indigo-900"
+              title="Edit Ingredient"
+            >
+              <Edit className="h-5 w-5" />
+            </button>
+            <button
+              onClick={() => handleDeleteClick(ingredient)}
+              className="text-red-600 hover:text-red-900"
+              title="Delete Ingredient"
+            >
+              <Trash2 className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</>
         </div>
       </div>
 

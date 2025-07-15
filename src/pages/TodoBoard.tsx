@@ -187,6 +187,7 @@ const TodoBoard: React.FC = () => {
   if (loading) {
     return (
       <div className="container mx-auto p-4 flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         <div className="text-lg">Memuat tugas...</div>
       </div>
     );
@@ -266,7 +267,8 @@ const TodoBoard: React.FC = () => {
 
       {viewMode === 'kanban' && (
       <>
-       {tasks.length === 0 ? (
+          {tasks.length === 0 ? (
+            
         <div className="flex flex-col items-center justify-center h-64 bg-gray-50 rounded-lg">
           <div className="text-center">
             <h3 className="mt-2 text-lg font-medium text-gray-900">No tasks yet</h3>

@@ -21,7 +21,7 @@ const CategoryFilter = ({
           variant={selectedCategory === null ? 'default' : 'outline'}
           size="sm"
           onClick={() => onSelectCategory(null)}
-          className="mb-2"
+          className="mb-2 -rotate-6 rounded-full hover:bg-purple-500 hover:text-white border border-gray-200"
         >
           Semua
         </Button>

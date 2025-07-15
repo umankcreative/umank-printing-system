@@ -181,13 +181,13 @@ const ProductTable: React.FC<ProductTableProps> = ({
     <div className="border rounded-lg shadow-sm">
       <div className="overflow-auto" style={{ height: '600px' }}>
         <table className="w-full table-fixed border-collapse">
-          <thead className="sticky top-0 z-10 bg-gray-50">
+          <thead className="sticky top-0 z-10 bg-gray-200">
             {table.getHeaderGroups().map((headerGroup: HeaderGroup<Product>) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header: Header<Product, unknown>) => (
                   <th
                     key={header.id}
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b"
+                    className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider border-b"
                     style={{ width: header.getSize() }}
                   >
                     {header.isPlaceholder ? null : (

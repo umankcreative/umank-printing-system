@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { MoreVertical, Edit, Trash, EyeIcon, CopyCheck } from 'lucide-react';
+import { MoreVertical, Edit, Trash, EyeIcon, CopyCheck, Tag } from 'lucide-react';
 import { Product } from '../types/api';
 import { formatCurrency } from '../lib/utils';
 import { Button } from '../components/ui/button';
@@ -76,7 +76,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete, onClone })
       <div className="p-4">
         <h3 onClick={() => navigate(`/admin/products/${product.id}`)} className="font-medium text-gray-900 cursor-pointer"   >{product.name}</h3>
         <div className="mt-1 flex items-center gap-1">
-          <span className="text-sm text-gray-500">{product.category?.name || ''}</span>
+        <span
+                        key={product.category?.id}
+                        className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-blue-50 text-blue-700"
+                      >
+                        <Tag size={12} className="mr-1" />
+                        {product.category?.name || ''}
+                      </span>
+          {/* <span className="text-sm text-gray-500">{product.category?.name || ''}</span> */}
         </div>
         <div className="mt-4 flex items-center justify-between">
           <div className="flex flex-col">

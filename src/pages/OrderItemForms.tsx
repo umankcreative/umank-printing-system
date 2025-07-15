@@ -2,39 +2,45 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useOrderContext } from '../context/OrderContext';
 import { useForm as useAppForm } from '../context/FormContext';
-import { FormTemplate } from '../types/formTypes';
+import { FormTemplate, FormElement } from '../types/formTypes';
 import { Order, OrderItem } from '../types/api';
 import FormFieldRenderer from '../components/shop/forms/FormFieldRenderer';
-// import { Button } from '../components/ui/button';
 import { toast } from '../hooks/use-toast';
 import { useForm, FormProvider } from 'react-hook-form';
 import FormProgress from '../components/shop/forms/FormProgress';
 import FormNavigation from '../components/shop/forms/FormNavigation';
 import { getValidationPattern, getValidationMessage } from '../lib/validationUtils';
-// Import formService to fetch form templates
 import * as formService from '../services/formService';
 
 const OrderItemForms: React.FC = () => {
+  // --- SEMUA DEKLARASI HOOKS HARUS ADA DI SINI, DI ATAS ---
   const { orderId } = useParams<{ orderId: string }>();
   const { orders } = useOrderContext();
-  const { formCategoryMappings, getFormTemplateForCategory } = useAppForm();
+  const { formCategoryMappings } = useAppForm();
 
   const [order, setOrder] = useState<Order | null>(null);
   const [templates, setTemplates] = useState<FormTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
-  const [formsData, setFormsData] = useState<Record<string, any>>({});
+  const [formsData, setFormsData] = useState<Record<string, Record<string, string | File | Date | null>>>({});
   const [selectedDates, setSelectedDates] = useState<Record<string, Date | null>>({});
   const [selectedFiles, setSelectedFiles] = useState<Record<string, File | null>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const methods = useForm();
   const { handleSubmit, reset, formState: { errors } } = methods;
 
+  // --- SEMUA USEEFFECT JUGA HARUS DI ATAS ---
+
   useEffect(() => {
-    if (!orderId) return;
+    if (!orderId) {
+      setLoading(false);
+      return;
+    }
     const foundOrder = (orders as Order[]).find(o => o.id === orderId) || null;
     setOrder(foundOrder);
-    setLoading(false);
+    // Only set loading to false if order is found or confirmed not found
+    setLoading(false); // Dipindahkan ke sini agar selalu diset setelah cek order
   }, [orderId, orders]);
 
   useEffect(() => {
@@ -44,7 +50,6 @@ const OrderItemForms: React.FC = () => {
       if (Array.isArray(order.items)) {
         items = order.items as OrderItem[];
       }
-      // Get unique category IDs from order items
       const uniqueCategoryIds = Array.from(new Set(items.map(item => item.product?.category_id).filter(Boolean)));
       const uniqueTemplates: FormTemplate[] = [];
       for (const categoryId of uniqueCategoryIds) {
@@ -52,11 +57,6 @@ const OrderItemForms: React.FC = () => {
         if (mapping && mapping.categoryId) {
           try {
             const template = await formService.getFormTemplate(mapping.formTemplateId);
-            console.log('Found template for category:', {
-              categoryId: mapping.categoryId,
-              categoryName: mapping.categoryName,
-              formTemplateId: mapping.formTemplateId,
-            }); 
             if (template) {
               uniqueTemplates.push(template);
             }
@@ -68,9 +68,8 @@ const OrderItemForms: React.FC = () => {
       setTemplates(uniqueTemplates);
     };
     fetchTemplates();
-  }, [order, formCategoryMappings, getFormTemplateForCategory]);
+  }, [order, formCategoryMappings]);
 
-  // Reset form and state when order changes
   useEffect(() => {
     reset();
     setCurrentStep(0);
@@ -79,56 +78,172 @@ const OrderItemForms: React.FC = () => {
     setSelectedFiles({});
   }, [order, reset]);
 
-  // if (loading) return <div>Loading...</div>;
-  if (!order) return <div>Order not found.</div>;
+  // Ini adalah useEffect yang menyebabkan masalah jika ditempatkan setelah conditional returns.
+  // Pindahkan ke atas, bersama useEffect lainnya.
+  useEffect(() => {
+    // Pastikan `templates` dan `currentTemplate` sudah ada sebelum mencoba mengaksesnya
+    // karena useEffect ini bisa berjalan saat `templates` masih kosong di render awal.
+    if (templates.length > 0) {
+      const templateToLoad = templates[currentStep];
+      if (templateToLoad && formsData[templateToLoad.id]) {
+        reset(formsData[templateToLoad.id]);
+        const currentTemplateData = formsData[templateToLoad.id];
+        const newSelectedDates: Record<string, Date | null> = {};
+        const newSelectedFiles: Record<string, File | null> = {};
 
+        templateToLoad.elements?.forEach(element => {
+          const value = currentTemplateData[element.id];
+          if (element.type === 'date' && value instanceof Date) {
+            newSelectedDates[element.id] = value;
+          } else if (element.type === 'file' && value instanceof File) {
+            newSelectedFiles[element.id] = value;
+          }
+        });
+        setSelectedDates(newSelectedDates);
+        setSelectedFiles(newSelectedFiles);
+      } else {
+        reset({});
+        setSelectedDates({});
+        setSelectedFiles({});
+      }
+    } else {
+        // Jika templates masih kosong (misal, saat loading awal atau tidak ada template ditemukan),
+        // pastikan form tetap direset dan state terkait dibersihkan.
+        reset({});
+        setSelectedDates({});
+        setSelectedFiles({});
+    }
+  }, [currentStep, templates, formsData, reset]); // `templates` ditambahkan ke dependencies
+
+  // currentTemplate didefinisikan di sini karena dependencies useEffect sudah mencakup `templates`
+  // dan rendering JSX akan ada di bawah conditional renders.
   const currentTemplate = templates[currentStep];
 
-  const handleStepSubmit = (data: Record<string, unknown>) => {
-    // Add date data for current form
+
+  // --- CONDITIONAL RENDERS (DI SINI SEMUA HOOKS SUDAH DI DEKLARASIKAN) ---
+  if (loading) {
+    return (
+      <div className="max-w-2xl mx-auto py-8 pt- px-4">
+        <div className="flex items-center justify-center h-64">
+          <p className="text-lg text-gray-500">Memuat pesanan dan formulir...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!order) {
+    return <div>Order not found.</div>;
+  }
+
+  if (templates.length === 0) {
+    return (
+      <div className="max-w-2xl mx-auto py-8 pt- px-4">
+        <div className="flex items-center justify-center h-64">
+          <p className="text-lg text-gray-500">Tidak ada template form untuk kategori produk ini.</p>
+        </div>
+      </div>
+    );
+  }
+  // --- END CONDITIONAL RENDERS ---
+
+
+  const handleStepSubmit = async (data: Record<string, unknown>) => {
+    setIsSubmitting(true);
+
+    const combinedDataForCurrentStep: Record<string, string | File | Date | null> = { ...data };
+
     Object.keys(selectedDates).forEach(key => {
       if (selectedDates[key]) {
-        data[key] = selectedDates[key];
+        combinedDataForCurrentStep[key] = selectedDates[key];
       }
     });
-    // Add file information for current form
+
     Object.keys(selectedFiles).forEach(key => {
       if (selectedFiles[key]) {
-        data[key] = selectedFiles[key].name;
+        combinedDataForCurrentStep[key] = selectedFiles[key];
       }
     });
+
     setFormsData(prev => ({
       ...prev,
-      [currentTemplate.id]: data
+      [currentTemplate.id]: combinedDataForCurrentStep
     }));
 
-    if (currentStep === templates.length - 1) {
-      const allData = {
-        ...formsData,
-        [currentTemplate.id]: data
-      };
-      toast({
-        title: 'Form berhasil dikirim',
-        description: 'Pesanan Anda sedang diproses'
+    try {
+      const currentFormValues: Array<{ element_id: string; value: string; file: File | null }> = [];
+
+      currentTemplate.elements?.forEach((element: FormElement) => {
+        const value = combinedDataForCurrentStep[element.id];
+
+        if (element.type === 'file' && value instanceof File) {
+          currentFormValues.push({
+            element_id: element.id,
+            value: '',
+            file: value,
+          });
+        } else if (value !== undefined && value !== null) {
+          currentFormValues.push({
+            element_id: element.id,
+            value: String(value),
+            file: null,
+          });
+        } else if (element.default_value) {
+          currentFormValues.push({
+            element_id: element.id,
+            value: String(element.default_value),
+            file: null,
+          });
+        }
       });
-      reset();
-      setCurrentStep(0);
-      setFormsData({});
-      setSelectedDates({});
-      setSelectedFiles({});
-      // Optionally: send allData to backend here
-    } else {
-      setCurrentStep(prev => prev + 1);
-      setSelectedDates({});
-      setSelectedFiles({});
+
+      const submission = {
+        template_id: currentTemplate.id,
+        customer_id: order.customer?.id || null,
+        order_id: orderId,
+        status: 'submitted',
+        values: currentFormValues,
+      };
+
+      console.log('Submitting form for template:', currentTemplate.name, 'with data:', submission);
+
+      await formService.createFormSubmission(submission);
+
+      toast({
+        title: 'Berhasil',
+        description: `Form "${currentTemplate.name}" berhasil dikirim.`,
+      });
+
+      if (currentStep < templates.length - 1) {
+        setCurrentStep(prev => prev + 1);
+        setSelectedDates({});
+        setSelectedFiles({});
+      } else {
+        toast({
+          title: 'Semua Form Selesai',
+          description: 'Semua formulir pesanan telah berhasil dikirim.',
+        });
+        reset();
+        setCurrentStep(0);
+        setFormsData({});
+        setSelectedDates({});
+        setSelectedFiles({});
+      }
+
+    } catch (error) {
+      console.error('Error submitting form for template:', currentTemplate.name, error);
+      toast({
+        title: 'Gagal Mengirim Form',
+        description: `Terjadi kesalahan saat mengirim form "${currentTemplate.name}".`,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleBack = () => {
     if (currentStep > 0) {
       setCurrentStep(prev => prev - 1);
-      setSelectedDates({});
-      setSelectedFiles({});
     }
   };
 
@@ -149,42 +264,36 @@ const OrderItemForms: React.FC = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-8 pt-32 px-4">
+    <div className="max-w-2xl mx-auto py-8 pt- px-4">
       <h1 className="text-2xl font-bold mb-6">Isi Formulir untuk Kategori Item Pesanan</h1>
-      {templates.length > 0 && (
-        <>
-          <FormProgress currentStep={currentStep} totalSteps={templates.length} />
-          <h2 className="text-xl font-semibold mb-4">{templates[currentStep].name}</h2>
-          <FormProvider {...methods}>
-            <form onSubmit={handleSubmit(handleStepSubmit)} className="space-y-4 py-2">
-              {currentTemplate.elements?.map(element => (
-                <FormFieldRenderer
-                  key={element.id}
-                  element={element}
-                  selectedDates={selectedDates}
-                  selectedFiles={selectedFiles}
-                  onDateChange={handleDateChange}
-                  onFileChange={handleFileChange}
-                  errors={errors}
-                  getValidationPattern={getValidationPattern}
-                  getValidationMessage={getValidationMessage}
-                />
-              ))}
-              <FormNavigation
-                currentStep={currentStep}
-                totalSteps={templates.length}
-                onBack={handleBack}
-                onCancel={() => {}}
+      <>
+        <FormProgress currentStep={currentStep} totalSteps={templates.length} />
+        <h2 className="text-xl font-semibold mb-4">{currentTemplate.name}</h2>
+        <FormProvider {...methods}>
+          <form onSubmit={handleSubmit(handleStepSubmit)} className="space-y-4 py-2">
+            {currentTemplate.elements?.map(element => (
+              <FormFieldRenderer
+                key={element.id}
+                element={element}
+                selectedDates={selectedDates}
+                selectedFiles={selectedFiles}
+                onDateChange={handleDateChange}
+                onFileChange={handleFileChange}
+                errors={errors}
+                getValidationPattern={getValidationPattern}
+                getValidationMessage={getValidationMessage}
               />
-            </form>
-          </FormProvider>
-        </>
-      )}
-      {templates.length === 0 && (
-        <div className="py-6 text-center">
-          <p className="text-gray-500">Tidak ada template form untuk kategori produk ini.</p>
-        </div>
-      )}
+            ))}
+            <FormNavigation
+              currentStep={currentStep}
+              totalSteps={templates.length}
+              onBack={handleBack}
+              onCancel={() => {}}
+              isSubmitting={isSubmitting}
+            />
+          </form>
+        </FormProvider>
+      </>
     </div>
   );
 };

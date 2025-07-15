@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '../components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
-import { Share2, Pencil, Trash, MoreVertical, File, Printer, Check, CalendarClock } from 'lucide-react';
+import { Share2, Pencil, Trash, MoreVertical, File, Printer, Check, CalendarClock, CalendarCheck, CalendarClockIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -12,7 +12,7 @@ interface OrderActionsProps {
   onDelete?: () => void;
   onDuplicate?: () => void;
   onPrint?: () => void;
-  onShareForm?: () => void;
+  viewTasks?: () => void;
   orderId?: string;
 }
 
@@ -23,32 +23,51 @@ export const OrderActions: React.FC<OrderActionsProps> = ({
   onDelete,
   onDuplicate,
   onPrint,
-  onShareForm,
+  viewTasks,
   orderId,
 }) => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
 
   const handleShare = () => {
-    // if (isCompleted) return;
-    
-    // Use the full task ID for sharing
     const url = `${window.location.origin}/form/${orderId}`;
-    
-    if (navigator.clipboard && navigator.clipboard.writeText) {
+    const shareData = {
+      title: 'Bagikan Formulir Pesanan',
+      text: 'Silakan isi formulir pesanan berikut:',
+      url,
+    };
+
+    if (navigator.share) {
+      navigator.share(shareData)
+        .then(() => {
+          setCopied(true);
+          setShowTooltip(true);
+          setTimeout(() => setCopied(false), 2000);
+          setTimeout(() => setShowTooltip(false), 3000);
+        })
+        .catch((err) => {
+          // fallback to clipboard if user cancels or share fails
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url)
+              .then(() => {
+                setCopied(true);
+                setShowTooltip(true);
+                setTimeout(() => setCopied(false), 2000);
+                setTimeout(() => setShowTooltip(false), 3000);
+              })
+              .catch(err => {
+                console.error('Failed to copy: ', err);
+              });
+          }
+        });
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(url)
         .then(() => {
           setCopied(true);
           setShowTooltip(true);
-          
-          setTimeout(() => {
-            setCopied(false);
-          }, 2000);
-          
-          setTimeout(() => {
-            setShowTooltip(false);
-          }, 3000);
+          setTimeout(() => setCopied(false), 2000);
+          setTimeout(() => setShowTooltip(false), 3000);
         })
         .catch(err => {
           console.error('Failed to copy: ', err);
@@ -58,23 +77,15 @@ export const OrderActions: React.FC<OrderActionsProps> = ({
       textArea.value = url;
       document.body.appendChild(textArea);
       textArea.select();
-      
       try {
         document.execCommand('copy');
         setCopied(true);
         setShowTooltip(true);
-        
-        setTimeout(() => {
-          setCopied(false);
-        }, 2000);
-        
-        setTimeout(() => {
-          setShowTooltip(false);
-        }, 3000);
+        setTimeout(() => setCopied(false), 2000);
+        setTimeout(() => setShowTooltip(false), 3000);
       } catch (err) {
         console.error('Failed to copy: ', err);
       }
-      
       document.body.removeChild(textArea);
     }
   };
@@ -109,11 +120,15 @@ export const OrderActions: React.FC<OrderActionsProps> = ({
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={onDuplicate}>
               <File className="w-4 h-4 mr-2" />
-              Tambah Link Formulir
+              Lihat isian Formulir
             </DropdownMenuItem>
             <DropdownMenuItem onClick={onPrint}>
               <Printer className="w-4 h-4 mr-2" />
               Cetak Invoice
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={viewTasks}>
+              <CalendarClockIcon className="w-4 h-4 mr-2" />
+              Lihat Tugas
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleShare}>
             {copied ? (
@@ -123,10 +138,7 @@ export const OrderActions: React.FC<OrderActionsProps> = ({
         )}
               Bagikan
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => orderId && navigate(`/admin/tasks?order_id=${orderId}`)}>
-              <CalendarClock className="w-4 h-4 mr-2" />
-              Lihat Tugas
-            </DropdownMenuItem>
+            
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

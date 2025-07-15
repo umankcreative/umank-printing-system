@@ -86,8 +86,8 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ onAddTask, onTaskClick }) => 
   
   const columns: { status: TaskStatus; title: string; color: string }[] = [
     // { status: 'pending', title: 'Pending', color: 'bg-gray-400' },
-    { status: 'todo', title: 'Harus dikerjakan', color: 'bg-gray-400' },
-    { status: 'in-progress', title: 'Sedang Dikerjakan', color: 'bg-blue-400' },
+    { status: 'todo', title: 'Tugas Baru', color: 'bg-gray-400' },
+    { status: 'in-progress', title: 'Dikerjakan', color: 'bg-blue-400' },
     { status: 'review', title: 'Di Review', color: 'bg-yellow-400' },
     { status: 'completed', title: 'Selesai', color: 'bg-green-400' },
     { status: 'closed', title: 'Ditutup', color: 'bg-red-400' },
@@ -99,7 +99,8 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ onAddTask, onTaskClick }) => 
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 h-[calc(100vh-12rem)]">
+    <div className="w-screen overflow-x-scroll rounded-lg shadow">
+    <div className="grid grid-cols-5 gap-2 h-[calc(100vh-12rem)]">
       {columns.map(({ status, title, color }) => (
         <KanbanColumn
           key={status}
@@ -112,7 +113,8 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ onAddTask, onTaskClick }) => 
           onTaskClick={onTaskClick}
         />
       ))}
-    </div>
+      </div>
+      </div>
   );
 };
 

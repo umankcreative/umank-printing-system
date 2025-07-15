@@ -54,9 +54,9 @@ const UserList: React.FC = () => {
           onChange={(e) => handleStatusFilter(e.target.value)}
           value={filters.status || ''}
         >
-          <option value="">All Status</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
+          <option value="">Semua</option>
+          <option value="active">Aktif</option>
+          <option value="inactive">Nonaktif</option>
         </select>
       </div>
 
@@ -78,7 +78,7 @@ const UserList: React.FC = () => {
                 Status
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Branch
+                Cabang
               </th>
             </tr>
           </thead>

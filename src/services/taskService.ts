@@ -41,6 +41,7 @@ interface TasksResponse {
 }
 
 interface GetTasksParams {
+  orderId: string;
   page?: number;
   status?: TaskStatus;
   per_page?: number;

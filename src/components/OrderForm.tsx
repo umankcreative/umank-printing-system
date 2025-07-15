@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
-// import {  } from '../types';
 import { Product as ApiProduct, Order, OrderItem, Customer } from '../types/api';
 import { useCustomerContext } from '../context/CustomerContext';
 import { useAuth } from '../context/AuthContext';
@@ -17,12 +16,6 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Label } from './ui/label';
 import { v4 as uuidv4 } from 'uuid';
-
-
-/**
- * No mapping needed, just use ApiProduct directly.
- */
-
 
 interface OrderFormProps {
   onSubmit: (order: Order) => Promise<void>;
@@ -321,7 +314,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
       }
 
       const order: Order = {
-        id: initialOrder?.id || '', // Will be set by server for new orders
+        id: initialOrder?.id || uuidv4(), // Will be set by server for new orders
         customer: finalCustomer,
         customer_id: finalCustomer.id,
         branch: initialOrder?.branch || {
@@ -334,8 +327,8 @@ const OrderForm: React.FC<OrderFormProps> = ({
         },
         items: orderItems.map(item => ({
           ...item,
-          id: item.id || '', // Will be set by server for new items
-          order_id: initialOrder?.id || '', // Will be set by server for new orders
+          // id: item.id || '', // Will be set by server for new items
+          // order_id: initialOrder?.id || '', // Will be set by server for new orders
         })),
         total_amount: orderItems.reduce(
           (sum, item) => sum + item.price * item.quantity,

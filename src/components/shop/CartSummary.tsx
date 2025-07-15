@@ -1,13 +1,14 @@
 import { Button } from '../ui/button';
 import { useCart } from '../../context/CartContext';
 import { useState } from 'react';
-import { useForm } from '../../context/FormContext';
+import { useForm as useAppForm } from '../../context/FormContext';
 import OrderForm from './OrderForm';
 import { toast } from '../../hooks/use-toast';
 import { FormTemplate } from '../../types/formTypes';
 import { formatCurrency } from '../../lib/utils';
 import { useOrderContext } from '../../context/OrderContext';
 import { Order, Customer, OrderItem } from '../../types/api';
+import * as formService from '../../services/formService';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -17,58 +18,53 @@ import {
   CardHeader,
   CardTitle,
 } from '../ui/shop/Card';
+import { set } from 'lodash';
+import { te } from 'date-fns/locale';
 
 const CartSummary = () => {
   const { getTotalPrice, getTotalItems, clearCart, items } = useCart();
   const { addOrder } = useOrderContext();
-  const { formCategoryMappings,getFormTemplateForCategory } = useForm();
-
+  const { formCategoryMappings,getFormTemplateForCategory } = useAppForm();
   const [isFormOpen, setIsFormOpen] = useState(false);
-  
+  const [templates, setTemplates] = useState<FormTemplate[]>([]);
   const formattedTotal = formatCurrency(getTotalPrice());
   
   // Get templates based on product categories in cart
-  const getTemplatesForCart = () => {
+  const getTemplatesForCart = async () => {
     if (items.length === 0) return [];
-    
     // Get unique category IDs from cart items
-    const uniqueCategories = [...new Set(items.map(item => item.category))];
-    // console.log('Unique categories:', uniqueCategories);
+    const uniqueCategoryIds = Array.from(new Set(items.map(item => item.category_id).filter(Boolean)));
+    
     const templates: FormTemplate[] = [];
-    
-    // Find matching templates using formCategoryMappings
-    uniqueCategories.forEach(categoryName => {
-      // Find the mapping for this category
-      const mapping = formCategoryMappings.find(m => m.categoryName === categoryName);
-      if (mapping) {
-        // console.log('Found mapping for category:', {
-        //   categoryId: mapping.categoryId,
-        //   categoryName: mapping.categoryName,
-        //   formTemplateId: mapping.formTemplateId
-        // });
 
-        // Use the existing getFormTemplateForCategory function
-        const template = getFormTemplateForCategory(mapping.categoryId);
-      if (template) {
-        // console.log('Found template:', {
-        //   id: template.id,
-        //   name: template.name,
-        //   categoryId: template.category_id
-        // });
-        templates.push(template);
-      }
-      }
-      
-      
-      console.log(templates);
-    });
-    
-    return templates;
+          for (const categoryId of uniqueCategoryIds) {
+            const mapping = formCategoryMappings.find(m => m.categoryId === categoryId);
+            if (mapping && mapping.categoryId) {
+              try {
+                const template = await formService.getFormTemplate(mapping.formTemplateId);
+                // console.log('Found template for category:', {
+                //   categoryId: mapping.categoryId,
+                //   categoryName: mapping.categoryName,
+                //   formTemplateId: mapping.formTemplateId,
+                // }); 
+                if (template) {
+                  templates.push(template);
+                }
+              } catch (error) {
+                console.error('Error fetching template:', error);
+              }
+            }
+          }
+          return templates;
+          
+    // fetchTemplates();
   };
 
-  const handleCheckout = () => {
-    const templates = getTemplatesForCart();
+  const handleCheckout = async () => {
+    const templates = await getTemplatesForCart();
     if (templates.length > 0) {
+      console.log('Found template for category:', templates); 
+      setTemplates(templates);
       setIsFormOpen(true);
     } else {
       toast({
@@ -165,7 +161,7 @@ const CartSummary = () => {
       </CardFooter>
       
       <OrderForm
-        templates={getTemplatesForCart()}
+        templates={templates}
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
         onSubmit={handleFormSubmit}

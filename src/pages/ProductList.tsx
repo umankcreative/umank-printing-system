@@ -13,7 +13,7 @@ import Pagination from '../components/Pagination';
 import { Product } from '../types/api';
 import { toast } from 'sonner';
 
-const backendBaseURL = 'https://373b-114-10-139-244.ngrok-free.app'; // Update with your backend URL
+const backendBaseURL = 'http://127.0.0.1:8000'; // Update with your backend URL
 import {
   Dialog,
   DialogContent,
@@ -40,7 +40,7 @@ const ProductList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
-  const itemsPerPage = 12;
+  const itemsPerPage = 15;
 
   // Fetch products from API
   useEffect(() => {
@@ -158,9 +158,9 @@ const ProductList: React.FC = () => {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Package className="h-6 w-6" />Products</h1>
-        <Link to="/admin/products/create" className="btn btn-primary flex items-center">
+        <Link to="/admin/products/create" className="btn btn-outline-primary flex items-center">
           <Plus className="w-5 h-5 mr-1" />
-          Add Product
+          Tambah Produk
         </Link>
       </div>
 

@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 /* Custom styles */
 @layer base {
   :root {
@@ -96,15 +105,6 @@
   .btn-lg {
     @apply px-6 py-3 text-lg;
   }
-}
-
-body {
-  margin: 0;
-  font-family: -apple-system, "Montserrat", BlinkMacSystemFont, "Segoe UI",
-    "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-    "Helvetica Neue", sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 /* src/index.css or your styles file */
@@ -216,7 +216,7 @@ body {
 }
 
 .status-badge {
-  @apply text-xs font-medium rounded-full px-2 py-1 inline-flex items-center;
+  @apply text-xs font-medium rounded-sm px-2 py-1 inline-flex items-center;
 }
 
 .add-task-btn {
@@ -252,7 +252,7 @@ body {
 }
 
 .status-badge {
-  @apply text-xs font-medium rounded-full px-2 py-1 inline-flex items-center;
+  @apply text-xs font-medium rounded-md px-2 py-1 inline-flex items-center;
 }
 
 .todo-badge {

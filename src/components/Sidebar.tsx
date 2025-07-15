@@ -101,12 +101,12 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole, userName }) => {
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="flex items-center justify-center h-16 border-b">
+          <div className="flex items-center justify-center mt-1 h-16 border-b">
             <div className="flex items-center space-x-2">
               {/* <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center">
                 <span className="text-3xl">UC</span>
               </div> */}
-              <Logo color='#000' />
+              <Logo color='#3366ff' />
              <Link to="/admin" className="flex items-center text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-fuchsia-500 to-yellow-400">
 
                 <span className="font-bold text-xl ml-2">Umank Creative</span>

@@ -227,7 +227,7 @@ const RecipeBuilder: React.FC<RecipeBuilderProps> = ({
           {loading ? (
             <div className="text-center py-4">Loading...</div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               {availableIngredients.map((ingredient) => (
                 <button
                   key={ingredient.id}
@@ -238,7 +238,7 @@ const RecipeBuilder: React.FC<RecipeBuilderProps> = ({
                     console.log('Ingredient button clicked:', ingredient);
                     handleAddIngredient(ingredient);
                   }}
-                  className="flex items-center justify-between p-2 border rounded hover:bg-gray-50 cursor-pointer"
+                  className="flex items-center justify-between p-2 border rounded-lg bg-blue-50 hover:bg-gray-100 cursor-pointer"
                 >
                   <div className="flex flex-col text-left">
                     <span className="font-medium">{ingredient.name}</span>

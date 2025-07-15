@@ -3,17 +3,18 @@ import { useOrderContext } from '../context/OrderContext';
 import { useCustomerContext } from '../context/CustomerContext';
 import { Order } from '../types';
 import { Customer } from '../types/api';
-import { Search, Users, Mail, Phone, Building2, Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
+import { Search, Users, Mail, Phone, Building2, Plus, Pencil, Trash2, Loader2, Download } from 'lucide-react';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '../components/ui/table';
+import * as XLSX from 'xlsx';
+// import {
+//   Table,
+//   TableBody,
+//   TableCell,
+//   TableHead,
+//   TableHeader,
+//   TableRow,
+// } from '../components/ui/table';
 import {
   Dialog,
   DialogContent,
@@ -189,6 +190,57 @@ const Customers = () => {
     refreshCustomers();
   }, []); // Run once on mount
 
+  
+// Helper: Parse CSV string to array of objects
+function parseCSV(csv: string): any[] {
+  const [headerLine, ...lines] = csv.split(/\r?\n/).filter(Boolean);
+  const headers = headerLine.split(',').map(h => h.trim());
+  return lines.map(line => {
+    const values = line.split(',');
+    const obj: any = {};
+    headers.forEach((h, i) => {
+      obj[h] = values[i]?.trim() || '';
+    });
+    return obj;
+  });
+}
+
+// Import handler: Accepts File (csv or excel)
+async function importCustomersFromFile(file: File, addCustomer: (data: any) => Promise<any>, refreshCustomers: () => Promise<any>, toast: any) {
+  try {
+    let customers: any[] = [];
+    if (file.name.endsWith('.csv')) {
+      const text = await file.text();
+      customers = parseCSV(text);
+    } else {
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data, { type: 'array' });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      customers = XLSX.utils.sheet_to_json(sheet);
+    }
+    let imported = 0;
+    for (const c of customers) {
+      // Map fields to your CustomerFormData structure
+      const customerData = {
+        name: c.name || c.Nama || '',
+        email: c.email || c.Email || '',
+        phone: c.phone || c.Telepon || '',
+        company: c.company || c.Perusahaan || '',
+        contact: c.contact || c.Kontak || '',
+        address: c.address || c.Alamat || '',
+        is_active: true,
+      };
+      if (customerData.name && customerData.email && customerData.phone) {
+        await addCustomer(customerData);
+        imported++;
+      }
+    }
+    await refreshCustomers();
+    toast.success(`${imported} pelanggan berhasil diimpor.`);
+  } catch (err) {
+    toast.error('Gagal mengimpor data pelanggan. Pastikan format file benar.');
+  }
+}
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -211,10 +263,239 @@ const Customers = () => {
             <Plus className="h-4 w-4" />
             Tambah Pelanggan
           </button>
+          <label htmlFor="import-customer-file" className="flex btn btn-sm btn-outline-secondary items-center gap-2 cursor-pointer">
+            <Download className="h-4 w-4" />
+            Import
+            <input
+              id="import-customer-file"
+              type="file"
+              accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+              className="hidden"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  await importCustomersFromFile(file, addCustomer, refreshCustomers, toast);
+                  e.target.value = '';
+                }
+              }}
+            />
+          </label>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow">
+      <div className="hidden md:block rounded-lg shadow"> {/* Hides on small screens, shows on medium and up */}
+    <table className="min-w-full divide-y divide-gray-200">
+      <thead className="bg-gray-50 sticky top-0 z-10">
+        <tr>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap w-14">
+            No
+          </th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+            Nama
+          </th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+            Perusahaan
+          </th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+            Email
+          </th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+            Telepon
+          </th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+            Total Pesanan
+          </th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+            Terdaftar
+          </th>
+          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap w-24">
+            Aksi
+          </th>
+        </tr>
+      </thead>
+      <tbody className="bg-white divide-y divide-gray-200">
+        {/* Loading and empty states for the table */}
+        {loading ? (
+          <tr>
+            <td colSpan={8} className="text-center py-8">
+              <div className="flex items-center justify-center gap-2">
+                <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+                <span>Memuat data...</span>
+              </div>
+            </td>
+          </tr>
+        ) : filteredCustomers.length === 0 ? (
+          <tr>
+            <td colSpan={8} className="text-center py-8 text-gray-500">
+              {searchTerm ? 'Tidak ada pelanggan yang sesuai dengan pencarian' : 'Belum ada data pelanggan'}
+            </td>
+          </tr>
+        ) : (
+          filteredCustomers.map((customer, index) => {
+            const customerOrders = getCustomerOrders(customer.id);
+            return (
+              <tr
+                key={customer.id}
+                className="cursor-pointer hover:bg-gray-50"
+              >
+                <td className="px-6 py-4 whitespace-nowrap text-sm">{index + 1}</td>
+                <td
+                  className="px-6 py-4 whitespace-nowrap text-sm"
+                  onClick={() => handleRowClick(customer)}
+                >
+                  {customer.name}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm" onClick={() => handleRowClick(customer)}>
+                  {customer.company || '-'}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm" onClick={() => handleRowClick(customer)}>
+                  {customer.email}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm" onClick={() => handleRowClick(customer)}>
+                  {customer.phone}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm" onClick={() => handleRowClick(customer)}>
+                  {customerOrders.length}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm" onClick={() => handleRowClick(customer)}>
+                  {new Date(customer.created_at).toLocaleDateString('id-ID')}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                  <div className="flex items-center gap-2 justify-end">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEdit(customer);
+                      }}
+                      className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 hover:-translate-x-1 hover:scale-150"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(customer);
+                      }}
+                      className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 hover:-translate-x-1 hover:scale-150"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </td>
+              </tr>
+            );
+          })
+        )}
+      </tbody>
+    </table>
+  </div>
+
+  {/* Grid for small screens */}
+  <div className="grid grid-cols-1 gap-4 md:hidden"> {/* Shows on small screens, hides on medium and up */}
+    {/* Loading and empty states for the grid */}
+    {loading ? (
+      <div className="bg-white p-4 rounded-lg shadow text-center py-8">
+        <div className="flex items-center justify-center gap-2">
+          <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+          <span>Memuat data...</span>
+        </div>
+      </div>
+    ) : filteredCustomers.length === 0 ? (
+      <div className="bg-white p-4 rounded-lg shadow text-center py-8 text-gray-500">
+        {searchTerm ? 'Tidak ada pelanggan yang sesuai dengan pencarian' : 'Belum ada data pelanggan'}
+      </div>
+    ) : (
+      filteredCustomers.map((customer, index) => {
+        const customerOrders = getCustomerOrders(customer.id);
+        return (
+          <div
+            key={customer.id}
+            className="bg-white p-4 rounded-lg shadow space-y-3 cursor-pointer"
+            onClick={() => handleRowClick(customer)}
+          >
+            {/* No */}
+            <div>
+              <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">No</div>
+              <div className="text-sm text-gray-900 mt-1">{index + 1}</div>
+            </div>
+
+            {/* Nama */}
+            <div>
+              <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</div>
+              <div className="text-sm font-medium text-gray-900 mt-1">{customer.name}</div>
+            </div>
+
+            {/* Perusahaan */}
+            <div>
+              <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">Perusahaan</div>
+              <div className="text-sm text-gray-900 mt-1">{customer.company || '-'}</div>
+            </div>
+
+            {/* Email */}
+            <div>
+              <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">Email</div>
+              <div className="text-sm text-gray-900 mt-1">{customer.email}</div>
+            </div>
+
+            {/* Telepon */}
+            <div>
+              <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">Telepon</div>
+              <div className="text-sm text-gray-900 mt-1">{customer.phone}</div>
+            </div>
+
+            {/* Total Pesanan */}
+            <div>
+              <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Pesanan</div>
+              <div className="text-sm text-gray-900 mt-1">{customerOrders.length}</div>
+            </div>
+
+            {/* Terdaftar */}
+            <div>
+              <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">Terdaftar</div>
+              <div className="text-sm text-gray-900 mt-1">
+                {new Date(customer.created_at).toLocaleDateString('id-ID')}
+              </div>
+            </div>
+
+            {/* Aksi */}
+            <div>
+              <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</div>
+              <div className="flex items-center gap-2 mt-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEdit(customer);
+                  }}
+                  className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors"
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(customer);
+                  }}
+                  className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        );
+      })
+    )}
+  </div>
+      
+      {/* <div className="bg-white rounded-lg shadow">
         <Table>
           <TableHeader>
             <TableRow>
@@ -306,7 +587,7 @@ const Customers = () => {
             )}
           </TableBody>
         </Table>
-      </div>
+      </div> */}
 
       {/* Add/Edit Customer Dialog */}
       <Dialog 
