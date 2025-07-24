@@ -187,3 +187,19 @@ export const isValidUUID = (uuid: string): boolean => {
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   return uuidRegex.test(uuid);
 };
+
+export const formatDate = (date: Date) => {
+  const now = new Date();
+  const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+  
+  if (diffInMinutes > 0 && diffInMinutes < 1) return "Baru saja";
+  if (diffInMinutes > 0 && diffInMinutes < 60) return `${diffInMinutes} menit lalu`;
+  
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours > 0 && diffInHours < 24) return `${diffInHours} jam lalu`;
+
+  const diffInDays = Math.floor(diffInMinutes / 60 * 24);
+  if (diffInDays > 24) return `${diffInDays} hari lagi`;
+  
+  return date.toLocaleDateString('id-ID');
+};

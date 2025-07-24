@@ -30,7 +30,7 @@ api.interceptors.request.use(
   }
 );
 
-let isRefreshing = true;
+let isRefreshing = false;
 let failedQueue: any[] = [];
 
 const processQueue = (error: any | null, token: string | null = null) => {
@@ -84,15 +84,15 @@ api.interceptors.response.use(
       if (refreshToken) {
         try {
           // Try to refresh the token
-          const response = await axios.post('https://373b-114-10-139-244.ngrok-free.app/api/auth/refresh', {
-            refresh_token: refreshToken
+          const response = await axios.post(`${api.defaults.baseURL}/auth/refresh`, {
+            // refresh_token: refreshToken
           });
           
-          const { access_token, refresh_token } = response.data;
+          const { access_token } = response.data;
           
           // Update the tokens in localStorage
           localStorage.setItem('token', access_token);
-          localStorage.setItem('refresh_token', refresh_token);
+          // localStorage.setItem('refresh_token', refresh_token);
           
           // Update the Authorization header
           if (originalRequest.headers) {

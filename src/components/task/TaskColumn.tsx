@@ -9,18 +9,6 @@ import {
 } from '@dnd-kit/sortable';
 
 import { CSS } from '@dnd-kit/utilities';
-// import { useDroppable } from '@dnd-kit/core';
-
-// const DroppableContainer = ({
-//   id,
-//   children,
-// }: {
-//   id: string;
-//   children: React.ReactNode;
-// }) => {
-//   const { setNodeRef } = useDroppable({ id });
-//   return <div ref={setNodeRef}>{children}</div>;
-// };
 
 interface TaskColumnProps {
   title: string;

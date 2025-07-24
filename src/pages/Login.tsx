@@ -4,6 +4,7 @@ import { AxiosError } from 'axios';
 import Logo from '../components/Logo';
 import { useAuth } from '../context/AuthContext';
 import api from '../lib/axios';
+import { Eye, EyeOff } from 'lucide-react';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,8 +26,8 @@ const Login: React.FC = () => {
         password,
       });
 
-      const { token, refresh_token, user } = response.data;
-      login(token, refresh_token, user);
+      const { token,  user } = response.data;
+      login(token, user);
       navigate('/admin');
     } catch (err) {
       const error = err as AxiosError<{ message: string }>;
@@ -46,7 +48,7 @@ const Login: React.FC = () => {
          />
           
         </div>
-        <h2 className="mt-6 text-center text-2xl font-extrabold text-gray-900">
+        <h2 className="mt-6 text-center text-2xl font-sans font-extrabold text-gray-900">
           Masuk pake akun kamu
         </h2>
       </div>
@@ -59,7 +61,7 @@ const Login: React.FC = () => {
                 <span className="block sm:inline">{error}</span>
               </div>
             )}
-            <div>
+            <div >
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email
               </label>
@@ -79,14 +81,16 @@ const Login: React.FC = () => {
             </div>
 
             <div>
+              <div className="flex items-center">
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
               </label>
-              <div className="mt-1">
+              </div>
+              <div className="flex mt-1">
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   required
                   value={password}
@@ -94,6 +98,14 @@ const Login: React.FC = () => {
                   className="input"
                   disabled={loading}
                 />
+                
+              <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className='relative -ml-10'
+                  >
+                    {showPassword ? <EyeOff /> : <Eye />}
+                  </button>
               </div>
             </div>
 

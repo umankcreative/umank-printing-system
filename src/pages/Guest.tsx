@@ -8,6 +8,7 @@ import Testimonials from '../components/guest/Testimonials';
 import Contact from '../components/guest/Contact';
 
 import './Guest.css';
+import { Gallery } from '../components/guest/Gallery';
 
 function Guest() {
   return (
@@ -17,6 +18,7 @@ function Guest() {
       <About />
       <Services />
       <InteractiveCMYK />
+      <Gallery />
       <Portfolio />
       <Testimonials />
       <Contact />

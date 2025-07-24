@@ -82,7 +82,7 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div>
+    <div className='p-4'>
       <h1 className="text-2xl font-bold flex items-center gap-2 mb-6">
         <LayoutDashboard className="w-6 h-6" />
         Dashboard

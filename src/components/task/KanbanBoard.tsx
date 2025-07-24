@@ -10,13 +10,57 @@ interface KanbanColumnProps {
   status: TaskStatus;
   title: string;
   color: string;
-    count: number;
-    tasks: Task[];
+  count: number;
+  tasks: Task[];
+  onAddTask: (status: TaskStatus) => void;
+  onTaskClick: (task: Task) => void;
+}
+
+
+interface KanbanBoardProps {
+  tasks: Task[];
     onAddTask: (status: TaskStatus) => void;
     onTaskClick: (task: Task) => void;
 }
 
-const KanbanColumn: React.FC<KanbanColumnProps> = ({ status, title, color, count, onAddTask, onTaskClick }) => {
+const KanbanBoard: React.FC<KanbanBoardProps> = ({ onAddTask, onTaskClick }) => {
+  const { tasks } = useTaskContext();
+  
+  const columns: { status: TaskStatus; title: string; color: string }[] = [
+    // { status: 'pending', title: 'Pending', color: 'bg-gray-400' },
+    { status: 'todo', title: 'Tugas Baru', color: 'bg-gray-400' },
+    { status: 'in-progress', title: 'Dikerjakan', color: 'bg-blue-400' },
+    { status: 'review', title: 'Di Review', color: 'bg-yellow-400' },
+    { status: 'completed', title: 'Selesai', color: 'bg-green-400' },
+    { status: 'closed', title: 'Ditutup', color: 'bg-red-400' },
+    // { status: 'blocked', title: 'Blocked', color: 'bg-red-400' },
+  ];
+
+  const countTasksByStatus = (status: TaskStatus) => {
+    return tasks.filter(task => task.status === status).length;
+  };
+
+  return (
+    <div className="w-screen overflow-x-scroll rounded-lg shadow">
+    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2 h-[calc(100vh-12rem)]">
+      {columns.map(({ status, title, color }) => (
+        <KanbanColumn
+          key={status}
+          tasks={tasks}
+          status={status}
+          title={title}
+          color={color}
+          count={countTasksByStatus(status)}
+          onAddTask={onAddTask}
+          onTaskClick={onTaskClick}
+        />
+      ))}
+      </div>
+      </div>
+  );
+};
+
+const KanbanColumn: React.FC<KanbanColumnProps> = ({  status, title, color, count, onAddTask, onTaskClick }) => {
   const { getTasksByStatus } = useTaskContext();
   const tasks = getTasksByStatus(status);
 
@@ -73,48 +117,6 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ status, title, color, count
       </div>
       </div>
       
-  );
-};
-
-interface KanbanBoardProps {
-    onAddTask: (status: TaskStatus) => void;
-    onTaskClick: (task: Task) => void;
-}
-
-const KanbanBoard: React.FC<KanbanBoardProps> = ({ onAddTask, onTaskClick }) => {
-  const { tasks } = useTaskContext();
-  
-  const columns: { status: TaskStatus; title: string; color: string }[] = [
-    // { status: 'pending', title: 'Pending', color: 'bg-gray-400' },
-    { status: 'todo', title: 'Tugas Baru', color: 'bg-gray-400' },
-    { status: 'in-progress', title: 'Dikerjakan', color: 'bg-blue-400' },
-    { status: 'review', title: 'Di Review', color: 'bg-yellow-400' },
-    { status: 'completed', title: 'Selesai', color: 'bg-green-400' },
-    { status: 'closed', title: 'Ditutup', color: 'bg-red-400' },
-    // { status: 'blocked', title: 'Blocked', color: 'bg-red-400' },
-  ];
-
-  const countTasksByStatus = (status: TaskStatus) => {
-    return tasks.filter(task => task.status === status).length;
-  };
-
-  return (
-    <div className="w-screen overflow-x-scroll rounded-lg shadow">
-    <div className="grid grid-cols-5 gap-2 h-[calc(100vh-12rem)]">
-      {columns.map(({ status, title, color }) => (
-        <KanbanColumn
-          key={status}
-          tasks={tasks}
-          status={status}
-          title={title}
-          color={color}
-          count={countTasksByStatus(status)}
-          onAddTask={onAddTask}
-          onTaskClick={onTaskClick}
-        />
-      ))}
-      </div>
-      </div>
   );
 };
 

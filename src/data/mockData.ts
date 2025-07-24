@@ -1,4 +1,4 @@
-import { Customer, Ingredient, Product, ProductImage, Recipes } from '../types';
+import { Customer, Ingredient, Product, ProductImage, Recipes } from '../types/api';
 import {
   User,
   Branch,
@@ -172,222 +172,159 @@ export const ingredients: Ingredient[] = [
   }
 ];
 
-export const products: Product[] = [
+export interface Photo {
+  id: number;
+  title: string;
+  category: string;
+  imageUrl: string;
+  description?: string;
+}
+
+
+export const photos: Photo[] = [
   {
-    id: '1',
-    name: 'Yasin Full Color 128 SC',
-    description: 'Yasin 128 Halaman, dengan cover Full COlor',
-    category: 'Yasin',
-    thumbnail_id:
-      'https://umank.com/wp-content/uploads/2022/09/EB30F4C0-C659-418D-9CFC-1D42F519BF6B-1024x768.jpeg',
-    cost_price: 16200,
-    price: 16200,
-    minOrder: 50,
-    stock: 1000,
-    branch_id: '1',
-    isActive: true,
-    created_at: '2023-12-30 01:13:21',
-    updated_at: '2024-01-05 01:40:10',
+    id: 1,
+    title: "Pemandangan Gunung",
+    category: "nature",
+    imageUrl: "https://images.unsplash.com/photo-1466721591366-2d5fba72006d?auto=format&fit=crop&w=800&q=80",
+    description: "Pemandangan indah hewan di alam liar"
   },
   {
-    id: '2',
-    name: 'Yasin AP 170 HC',
-    description: 'Buku Yasin Art Paper isi Hard Cover Sudut Gold',
-    category: 'Yasin',
-    thumbnail_id:
-      'https://umank.com/wp-content/uploads/2022/09/779CD726-3D25-4C33-8ACA-6FCFDD9FC3F8-1024x768.jpeg',
-    cost_price: 9500,
-    price: 19000,
-    minOrder: 50,
-    stock: 1000,
-    branch_id: '1',
-    isActive: true,
-    created_at: '2024-01-01 13:26:34',
-    updated_at: '2024-10-16 05:42:50',
+    id: 2,
+    title: "Laptop Modern",
+    category: "technology",
+    imageUrl: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=800&q=80",
+    description: "Laptop dengan teknologi terdepan"
   },
   {
-    id: '3',
-    name: 'Kalender Dinding 4 Lembar Spiral',
-    description: 'Kalender Dinding 4 Lembar Spiral',
-    category: 'Kalender',
-    thumbnail_id:
-      'https://images.pexels.com/photos/762687/pexels-photo-762687.jpeg',
-    cost_price: 30000,
-    price: 60000,
-    minOrder: 50,
-    stock: 1000,
-    branch_id: '1',
-    isActive: true,
-    created_at: '2024-01-04 21:11:24',
-    updated_at: '2024-01-05 07:43:05',
+    id: 3,
+    title: "Circuit Board",
+    category: "technology",
+    imageUrl: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
+    description: "Detail circuit board elektronik"
   },
   {
-    id: '4',
-    name: 'Yasin Hard Cover 128',
-    description: 'Yasin Hard Cover Isi 128 Halaman',
-    category: 'Yasin',
-    thumbnail_id:
-      'https://images.pexels.com/photos/159866/books-book-pages-read-literature-159866.jpeg',
-    cost_price: 14500,
-    price: 29000,
-    minOrder: 50,
-    stock: 10,
-    branch_id: '1',
-    isActive: false,
-    created_at: '2025-04-23 01:44:10',
-    updated_at: '2025-04-23 01:44:10',
+    id: 4,
+    title: "Programming Code",
+    category: "technology",
+    imageUrl: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=800&q=80",
+    description: "Monitor menampilkan kode Java"
   },
   {
-    id: '5',
-    name: 'Kartu Nama Premium',
-    description: 'Kartu Nama dengan finishing spot UV dan emboss',
-    category: 'Kartu Nama',
-    thumbnail_id: 'https://images.pexels.com/photos/159866/books-book-pages-read-literature-159866.jpeg',
-    cost_price: 25000,
-    price: 50000,
-    minOrder: 1,
-    stock: 1000,
-    branch_id: '1',
-    isActive: true,
-    created_at: '2024-01-05 01:44:10',
-    updated_at: '2024-01-05 01:44:10',
+    id: 5,
+    title: "Workspace",
+    category: "lifestyle",
+    imageUrl: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80",
+    description: "Ruang kerja yang nyaman dan produktif"
   },
   {
-    id: '6',
-    name: 'Brosur A4 Full Color',
-    description: 'Brosur ukuran A4 dengan kertas AP 210gsm',
-    category: 'Brosur',
-    thumbnail_id: 'https://images.pexels.com/photos/159866/books-book-pages-read-literature-159866.jpeg',
-    cost_price: 15000,
-    price: 30000,
-    minOrder: 100,
-    stock: 5000,
-    branch_id: '1',
-    isActive: true,
-    created_at: '2024-01-05 01:44:10',
-    updated_at: '2024-01-05 01:44:10',
+    id: 6,
+    title: "Matrix Code",
+    category: "technology",
+    imageUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80",
+    description: "Tampilan kode matrix yang futuristik"
   },
   {
-    id: '7',
-    name: 'Stiker Vinyl Outdoor',
-    description: 'Stiker vinyl tahan cuaca untuk outdoor',
-    category: 'Stiker',
-    thumbnail_id: 'https://images.pexels.com/photos/159866/books-book-pages-read-literature-159866.jpeg',
-    cost_price: 50000,
-    price: 100000,
-    minOrder: 10,
-    stock: 100,
-    branch_id: '1',
-    isActive: true,
-    created_at: '2024-01-05 01:44:10',
-    updated_at: '2024-01-05 01:44:10',
+    id: 7,
+    title: "Web Development",
+    category: "technology",
+    imageUrl: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?auto=format&fit=crop&w=800&q=80",
+    description: "Kode web berwarna-warni di monitor"
   },
   {
-    id: '8',
-    name: 'Undangan Pernikahan Premium',
-    description: 'Undangan pernikahan dengan emboss dan spot UV',
-    category: 'Undangan',
-    thumbnail_id: 'https://images.pexels.com/photos/159866/books-book-pages-read-literature-159866.jpeg',
-    cost_price: 35000,
-    price: 70000,
-    minOrder: 50,
-    stock: 500,
-    branch_id: '1',
-    isActive: true,
-    created_at: '2024-01-05 01:44:10',
-    updated_at: '2024-01-05 01:44:10',
+    id: 8,
+    title: "Digital Display",
+    category: "technology",
+    imageUrl: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?auto=format&fit=crop&w=800&q=80",
+    description: "Tampilan layar digital modern"
   },
   {
-    id: '9',
-    name: 'Banner Flexy 3x4',
-    description: 'Banner flexy ukuran 3x4 meter',
-    category: 'Banner',
-    thumbnail_id: 'https://images.pexels.com/photos/159866/books-book-pages-read-literature-159866.jpeg',
-    cost_price: 150000,
-    price: 300000,
-    minOrder: 1,
-    stock: 50,
-    branch_id: '1',
-    isActive: true,
-    created_at: '2024-01-05 01:44:10',
-    updated_at: '2024-01-05 01:44:10',
+    id: 9,
+    title: "Team Meeting",
+    category: "lifestyle",
+    imageUrl: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80",
+    description: "Tim bekerja dengan laptop di meja"
   },
   {
-    id: '10',
-    name: 'Kop Surat Premium',
-    description: 'Kop surat dengan watermark dan emboss',
-    category: 'Kop Surat',
-    thumbnail_id: 'https://images.pexels.com/photos/159866/books-book-pages-read-literature-159866.jpeg',
-    cost_price: 20000,
-    price: 40000,
-    minOrder: 100,
-    stock: 1000,
-    branch_id: '1',
-    isActive: true,
-    created_at: '2024-01-05 01:44:10',
-    updated_at: '2024-01-05 01:44:10',
+    id: 10,
+    title: "Innovation",
+    category: "technology",
+    imageUrl: "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?auto=format&fit=crop&w=800&q=80",
+    description: "Lampu sebagai simbol inovasi"
   },
   {
-    id: '11',
-    name: 'Nota Custom',
-    description: 'Nota dengan logo dan informasi custom',
-    category: 'Nota',
-    thumbnail_id: 'https://images.pexels.com/photos/159866/books-book-pages-read-literature-159866.jpeg',
-    cost_price: 10000,
-    price: 20000,
-    minOrder: 100,
-    stock: 2000,
-    branch_id: '1',
-    isActive: true,
-    created_at: '2024-01-05 01:44:10',
-    updated_at: '2024-01-05 01:44:10',
+    id: 11,
+    title: "MacBook Setup",
+    category: "technology",
+    imageUrl: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80",
+    description: "MacBook dengan setup coding"
   },
   {
-    id: '12',
-    name: 'Amplop Premium',
-    description: 'Amplop dengan emboss dan spot UV',
-    category: 'Amplop',
-    thumbnail_id: 'https://images.unsplash.com/photo-1631084854605-2ea7de264ebf',
-    cost_price: 15000,
-    price: 30000,
-    minOrder: 100,
-    stock: 1000,
-    branch_id: '1',
-    isActive: true,
-    created_at: '2024-01-05 01:44:10',
-    updated_at: '2024-01-05 01:44:10',
+    id: 12,
+    title: "Cute Cat",
+    category: "animals",
+    imageUrl: "https://images.unsplash.com/photo-1582562124811-c09040d0a901?auto=format&fit=crop&w=800&q=80",
+    description: "Kucing lucu yang sedang istirahat"
   },
   {
-    id: '13',
-    name: 'Poster A3 Premium',
-    description: 'Poster ukuran A3 dengan kertas AP 230gsm',
-    category: 'Poster',
-    thumbnail_id: 'https://images.pexels.com/photos/159866/books-book-pages-read-literature-159866.jpeg',
-    cost_price: 25000,
-    price: 50000,
-    minOrder: 50,
-    stock: 500,
-    branch_id: '1',
-    isActive: true,
-    created_at: '2024-01-05 01:44:10',
-    updated_at: '2024-01-05 01:44:10',
+    id: 13,
+    title: "Living Room",
+    category: "lifestyle",
+    imageUrl: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?auto=format&fit=crop&w=800&q=80",
+    description: "Ruang tamu yang nyaman dan modern"
   },
   {
-    id: '14',
-    name: 'Flyer A5 Premium',
-    description: 'Flyer ukuran A5 dengan kertas AP 210gsm',
-    category: 'Flyer',
-    thumbnail_id: 'https://images.pexels.com/photos/159866/books-book-pages-read-literature-159866.jpeg',
-    cost_price: 10000,
-    price: 20000,
-    minOrder: 100,
-    stock: 2000,
-    branch_id: '1',
-    isActive: true,
-    created_at: '2024-01-05 01:44:10',
-    updated_at: '2024-01-05 01:44:10',
+    id: 14,
+    title: "Wildlife Safari",
+    category: "animals",
+    imageUrl: "https://images.unsplash.com/photo-1466721591366-2d5fba72006d?auto=format&fit=crop&w=800&q=80",
+    description: "Hewan liar di alam bebas"
+  },
+  {
+    id: 15,
+    title: "Mountain Ox",
+    category: "animals",
+    imageUrl: "https://images.unsplash.com/photo-1493962853295-0fd70327578a?auto=format&fit=crop&w=800&q=80",
+    description: "Banteng di pegunungan"
+  },
+  {
+    id: 16,
+    title: "Kitten",
+    category: "animals",
+    imageUrl: "https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?auto=format&fit=crop&w=800&q=80",
+    description: "Anak kucing yang menggemaskan"
+  },
+  {
+    id: 17,
+    title: "Flying Bees",
+    category: "nature",
+    imageUrl: "https://images.unsplash.com/photo-1498936178812-4b2e558d2937?auto=format&fit=crop&w=800&q=80",
+    description: "Lebah yang sedang terbang"
+  },
+  {
+    id: 18,
+    title: "Whale Jump",
+    category: "nature",
+    imageUrl: "https://images.unsplash.com/photo-1518877593221-1f28583780b4?auto=format&fit=crop&w=800&q=80",
+    description: "Paus yang sedang melompat"
+  },
+  {
+    id: 19,
+    title: "Forest Deer",
+    category: "nature",
+    imageUrl: "https://images.unsplash.com/photo-1439886183900-e79ec0057170?auto=format&fit=crop&w=800&q=80",
+    description: "Rusa di dalam hutan"
+  },
+  {
+    id: 20,
+    title: "Forest Cattle",
+    category: "nature",
+    imageUrl: "https://images.unsplash.com/photo-1465379944081-7f47de8d74ac?auto=format&fit=crop&w=800&q=80",
+    description: "Sapi di tengah hutan"
   }
 ];
+
+// Update count for categories
 
 export const productImages: ProductImage[] = [
   {

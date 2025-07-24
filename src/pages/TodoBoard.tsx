@@ -7,43 +7,52 @@ import {
   Table as TableIcon,
   ListTodo,
 } from 'lucide-react';
-// import TaskCard from '../components/task/TaskCard';
-// import { TaskColumn } from '../components/task/TaskColumn';
 import { TaskCalendar } from '../components/task/TaskCalendar';
 import { TaskTable } from '../components/task/TaskTable';
 import { TaskDialog } from '../components/task/TaskDialog';
 import { Pagination } from '../components/task/Pagination';
-import { Task } from '../types';
+import { Task } from '../types'; // Pastikan Task type Anda diimpor
 import { ToggleGroup, ToggleGroupItem } from '../components/ui/toggle-group';
-import { useTaskContext } from '../context/TaskContext';
-import KanbanBoard from '../components/task/KanbanBoard';
+import { useTaskContext } from '../context/TaskContext'; // Gunakan TaskContext yang sudah dimodifikasi
+import KanbanBoard from '../components/task/KanbanBoard'; // Impor KanbanBoard
 
 const TodoBoard: React.FC = () => {
-  const { 
-    tasks, 
-    loading, 
-    error, 
+  // Destructure properti dari useTaskContext.
+  // isLoading, isError, dan error sekarang berasal dari react-query
+  const {
+    tasks,
+    isLoading, // Menggantikan 'loading'
+    isError,   // Menggantikan 'error' (boolean)
+    error,     // Objek error jika isError true
     pagination,
-    // updateTaskStatus, 
-    addTask, 
-    updateTask, 
-    deleteTask, 
-    fetchTasks,
+    addTask,
+    updateTask,
+    deleteTask,
+    // fetchTasks tidak lagi diperlukan secara eksplisit di sini untuk fetching awal,
+    // tapi fungsi goToNextPage, goToPrevPage, goToPage tetap relevan untuk navigasi.
     goToNextPage,
     goToPrevPage,
     goToPage
   } = useTaskContext();
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [viewMode, setViewMode] = useState<'kanban' | 'table' | 'calendar'>('kanban');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  // const [activeId, setActiveId] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchTasks(1, undefined, 15);
-  }, [fetchTasks]);
+  // useEffect ini tidak lagi diperlukan untuk fetching data awal,
+  // karena useQuery di TaskContext akan otomatis memuat data saat Provider di-mount.
+  // Namun, jika Anda memiliki dependensi filter atau sort yang ingin diubah di sini
+  // dan memicu fetch ulang, Anda bisa menggunakan `setQueryParams` dari context
+  // jika Anda mengeksposnya (saat ini tidak diekspos langsung, tapi melalui goToPage dll).
+  // useEffect(() => {
+  //   // Parameter `1` (page) dan `undefined` (status) adalah default, jadi tidak perlu panggil ini lagi
+  //   // jika useQuery sudah diatur untuk mengambil data default pada mount.
+  //   // Jika Anda memiliki filter awal yang spesifik, Anda bisa atur `setQueryParams` di sini
+  //   // Misalnya: setQueryParams({ page: 1, status: 'pending' });
+  // }, []); // Hapus `fetchTasks` dari dependensi karena sudah tidak ada di scope ini
 
-  // Add effect to log tasks changes
+  // Add effect to log tasks changes - Tetap berguna untuk debugging
   useEffect(() => {
     console.log('TodoBoard: Tasks updated:', {
       total: tasks.length,
@@ -58,60 +67,6 @@ const TodoBoard: React.FC = () => {
     });
   }, [tasks]);
 
-  // // Filter tasks by status
-  // const todoTasks = tasks.filter(task => task.status === 'pending');
-  // const inProgressTasks = tasks.filter(task => task.status === 'in-progress');
-  // const reviewTasks = tasks.filter(task => task.status === 'review');
-  // const completedTasks = tasks.filter(task => task.status === 'completed');
-  // const closedTasks = tasks.filter(task => task.status === 'closed');
-
-  // const sensors = useSensors(
-  //   useSensor(PointerSensor, {
-  //     activationConstraint: {
-  //       distance: 8,
-  //     },
-  //   })
-  // );
-
-  // const handleDragStart = (event: DragStartEvent) => {
-  //   setActiveId(event.active.id as string);
-  //   console.log('Drag start:', event.active.id);
-  // };
-
-  // const handleDragEnd = async (event: DragEndEvent) => {
-  //   setActiveId(null);
-  //   const { active, over } = event;
-  //   if (!over) return;
-
-  //   const taskId = active.id as string;
-  //   const overId = over.id as string;
-
-  //   if (overId.includes('column')) {
-  //     const getStatusFromColumnId = (columnId: string): TaskStatus => {
-  //       if (columnId.startsWith('pending')) return 'pending';
-  //       if (columnId.startsWith('in-progress')) return 'in-progress';
-  //       if (columnId.startsWith('review')) return 'review';
-  //       if (columnId.startsWith('completed')) return 'completed';
-  //       if (columnId.startsWith('closed')) return 'closed';
-  //       return 'pending'; // default status
-  //     };
-
-  //     const newStatus = getStatusFromColumnId(overId);
-  //     console.log('TodoBoard: Updating task status:', {
-  //       taskId,
-  //       fromColumn: overId,
-  //       newStatus
-  //     });
-      
-  //     try {
-  //       await updateTaskStatus(taskId, newStatus);
-  //       console.log('TodoBoard: Status update completed');
-  //     } catch (error) {
-  //       console.error('TodoBoard: Error updating status:', error);
-  //     }
-  //   }
-  // };
-
   const handleOpenDialog = (task: Task) => {
     setSelectedTask(task);
     setIsDialogOpen(true);
@@ -124,55 +79,64 @@ const TodoBoard: React.FC = () => {
 
   const handleAddTask = async (newTask: Omit<Task, 'id' | 'created_at' | 'updated_at'>) => {
     try {
+      // Panggil addTask dari context
       await addTask({
         ...newTask,
         category: newTask.category || 'other',
-        ingredient_id: null,
-        estimated_time: null,
-        assignee: null,
+        ingredient_id: newTask.ingredient_id || null, // Pastikan ini sesuai dengan tipe
+        estimated_time: newTask.estimated_time || null, // Pastikan ini sesuai dengan tipe
+        assignee: newTask.assignee || null, // Pastikan ini sesuai dengan tipe
+        order_id: newTask.order_id || null, // Pastikan ini sesuai dengan tipe
+        parent_task_id: newTask.parent_task_id || null // Pastikan ini sesuai dengan tipe
       });
-    handleCloseDialog();
-    } catch {
-      // Error handling is done in the context
+      handleCloseDialog();
+    } catch (e) {
+      // Error handling sudah dilakukan di context
+      console.error("Error in TodoBoard handleAddTask:", e);
     }
   };
 
-  
   const handleUpdateTask = async (updatedTask: Task) => {
     try {
+      // Panggil updateTask dari context
       await updateTask(updatedTask);
-    handleCloseDialog();
-    } catch {
-      // Error handling is done in the context
+      handleCloseDialog();
+    } catch (e) {
+      // Error handling sudah dilakukan di context
+      console.error("Error in TodoBoard handleUpdateTask:", e);
     }
   };
 
   const handleDeleteTask = async (taskId: string) => {
     try {
+      // Panggil deleteTask dari context
       await deleteTask(taskId);
-    handleCloseDialog();
-    } catch {
-      // Error handling is done in the context
+      handleCloseDialog();
+    } catch (e) {
+      // Error handling sudah dilakukan di context
+      console.error("Error in TodoBoard handleDeleteTask:", e);
     }
   };
 
   const handleOpenDialogWithDate = (date: Date) => {
     setSelectedDate(date);
     const task: Task = {
-    id: 'new',
-    title: '',
-    description: '',
-    priority: 'medium',
+      id: 'new', // Akan diganti di backend
+      title: '',
+      description: '',
+      priority: 'medium',
       status: 'pending',
       category: 'other',
-      deadline: date.toISOString(),
-      assignee: null,
+      deadline: date.toISOString(), // Atur deadline sesuai tanggal yang dipilih
+      assignee_id: null,
       ingredient_id: null,
       order_id: null,
       parent_task_id: null,
       estimated_time: null,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      // Properti lain yang mungkin diperlukan atau harus diset default
+      assignee: null,
       ingredient: null,
       order: null,
       parent_task: null,
@@ -184,7 +148,8 @@ const TodoBoard: React.FC = () => {
     handleOpenDialog(task);
   };
 
-  if (loading) {
+  // Menggunakan isLoading dari useTaskContext
+  if (isLoading) {
     return (
       <div className="container mx-auto p-4 flex items-center justify-center h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -193,25 +158,22 @@ const TodoBoard: React.FC = () => {
     );
   }
 
-  if (error) {
+  // Menggunakan isError dan error dari useTaskContext
+  if (isError) {
     return (
-      <div>
+      <div className="container mx-auto p-4">
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
           <p className="font-medium">Gagal memuat tugas</p>
-          <p className="text-sm">{error}</p>
+          <p className="text-sm">{error?.message || 'Terjadi kesalahan tidak diketahui.'}</p>
         </div>
       </div>
     );
   }
 
-
-  
-
-  
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6 px-2">
-        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+    <div className="container mx-auto py-8 px-4"> {/* Tambahkan container & padding */}
+      <div className="flex flex-col md:flex-row items-start justify-between mb-6"> {/* Hapus md:w-[80%] */}
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between w-full"> {/* Tambahkan w-full */}
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2 text-gray-900">
               <ListTodo className="h-6 w-6" />
@@ -222,7 +184,7 @@ const TodoBoard: React.FC = () => {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 mt-4 md:mt-0"> {/* Tambahkan margin top untuk mobile */}
           <ToggleGroup
             type="single"
             value={viewMode}
@@ -241,23 +203,13 @@ const TodoBoard: React.FC = () => {
             </ToggleGroupItem>
           </ToggleGroup>
           <div className="flex items-center gap-2">
-            {/* <button
-              onClick={() => handleOpenDialog({
-                id: 'new',
-                title: '',
-                description: '',
-                priority: 'medium',
-                status: 'pending',
-                deadline: new Date().toISOString(),
-                order_id: '',
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-              })}
-              className="btn btn-outline-primary gap-2 flex items-center justify-center h-full m-auto"
+            <button
+              onClick={() => handleOpenDialogWithDate(new Date())} // Menggunakan tanggal saat ini untuk task baru
+              className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              <Plus size={16} />
-              <span>Add Task</span>
-            </button> */}
+              <Plus size={16} className="-ml-1 mr-2" />
+              <span>Tambah Tugas Baru</span>
+            </button>
             <button className="p-2 hover:bg-muted rounded-md">
               <MoreHorizontal size={16} />
             </button>
@@ -268,27 +220,27 @@ const TodoBoard: React.FC = () => {
       {viewMode === 'kanban' && (
       <>
           {tasks.length === 0 ? (
-            
         <div className="flex flex-col items-center justify-center h-64 bg-gray-50 rounded-lg">
           <div className="text-center">
-            <h3 className="mt-2 text-lg font-medium text-gray-900">No tasks yet</h3>
+            <h3 className="mt-2 text-lg font-medium text-gray-900">Belum ada tugas</h3>
             <p className="mt-1 text-sm text-gray-500">
-              Get started by creating a new task.
+              Mulai dengan membuat tugas baru.
             </p>
             <div className="mt-6">
               <button
                 type="button"
-                // onClick={() => handleAddTask('todo')}
+                onClick={() => handleOpenDialogWithDate(new Date())}
                 className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <Plus size={16} className="-ml-1 mr-2" />
-                New Task
+                Buat Tugas Baru
               </button>
             </div>
           </div>
         </div>
       ) : (
-        <KanbanBoard onAddTask={handleAddTask} onTaskClick={()=>{}} />
+        // KanbanBoard akan menerima data tasks dari context
+        <KanbanBoard tasks={tasks} onTaskClick={handleOpenDialog} /> 
       )}
       </>
       )}
@@ -330,7 +282,7 @@ const TodoBoard: React.FC = () => {
       )}
       {selectedDate && (
         <p className="text-sm text-none text-gray-600 mt-2">
-          Selected date: {selectedDate.toLocaleDateString()}
+          Tanggal terpilih: {selectedDate.toLocaleDateString('id-ID')}
         </p>
       )}
       <TaskDialog

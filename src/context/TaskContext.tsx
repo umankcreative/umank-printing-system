@@ -3,19 +3,22 @@ import React, {
   useContext,
   useState,
   ReactNode,
-  useEffect,
-  useCallback
+  useCallback,
+  useMemo
 } from 'react';
-import { Task, TimelineEvent, TaskResponse, TaskStatus } from '../types';
-import taskService, { TasksResponse } from '../services/taskService';
-import orderService from '../services/orderService';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'; // Import react-query
+import { Task, TimelineEvent, TaskResponse, TaskStatus, Order } from '../types'; // Import Order type
+import taskService, { GetTasksQueryParams, TasksResponse, BulkUpdateStatusPayload } from '../services/taskService';
+import orderService from '../services/orderService'; // Ini hanya untuk updateOrderStatus, bukan fetching langsung
 import { toast } from '../hooks/use-toast';
-import { useOrderContext } from './OrderContext';
+import { useOrderContext } from './OrderContext'; // Menggunakan OrderContext
 
 interface TaskContextProps {
   tasks: Task[];
-  loading: boolean;
-  error: string | null;
+  isLoading: boolean; // Menggantikan 'loading'
+  isFetching: boolean; // Menunjukkan fetching di latar belakang
+  isError: boolean; // Menggantikan 'error' (boolean)
+  error: Error | null; // Objek error
   getTasksByStatus: (status: TaskStatus) => Task[];
   getTaskById: (id: string) => Task | undefined;
   pagination: {
@@ -34,7 +37,7 @@ interface TaskContextProps {
   getTaskEvents: (taskId: string) => TimelineEvent[];
   addTaskEvent: (taskId: string, event: TimelineEvent) => void;
   addTaskResponse: (taskId: string, response: TaskResponse) => void;
-  fetchTasks: (page?: number, status?: TaskStatus, perPage?: number) => Promise<void>;
+  // fetchTasks tidak lagi diekspos secara langsung, tapi diganti dengan fungsi navigasi paginasi
   goToNextPage: () => Promise<void>;
   goToPrevPage: () => Promise<void>;
   goToPage: (page: number) => Promise<void>;
@@ -55,117 +58,117 @@ interface TaskProviderProps {
 }
 
 export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [pagination, setPagination] = useState({
-    currentPage: 1,
-    totalPages: 1,
-    perPage: 15,
-    total: 0,
-    hasNextPage: false,
-    hasPrevPage: false
+  const queryClient = useQueryClient();
+  const [queryParams, setQueryParams] = useState<GetTasksQueryParams>({
+    page: 1,
+    per_page: 15,
+    status: undefined, // Default status
   });
-  const { orders, updateOrder } = useOrderContext();
+  const { updateOrder } = useOrderContext();
 
-  const updatePaginationFromResponse = (response: TasksResponse) => {
-    setPagination({
-      currentPage: response.meta.current_page,
-      totalPages: response.meta.last_page,
-      perPage: response.meta.per_page,
-      total: response.meta.total,
-      hasNextPage: response.meta.current_page < response.meta.last_page,
-      hasPrevPage: response.meta.current_page > 1
-    });
-  };
-
-  const fetchTasks = useCallback(async (
-    page: number = 1, 
-    status?: TaskStatus,
-    perPage: number = 15
-  ) => {
-    setLoading(true);
-    try {
-      const response = await taskService.getTasks({ 
-        page, 
-        status, 
-        per_page: perPage 
-      });
-      setTasks(response.data);
-      updatePaginationFromResponse(response);
-      setError(null);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch tasks';
-      setError(errorMessage);
+  // --- useQuery for fetching tasks ---
+  const {
+    data: tasksResponse, // Data mentah dari API, termasuk `meta`
+    isLoading,         // True saat pertama kali fetching
+    isFetching,        // True saat fetching (termasuk refetch di latar belakang)
+    isError,           // True jika ada error
+    error,             // Objek error
+  } = useQuery<TasksResponse, Error>({
+    queryKey: ['tasks', queryParams], // Kunci query dinamis berdasarkan params
+    queryFn: async ({ queryKey }) => {
+      const [, params] = queryKey as [string, GetTasksQueryParams];
+      const response = await taskService.getTasks(params);
+      return response;
+    },
+    select: (data) => data, // Memilih seluruh response agar meta data juga tersedia
+    placeholderData: (previousData) => previousData, // Mempertahankan data sebelumnya saat fetching baru
+    staleTime: 1000 * 30, // Data dianggap segar selama 30 detik
+    // refetchInterval: 1000 * 60, // Opsional: refetch setiap 60 detik jika ingin auto-update
+    onError: (err) => {
       toast({
         title: 'Error',
-        description: errorMessage,
+        description: `Gagal memuat task: ${err.message}`,
         variant: 'destructive',
       });
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+  });
 
-  const goToNextPage = async () => {
+  const tasks = tasksResponse?.data || [];
+  const pagination = useMemo(() => ({
+    currentPage: tasksResponse?.meta.current_page || 1,
+    totalPages: tasksResponse?.meta.last_page || 1,
+    perPage: tasksResponse?.meta.per_page || 15,
+    total: tasksResponse?.meta.total || 0,
+    hasNextPage: (tasksResponse?.meta.current_page || 1) < (tasksResponse?.meta.last_page || 1),
+    hasPrevPage: (tasksResponse?.meta.current_page || 1) > 1,
+  }), [tasksResponse]);
+
+  // Fungsi navigasi paginasi, memicu perubahan queryParams dan refetch
+  const goToNextPage = useCallback(async () => {
     if (pagination.hasNextPage) {
-      await fetchTasks(pagination.currentPage + 1);
+      setQueryParams(prev => ({ ...prev, page: prev.page! + 1 }));
     }
-  };
+  }, [pagination.hasNextPage]);
 
-  const goToPrevPage = async () => {
+  const goToPrevPage = useCallback(async () => {
     if (pagination.hasPrevPage) {
-      await fetchTasks(pagination.currentPage - 1);
+      setQueryParams(prev => ({ ...prev, page: prev.page! - 1 }));
     }
-  };
+  }, [pagination.hasPrevPage]);
 
-  const goToPage = async (page: number) => {
+  const goToPage = useCallback(async (page: number) => {
     if (page >= 1 && page <= pagination.totalPages) {
-      await fetchTasks(page);
+      setQueryParams(prev => ({ ...prev, page }));
     }
-  };
+  }, [pagination.totalPages]);
 
-  const getTaskById = (id: string) => {
+  const getTaskById = useCallback((id: string) => {
     return tasks.find(task => task.id === id);
-  };
+  }, [tasks]);
 
-  const getTasksByStatus = (status: TaskStatus) => {
+  const getTasksByStatus = useCallback((status: TaskStatus) => {
     return tasks.filter(task => task.status === status);
-  };
+  }, [tasks]);
 
-  useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]);
+  // --- Mutasi untuk operasi CRUD tasks ---
 
-  const updateOrderStatus = async (orderId: string) => {
+  const updateOrderStatus = useCallback(async (orderId: string) => {
     try {
-      // Get fresh order data
-      const orderData = await orderService.getOrder(orderId);
-      console.log('TaskContext: Fetched order details:', orderData);
+      // Dapatkan data order terbaru dari cache react-query atau fetch jika tidak ada/stale
+      const orderData = await queryClient.fetchQuery<Order, Error>({
+        queryKey: ['order', orderId],
+        queryFn: () => orderService.getOrder(orderId), // Panggil service asli untuk fetch
+        staleTime: 0, // Selalu ambil yang terbaru atau dari cache jika ada
+      });
 
-      // Get all tasks for this order
-    const orderTasks = tasks.filter((task) => task.order_id === orderId);
-    const mainTask = orderTasks.find((task) => !task.parent_task_id);
+      // Filter tasks yang terkait dengan order ini dari data cache tasks
+      const orderTasks = queryClient.getQueryData<TasksResponse>(['tasks', queryParams])
+        ?.data.filter((task) => task.order_id === orderId) || [];
 
-    if (!mainTask) return;
+      const mainTask = orderTasks.find((task) => !task.parent_task_id);
 
-    const allSubtasks = orderTasks.filter(
-      (task) => task.parent_task_id === mainTask.id
-    );
-    const allSubtasksCompleted = allSubtasks.every(
-      (task) => task.status === 'completed'
-    );
+      if (!mainTask) {
+        console.warn(`No main task found for order ID: ${orderId}`);
+        return;
+      }
+
+      const allSubtasks = orderTasks.filter(
+        (task) => task.parent_task_id === mainTask.id
+      );
+      const allSubtasksCompleted = allSubtasks.every(
+        (task) => task.status === 'completed'
+      );
 
       let newStatus = orderData.status;
 
-    if (allSubtasksCompleted && mainTask.status === 'completed') {
-      newStatus = 'ready';
-    } else if (
-      mainTask.status === 'in-progress' ||
-      allSubtasks.some((task) => task.status === 'in-progress')
-    ) {
-      newStatus = 'processing';
-    }
+      if (allSubtasksCompleted && mainTask.status === 'completed') {
+        newStatus = 'ready';
+      } else if (
+        mainTask.status === 'in-progress' ||
+        allSubtasks.some((task) => task.status === 'in-progress')
+      ) {
+        newStatus = 'processing';
+      }
 
       if (newStatus !== orderData.status) {
         console.log('TaskContext: Updating order status:', {
@@ -174,207 +177,211 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
           newStatus
         });
         
+        // Panggil updateOrder dari OrderContext
+        // Pastikan updateOrder di OrderContext menerima LocalOrder dan menangani mutasi ke backend
         const updatedOrder = await orderService.updateOrderStatus(orderId, newStatus);
-        updateOrder(updatedOrder);
+        updateOrder(updatedOrder); // Memanggil mutasi updateOrder dari OrderContext
       }
     } catch (error) {
       console.error('Error updating order status:', error);
+      toast({
+        title: 'Error',
+        description: 'Gagal memperbarui status pesanan terkait.',
+        variant: 'destructive',
+      });
     }
-  };
+  }, [queryClient, queryParams, updateOrder]); // updateOrder dari useOrderContext sebagai dependensi
 
-  const addTask = async (taskData: Omit<Task, 'id' | 'created_at' | 'updated_at'>) => {
-    try {
-      const newTask = await taskService.createTask(taskData);
-      // Refresh the current page to ensure proper pagination
-      await fetchTasks(pagination.currentPage);
+  // Mutasi Add Task
+  const addTaskMutation = useMutation<Task, Error, Omit<Task, 'id' | 'created_at' | 'updated_at'>>({
+    mutationFn: taskService.createTask,
+    onSuccess: (newTask) => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] }); // Invalidasi semua query tasks
       if (newTask.order_id) {
         updateOrderStatus(newTask.order_id);
-    }
+      }
       toast({
-        title: 'Success',
-        description: 'Task created successfully',
+        title: 'Sukses',
+        description: 'Task berhasil dibuat',
       });
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to create task';
+    },
+    onError: (err) => {
       toast({
         title: 'Error',
-        description: errorMessage,
+        description: `Gagal membuat task: ${err.message}`,
         variant: 'destructive',
       });
-      throw err;
-    }
+    },
+  });
+
+  const addTask = async (taskData: Omit<Task, 'id' | 'created_at' | 'updated_at'>) => {
+    await addTaskMutation.mutateAsync(taskData);
   };
+
+  // Mutasi Update Task
+  const updateTaskMutation = useMutation<Task, Error, Task>({
+    mutationFn: async (updatedTask) => {
+      const { id, ...taskData } = updatedTask;
+      return taskService.updateTask(id, taskData);
+    },
+    onSuccess: (updatedTask) => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] }); // Invalidasi semua query tasks
+      if (updatedTask.order_id) {
+        updateOrderStatus(updatedTask.order_id);
+      }
+      toast({
+        title: 'Sukses',
+        description: 'Task berhasil diperbarui',
+      });
+    },
+    onError: (err) => {
+      toast({
+        title: 'Error',
+        description: `Gagal memperbarui task: ${err.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
 
   const updateTask = async (updatedTask: Task) => {
-    try {
-      const { id, ...taskData } = updatedTask;
-      const result = await taskService.updateTask(id, taskData);
-      // Update the task in the current page
-      setTasks(prev => prev.map(task => task.id === id ? result : task));
-      if (result.order_id) {
-        updateOrderStatus(result.order_id);
-      }
+    await updateTaskMutation.mutateAsync(updatedTask);
+  };
+
+  // Mutasi Delete Task
+  const deleteTaskMutation = useMutation<void, Error, string>({
+    mutationFn: taskService.deleteTask,
+    onSuccess: (_, taskId) => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] }); // Invalidasi semua query tasks
+      // Perlu menemukan order_id dari task yang dihapus jika ingin update status order
+      // Ini bisa rumit tanpa cache yang lebih spesifik atau data yang dikembalikan dari mutasi delete
+      // Untuk amannya, refetch semua order atau pertimbangkan struktur API yang mengembalikan order_id
+      // Sebagai alternatif, Anda bisa passing order_id ke deleteTask jika selalu tersedia
+      // Misal: const orderId = tasks.find(t => t.id === taskId)?.order_id; updateOrderStatus(orderId);
       toast({
-        title: 'Success',
-        description: 'Task updated successfully',
+        title: 'Sukses',
+        description: 'Task berhasil dihapus',
       });
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to update task';
+    },
+    onError: (err) => {
       toast({
         title: 'Error',
-        description: errorMessage,
+        description: `Gagal menghapus task: ${err.message}`,
         variant: 'destructive',
       });
-      throw err;
-    }
-  };
+    },
+  });
 
   const deleteTask = async (id: string) => {
-    try {
-      await taskService.deleteTask(id);
-      // Refresh the current page to ensure proper pagination
-      await fetchTasks(pagination.currentPage);
-      toast({
-        title: 'Success',
-        description: 'Task deleted successfully',
-      });
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to delete task';
-      toast({
-        title: 'Error',
-        description: errorMessage,
-        variant: 'destructive',
-      });
-      throw err;
-    }
+    await deleteTaskMutation.mutateAsync(id);
   };
 
-  const updateTaskStatus = async (taskId: string, newStatus: TaskStatus) => {
-    try {
-      console.log('TaskContext: Updating status for task:', taskId, 'to:', newStatus);
-      const updatedTasks = await taskService.updateTaskStatus(taskId, newStatus);
-      console.log('TaskContext: Received updated tasks:', updatedTasks);
-      
-      // Ensure updatedTasks is an array before using array methods
-      if (!Array.isArray(updatedTasks)) {
-        console.error('Expected array of tasks but got:', updatedTasks);
-        return;
-      }
-
-      // Update tasks in state
-      setTasks(prev => {
-        console.log('TaskContext: Previous tasks state:', prev);
-        const newTasks = prev.map(task => {
-          const updatedTask = updatedTasks.find(ut => ut.id === task.id);
-          console.log('TaskContext: Updating task:', task.id, 
-            'Current status:', task.status, 
-            'New status:', updatedTask?.status || task.status);
-          return updatedTask || task;
-        });
-        console.log('TaskContext: New tasks state:', newTasks);
-        return newTasks;
-      });
-
-      // Update order status if needed
-      const updatedTask = updatedTasks.find(t => t.id === taskId);
-      if (updatedTask?.order_id) {
-        await updateOrderStatus(updatedTask.order_id);
-          }
-
-      // Refresh tasks from server to ensure we have latest state
-      await fetchTasks(pagination.currentPage);
-
-      toast({
-        title: 'Success',
-        description: 'Task status updated successfully',
-      });
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to update task status';
-      toast({
-        title: 'Error',
-        description: errorMessage,
-        variant: 'destructive',
-      });
-      throw err;
-    }
-  };
-
-  const bulkUpdateStatus = async (taskIds: string[], newStatus: TaskStatus) => {
-    try {
-      const updatedTasks = await taskService.bulkUpdateStatus({
-        task_ids: taskIds,
-        status: newStatus
-      });
-      console.log('Updated tasks from bulk update:', updatedTasks);
-
-      // Ensure updatedTasks is an array before using array methods
-      if (!Array.isArray(updatedTasks)) {
-        console.error('Expected array of tasks but got:', updatedTasks);
-        return;
-      }
-
-      // Update tasks in state
-      setTasks(prev => prev.map(task => {
-        const updatedTask = updatedTasks.find(ut => ut.id === task.id);
-        return updatedTask || task;
-      }));
-
-      // Update order statuses if needed
+  // Mutasi Update Task Status (single)
+  const updateTaskStatusMutation = useMutation<Task[], Error, { taskId: string, newStatus: TaskStatus }>({
+    mutationFn: ({ taskId, newStatus }) => taskService.updateTaskStatus(taskId, newStatus),
+    onSuccess: (updatedTasks) => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] }); // Invalidasi semua query tasks
+      // Trigger update order status for affected orders
       const affectedOrderIds = new Set(updatedTasks
         .filter(task => task.order_id)
         .map(task => task.order_id as string));
-
-      affectedOrderIds.forEach(orderId => {
-        updateOrderStatus(orderId);
-      });
-
+      affectedOrderIds.forEach(orderId => updateOrderStatus(orderId));
       toast({
-        title: 'Success',
-        description: 'Task statuses updated successfully',
+        title: 'Sukses',
+        description: 'Status task berhasil diperbarui',
       });
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to update task statuses';
+    },
+    onError: (err) => {
       toast({
         title: 'Error',
-        description: errorMessage,
+        description: `Gagal memperbarui status task: ${err.message}`,
         variant: 'destructive',
       });
-      throw err;
-    }
+    },
+  });
+
+  const updateTaskStatus = async (taskId: string, newStatus: TaskStatus) => {
+    await updateTaskStatusMutation.mutateAsync({ taskId, newStatus });
   };
 
-  const getTaskEvents = (taskId: string) => {
+  // Mutasi Bulk Update Status
+  const bulkUpdateStatusMutation = useMutation<Task[], Error, BulkUpdateStatusPayload>({
+    mutationFn: taskService.bulkUpdateStatus,
+    onSuccess: (updatedTasks) => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] }); // Invalidasi semua query tasks
+      // Trigger update order status for affected orders
+      const affectedOrderIds = new Set(updatedTasks
+        .filter(task => task.order_id)
+        .map(task => task.order_id as string));
+      affectedOrderIds.forEach(orderId => updateOrderStatus(orderId));
+      toast({
+        title: 'Sukses',
+        description: 'Status task berhasil diperbarui secara massal',
+      });
+    },
+    onError: (err) => {
+      toast({
+        title: 'Error',
+        description: `Gagal memperbarui status task secara massal: ${err.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const bulkUpdateStatus = async (taskIds: string[], newStatus: TaskStatus) => {
+    await bulkUpdateStatusMutation.mutateAsync({ task_ids: taskIds, status: newStatus });
+  };
+
+
+  // --- Client-side only Task Event/Response Management ---
+  // Assuming these are not directly synced with backend via dedicated APIs
+  const addTaskEvent = useCallback((taskId: string, event: TimelineEvent) => {
+    queryClient.setQueryData<TasksResponse>(['tasks', queryParams], (oldData) => {
+      if (!oldData) return oldData;
+      return {
+        ...oldData,
+        data: oldData.data.map(task => {
+          if (task.id === taskId) {
+            return {
+              ...task,
+              timeline_events: [...(task.timeline_events || []), event]
+            };
+          }
+          return task;
+        })
+      };
+    });
+    // Jika perlu disinkronkan ke backend, panggil mutasi updateTask di sini
+  }, [queryClient, queryParams]);
+
+  const addTaskResponse = useCallback((taskId: string, response: TaskResponse) => {
+    queryClient.setQueryData<TasksResponse>(['tasks', queryParams], (oldData) => {
+      if (!oldData) return oldData;
+      return {
+        ...oldData,
+        data: oldData.data.map(task => {
+          if (task.id === taskId) {
+            return {
+              ...task,
+              task_responses: [...(task.task_responses || []), response]
+            };
+          }
+          return task;
+        })
+      };
+    });
+    // Jika perlu disinkronkan ke backend, panggil mutasi updateTask di sini
+  }, [queryClient, queryParams]);
+
+  const getTaskEvents = useCallback((taskId: string) => {
     const task = tasks.find(t => t.id === taskId);
     return task?.timeline_events || [];
-  };
+  }, [tasks]);
 
-  const addTaskEvent = (taskId: string, event: TimelineEvent) => {
-    setTasks(prev => prev.map(task => {
-        if (task.id === taskId) {
-        return {
-            ...task,
-          timeline_events: [...(task.timeline_events || []), event]
-          };
-        }
-        return task;
-    }));
-  };
-
-  const addTaskResponse = (taskId: string, response: TaskResponse) => {
-    setTasks(prev => prev.map(task => {
-        if (task.id === taskId) {
-        return {
-            ...task,
-          task_responses: [...(task.task_responses || []), response]
-          };
-        }
-        return task;
-    }));
-  };
-
-  const value = {
+  const value = useMemo(() => ({
     tasks,
-    loading,
+    isLoading,
+    isFetching,
+    isError,
     error,
     pagination,
     getTasksByStatus,
@@ -387,11 +394,30 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     getTaskEvents,
     addTaskEvent,
     addTaskResponse,
-    fetchTasks,
     goToNextPage,
     goToPrevPage,
-    goToPage
-  };
+    goToPage,
+  }), [
+    tasks,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    pagination,
+    getTasksByStatus,
+    getTaskById,
+    addTask,
+    updateTask,
+    deleteTask,
+    updateTaskStatus,
+    bulkUpdateStatus,
+    getTaskEvents,
+    addTaskEvent,
+    addTaskResponse,
+    goToNextPage,
+    goToPrevPage,
+    goToPage,
+  ]);
 
   return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;
 };

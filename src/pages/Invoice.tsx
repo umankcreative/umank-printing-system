@@ -7,6 +7,7 @@ import { formatCurrency } from '../utils/formatCurrency';
 import { generatePDF } from '../utils/pdfGenerator';
 import { format } from 'date-fns';
 import Logo from '../components/Logo';
+import { Order } from '../types';
 
 const Invoice = () => {
   const { id } = useParams();

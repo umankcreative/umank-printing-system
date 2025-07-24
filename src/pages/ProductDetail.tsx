@@ -4,10 +4,10 @@ import { ArrowLeft, Edit, Clock, AlertCircle } from 'lucide-react';
 import { formatCurrency } from '../lib/utils';
 import { productService } from '../services/productService';
 import { Product, TaskTemplate } from '../types/api';
+import api from '../lib/axios';
 
 
 const ProductDetail: React.FC = () => {
-  const backendUrl = 'https://373b-114-10-139-244.ngrok-free.app'; // Update with your backend URL
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
@@ -106,7 +106,7 @@ const ProductDetail: React.FC = () => {
             {product.additional_images?.map((image) => (
                 <div key={image.id} className="relative aspect-square z-0">
                 <img
-                  src={`${backendUrl}${image.url}`}
+                  src={`${api.defaults.baseURL}${image.url}`}
                   alt={`${product.name} additional`}
                   className="w-full h-full object-cover rounded-lg"
                 />

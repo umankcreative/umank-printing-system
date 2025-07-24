@@ -186,7 +186,7 @@ export interface Task {
 export interface Order {
   id: string;
   customer_id: string;
-  customer?: Customer;
+  customer: Customer;
   branch_id: string;
   branch?: {
     id: string;
@@ -201,10 +201,11 @@ export interface Order {
   payment_status: 'unpaid' | 'partial' | 'paid';
   payment_method: 'cash' | 'transfer' | 'debit' | 'credit';
   notes: string | null;
+  order_date: string;
   delivery_date: string | null;
   created_at: string;
   updated_at: string;
-  items?: OrderItem[];
+  items: OrderItem[];
   tasks?: Task[];
 } 
 
@@ -219,3 +220,75 @@ export interface Category {
   updated_at: string;
 }
 
+export type PrintJobStatus = 'pending' | 'printing' | 'completed' | 'failed';
+
+export interface PrintJob {
+  id: string;
+  name: string;
+  fileUrl?: string;
+  fileName: string;
+  createdAt: Date;
+  status: PrintJobStatus;
+  pages: number;
+  copies: number;
+  color: boolean;
+  doubleSided: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PrintSettings {
+  defaultPrinter: string;
+  defaultColor: boolean;
+  defaultDoubleSided: boolean;
+  defaultCopies: number;
+}
+
+
+export interface Transaction {
+  amount: number;
+  category: string;
+  created_at: string;
+  date: string;
+  description: string;
+  id: string;
+  type: string;
+  updated_at: string;
+}
+
+
+export interface Category {
+  id: string;
+  key: string;
+  label: string;
+  icon: string;
+  type: string; // 'income' | 'expense'
+  color: string;
+  is_default: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FinanceCategoryDetails {
+  id: string;
+  key: string;
+  label: string;
+  icon: string;
+  color: string;
+  type: 'expense' | 'income';
+  is_default: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Finance {
+  id: string;
+  description: string;
+  amount: number;
+  date: string;
+  type: 'expense' | 'income';
+  category: string;
+  finance_category_details: FinanceCategoryDetails;
+  created_at: string;
+  updated_at: string;
+}

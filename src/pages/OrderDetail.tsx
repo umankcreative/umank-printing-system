@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Package, User, Clock, FileText, Loader2 } from 'lucide-react';
 import { useOrderContext } from '../context/OrderContext';
 import { formatCurrency } from '../lib/utils';
-import { Order } from '../types';
+import { Order } from '../types/api';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
 

@@ -1,6 +1,7 @@
 import { Task } from '../../types';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Grip } from 'lucide-react';
+import { formatDate } from '../../lib/utils';
 import { useDrag } from 'react-dnd';
 import { useTaskContext } from '../../context/TaskContext';
 
@@ -134,7 +135,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
             </span>
             <span>{task.assignee}</span>
           <span className="text-xs text-gray-500">
-            {new Date(task.order?.delivery_date).toLocaleDateString()}
+            {task.order?.delivery_date ? formatDate(new Date(task.order.delivery_date)) : ''}
           </span> 
           </div>
           </div>

@@ -96,7 +96,7 @@ const Customers = () => {
 
   // Get customer orders
   const getCustomerOrders = (customerId: string): Order[] => {
-    return orders.filter(order => order.customer_id === customerId);
+    return orders.filter(order => order.customer_id == customerId);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -243,12 +243,12 @@ async function importCustomersFromFile(file: File, addCustomer: (data: any) => P
 }
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Users className="h-6 w-6" />
+      <div className="flex flex-col columns-1 md:columns-4 justify-between items-start mb-1 md:mb-6">
+        <h1 className="md:text-md text-2xl font-bold flex items-center gap-2">
+          <Users className="hidden h-6 w-6 md:block" />
           Daftar Pelanggan
         </h1>
-        <div className="flex items-center gap-4">
+        <div className="flex w-full items-start justify-start gap-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
@@ -495,99 +495,6 @@ async function importCustomersFromFile(file: File, addCustomer: (data: any) => P
     )}
   </div>
       
-      {/* <div className="bg-white rounded-lg shadow">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-14">No</TableHead>
-              <TableHead>Nama</TableHead>
-              <TableHead>Perusahaan</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Telepon</TableHead>
-              <TableHead>Total Pesanan</TableHead>
-              <TableHead>Terdaftar</TableHead>
-              <TableHead className="w-24">Aksi</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">
-                  <div className="flex items-center justify-center gap-2">
-                    <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
-                    <span>Memuat data...</span>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : filteredCustomers.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={8} className="text-center py-8 text-gray-500">
-                  {searchTerm ? 'Tidak ada pelanggan yang sesuai dengan pencarian' : 'Belum ada data pelanggan'}
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredCustomers.map((customer, index) => {
-                const customerOrders = getCustomerOrders(customer.id);
-                return (
-                  <TableRow
-                    key={customer.id}
-                    className="cursor-pointer hover:bg-gray-50"
-                  >
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell 
-                      className="font-medium"
-                      onClick={() => handleRowClick(customer)}
-                    >
-                      {customer.name}
-                    </TableCell>
-                    <TableCell onClick={() => handleRowClick(customer)}>
-                      {customer.company || '-'}
-                    </TableCell>
-                    <TableCell onClick={() => handleRowClick(customer)}>
-                      {customer.email}
-                    </TableCell>
-                    <TableCell onClick={() => handleRowClick(customer)}>
-                      {customer.phone}
-                    </TableCell>
-                    <TableCell onClick={() => handleRowClick(customer)}>
-                      {customerOrders.length}
-                    </TableCell>
-                    <TableCell onClick={() => handleRowClick(customer)}>
-                      {new Date(customer.created_at).toLocaleDateString('id-ID')}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEdit(customer);
-                          }}
-                          className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 hover:-translate-x-1 hover:scale-150"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(customer);
-                          }}
-                          className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 hover:-translate-x-1 hover:scale-150"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
-      </div> */}
 
       {/* Add/Edit Customer Dialog */}
       <Dialog 

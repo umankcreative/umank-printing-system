@@ -1,15 +1,17 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+// context/FormContext.tsx
+import React, { createContext, useContext, useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'; // Import react-query
 import { FormCategoryMapping, FormElement, FormTemplate } from '../types/formTypes';
-import { Category} from '../types/api';
+import { Category } from '../types/api';
 import { toast } from '../hooks/use-toast';
-import * as formService from '../services/formService';
+import * as formService from '../services/formService'; // Pastikan formService memiliki fungsi-fungsi API yang dibutuhkan
 
 interface FormContextType {
   formTemplates: FormTemplate[];
   formCategoryMappings: FormCategoryMapping[];
   activeTemplate: FormTemplate | null;
-  isLoading: boolean;
-  error: string | null;
+  isLoading: boolean; // Gabungan isLoading dari templates dan mappings
+  error: Error | null; // Gabungan error dari templates dan mappings
   currentElementPage: number;
   setCurrentElementPage: (page: number) => void;
   setActiveTemplate: (template: FormTemplate | null) => void;
@@ -21,32 +23,39 @@ interface FormContextType {
   deleteFormElement: (templateId: string, elementId: string) => Promise<void>;
   updateCategoryMapping: (mapping: FormCategoryMapping) => Promise<void>;
   getFormTemplateForCategory: (categoryId: string) => FormTemplate | null;
-  refreshData: () => Promise<void>;
+  // refreshData tidak perlu lagi diekspos keluar karena react-query yang menangani
 }
 
 const FormContext = createContext<FormContextType | undefined>(undefined);
 
 export const FormProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [formTemplates, setFormTemplates] = useState<FormTemplate[]>([]);
-  const [formCategoryMappings, setFormCategoryMappings] = useState<FormCategoryMapping[]>([]);
+  const queryClient = useQueryClient(); // Inisialisasi queryClient
+
   const [activeTemplate, setActiveTemplate] = useState<FormTemplate | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [currentElementPage, setCurrentElementPage] = useState(1);
 
-  const refreshData = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      // First fetch templates and categories
+  // --- useQuery untuk fetching data ---
+
+  // Query untuk mendapatkan formTemplates dan sekaligus membuat mappings
+  const {
+    data: [formTemplates = [], formCategoryMappings = []] = [[], []], // Destructure dan berikan default value
+    isLoading: isLoadingData, // isLoading untuk semua data
+    error: dataError, // error untuk semua data
+  } = useQuery<[FormTemplate[], FormCategoryMapping[]], Error>({
+    queryKey: ['formTemplatesAndMappings'],
+    queryFn: async () => {
+      // Fetch templates dan categories secara paralel
       const [templatesResponse, categories] = await Promise.all([
         formService.getFormTemplates(),
         formService.getFormCategories(),
       ]);
 
-      // Create category mappings from the categories data
-      const mappings: FormCategoryMapping[] = categories.map((category: Category) => {
-        const template = templatesResponse.data.find((t: FormTemplate) => t.category_id === category.id);
+      const fetchedTemplates: FormTemplate[] = templatesResponse.data;
+      const fetchedCategories: Category[] = categories;
+
+      // Buat category mappings dari data kategori
+      const mappings: FormCategoryMapping[] = fetchedCategories.map((category: Category) => {
+        const template = fetchedTemplates.find((t: FormTemplate) => t.category_id === category.id);
         return {
           categoryId: category.id,
           categoryName: category.name,
@@ -54,239 +63,228 @@ export const FormProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
       });
 
-      // Templates already include their elements, no need for separate elements fetch
-      setFormTemplates(templatesResponse.data);
-      setFormCategoryMappings(mappings);
-    } catch (err) {
+      return [fetchedTemplates, mappings];
+    },
+    staleTime: 1000 * 60 * 5, // Data dianggap segar selama 5 menit
+    // refetchOnWindowFocus: true, // Opsional: refetch saat jendela mendapatkan fokus kembali
+    onError: (err) => {
+      // Handler error level query
       const errorMessage = err instanceof Error ? err.message : 'An error occurred while fetching data';
-      setError(errorMessage);
-      console.error(err);
       toast({
         title: 'Error',
-        description: errorMessage,
+        description: `Gagal memuat data: ${errorMessage}`,
         variant: 'destructive',
       });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      console.error(err);
+    },
+  });
 
-  useEffect(() => {
-    refreshData();
-  }, [currentElementPage]); // Only refresh when element page changes
+  const isLoading = isLoadingData; // Gunakan isLoading dari useQuery
+  const error = dataError; // Gunakan error dari useQuery
 
-  const addFormTemplate = async (template: Omit<FormTemplate, 'id' | 'created_at' | 'updated_at' | 'category'>) => {
-    try {
-      const newTemplate = await formService.createFormTemplate(template);
-      setFormTemplates([...formTemplates, newTemplate]);
+  // --- useMutation untuk operasi CUD (Create, Update, Delete) ---
+
+  // Mutasi untuk menambahkan template
+  const addFormTemplateMutation = useMutation<FormTemplate, Error, Omit<FormTemplate, 'id' | 'created_at' | 'updated_at' | 'category'>>({
+    mutationFn: formService.createFormTemplate,
+    onSuccess: (newTemplate) => {
+      queryClient.invalidateQueries({ queryKey: ['formTemplatesAndMappings'] }); // Invalidasi cache
       toast({
         title: 'Template Berhasil Dibuat',
         description: `Template "${newTemplate.name}" telah berhasil dibuat.`,
       });
-    } catch (err) {
+    },
+    onError: (err) => {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create template';
       toast({
         title: 'Error',
-        description: errorMessage,
+        description: `Gagal membuat template: ${errorMessage}`,
         variant: 'destructive',
       });
-      throw err;
-    }
+    },
+  });
+
+  const addFormTemplate = async (template: Omit<FormTemplate, 'id' | 'created_at' | 'updated_at' | 'category'>) => {
+    await addFormTemplateMutation.mutateAsync(template); // Panggil mutasi
   };
 
-  const updateFormTemplate = async (template: Partial<Omit<FormTemplate, 'category'>>) => {
-    try {
+  // Mutasi untuk memperbarui template
+  const updateFormTemplateMutation = useMutation<FormTemplate, Error, Partial<Omit<FormTemplate, 'category'>>>({
+    mutationFn: async (template) => {
       if (!template.id) throw new Error('Template ID is required');
-      
-      // Only send the minimal required fields for update
       const updateData = {
         name: template.name || '',
         description: template.description || '',
         category_id: template.category_id || '',
       };
-      
-      console.log('FormContext sending update data:', updateData);
-      
-      const updatedTemplate = await formService.updateFormTemplate(template.id, updateData);
-      
-      // Update the templates list with the new data, preserving existing elements
-      setFormTemplates(
-        formTemplates.map((t) => {
-          if (t.id === template.id) {
-            return {
-              ...t,
-              ...updatedTemplate,
-              elements: t.elements || [], // Preserve existing elements
-            };
-          }
-          return t;
-        })
-      );
-      
-      // If we have elements, we'll handle them in a separate update
-      if (template.elements?.length) {
-        console.log('Will handle elements update in a separate call');
-      }
-      
+      return formService.updateFormTemplate(template.id, updateData);
+    },
+    onSuccess: (updatedTemplate) => {
+      queryClient.invalidateQueries({ queryKey: ['formTemplatesAndMappings'] }); // Invalidasi cache
       toast({
         title: 'Template Berhasil Diperbarui',
-        description: `Template "${template.name || ''}" telah berhasil diperbarui.`,
+        description: `Template "${updatedTemplate.name || ''}" telah berhasil diperbarui.`,
       });
-    } catch (err) {
-      console.error('Error updating template:', err);
+    },
+    onError: (err) => {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update template';
       toast({
         title: 'Error',
-        description: errorMessage,
+        description: `Gagal memperbarui template: ${errorMessage}`,
         variant: 'destructive',
       });
-      throw err;
-    }
+    },
+  });
+
+  const updateFormTemplate = async (template: Partial<Omit<FormTemplate, 'category'>>) => {
+    await updateFormTemplateMutation.mutateAsync(template); // Panggil mutasi
   };
 
-  const deleteFormTemplate = async (templateId: string) => {
-    try {
-      await formService.deleteFormTemplate(templateId);
-      const template = formTemplates.find(t => t.id === templateId);
-      setFormTemplates(formTemplates.filter((t) => t.id !== templateId));
-      setFormCategoryMappings(
-        formCategoryMappings.map((m) =>
-          m.formTemplateId === templateId ? { ...m, formTemplateId: '' } : m
-        )
-      );
+  // Mutasi untuk menghapus template
+  const deleteFormTemplateMutation = useMutation<void, Error, string>({
+    mutationFn: formService.deleteFormTemplate,
+    onSuccess: (_, templateId) => {
+      queryClient.invalidateQueries({ queryKey: ['formTemplatesAndMappings'] }); // Invalidasi cache
+      const template = formTemplates.find(t => t.id === templateId); // Ambil dari data cache yang masih ada sebelum invalidasi
       if (template) {
         toast({
           title: 'Template Berhasil Dihapus',
           description: `Template "${template.name}" telah berhasil dihapus.`,
         });
       }
-    } catch (err) {
+    },
+    onError: (err) => {
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete template';
       toast({
         title: 'Error',
-        description: errorMessage,
+        description: `Gagal menghapus template: ${errorMessage}`,
         variant: 'destructive',
       });
-      throw err;
-    }
+    },
+  });
+
+  const deleteFormTemplate = async (templateId: string) => {
+    await deleteFormTemplateMutation.mutateAsync(templateId); // Panggil mutasi
   };
 
-  const updateFormElement = async (templateId: string, element: Partial<Omit<FormElement, 'template'>>) => {
-    try {
+  // Mutasi untuk memperbarui elemen form
+  const updateFormElementMutation = useMutation<FormElement, Error, { templateId: string, element: Partial<Omit<FormElement, 'template'>> }>({
+    mutationFn: async ({ element }) => {
       if (!element.id) throw new Error('Element ID is required');
-      const updatedElement = await formService.updateFormElement(element.id, element);
-      setFormTemplates(
-        formTemplates.map((t) => {
-          if (t.id === templateId) {
-            return {
-              ...t,
-              elements: t.elements?.map((e) =>
-                e.id === element.id ? { ...e, ...updatedElement } : e
-              ) || []
-            };
-          }
-          return t;
-        })
-      );
-    } catch (err) {
+      return formService.updateFormElement(element.id, element);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['formTemplatesAndMappings'] }); // Invalidasi cache template yang berisi elemen
+    },
+    onError: (err) => {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update element';
       toast({
         title: 'Error',
-        description: errorMessage,
+        description: `Gagal memperbarui elemen: ${errorMessage}`,
         variant: 'destructive',
       });
-      throw err;
-    }
+    },
+  });
+
+  const updateFormElement = async (templateId: string, element: Partial<Omit<FormElement, 'template'>>) => {
+    await updateFormElementMutation.mutateAsync({ templateId, element });
   };
 
-  const addFormElement = async (templateId: string, element: Omit<FormElement, 'id' | 'created_at' | 'updated_at' | 'template'>) => {
-    try {
-      const newElement = await formService.createFormElement({
-        ...element,
-        template_id: templateId
-      });
-      setFormTemplates(
-        formTemplates.map((t) => {
-          if (t.id === templateId) {
-            return {
-              ...t,
-              elements: [...(t.elements || []), newElement],
-            };
-          }
-          return t;
-        })
-      );
-    } catch (err) {
+  // Mutasi untuk menambahkan elemen form
+  const addFormElementMutation = useMutation<FormElement, Error, { templateId: string, element: Omit<FormElement, 'id' | 'created_at' | 'updated_at' | 'template'> }>({
+    mutationFn: async ({ templateId, element }) => {
+      return formService.createFormElement({ ...element, template_id: templateId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['formTemplatesAndMappings'] }); // Invalidasi cache template yang berisi elemen
+    },
+    onError: (err) => {
       const errorMessage = err instanceof Error ? err.message : 'Failed to add element';
       toast({
         title: 'Error',
-        description: errorMessage,
+        description: `Gagal menambahkan elemen: ${errorMessage}`,
         variant: 'destructive',
       });
-      throw err;
-    }
+    },
+  });
+
+  const addFormElement = async (templateId: string, element: Omit<FormElement, 'id' | 'created_at' | 'updated_at' | 'template'>) => {
+    await addFormElementMutation.mutateAsync({ templateId, element });
   };
 
-  const deleteFormElement = async (templateId: string, elementId: string) => {
-    try {
-      await formService.deleteFormElement(elementId);
-      setFormTemplates(
-        formTemplates.map((t) => {
-          if (t.id === templateId) {
-            return {
-              ...t,
-              elements: t.elements?.filter((e) => e.id !== elementId) || []
-            };
-          }
-          return t;
-        })
-      );
-    } catch (err) {
+  // Mutasi untuk menghapus elemen form
+  const deleteFormElementMutation = useMutation<void, Error, string>({
+    mutationFn: formService.deleteFormElement,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['formTemplatesAndMappings'] }); // Invalidasi cache template yang berisi elemen
+    },
+    onError: (err) => {
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete element';
       toast({
         title: 'Error',
-        description: errorMessage,
+        description: `Gagal menghapus elemen: ${errorMessage}`,
         variant: 'destructive',
       });
-      throw err;
-    }
+    },
+  });
+
+  const deleteFormElement = async (templateId: string, elementId: string) => {
+    await deleteFormElementMutation.mutateAsync(elementId);
   };
 
-  const updateCategoryMapping = async (mapping: FormCategoryMapping) => {
-    try {
-      // Update the mapping in the state
-      setFormCategoryMappings(
-        formCategoryMappings.map((m) =>
-          m.categoryId === mapping.categoryId ? mapping : m
-        )
-      );
 
-      // If there's a template ID, update the template's categoryId
+  // Mutasi untuk memperbarui category mapping
+  const updateCategoryMappingMutation = useMutation<any, Error, FormCategoryMapping>({
+    mutationFn: async (mapping) => {
+      // Asumsi API endpoint untuk update mapping adalah /form-category-mappings/{categoryId}
+      // dan juga update category_id di template terkait jika formTemplateId ada.
+      // Anda perlu menyesuaikan ini dengan API aktual Anda.
+      
+      // Jika formTemplateId di mapping tidak kosong, artinya ada template yang dipilih
       if (mapping.formTemplateId) {
-        const template = formTemplates.find(t => t.id === mapping.formTemplateId);
-        if (template) {
-          const updatedTemplate = {
-            ...template,
-            category_id: mapping.categoryId
-          };
-          await updateFormTemplate(updatedTemplate);
+        // Cari template yang sebelumnya terhubung dengan kategori ini (jika ada)
+        const currentMapping = formCategoryMappings.find(m => m.categoryId === mapping.categoryId);
+        if (currentMapping && currentMapping.formTemplateId) {
+          // Jika ada template lama, set category_id-nya ke null/kosong
+          // Ini mencegah satu template terhubung ke banyak kategori
+          await formService.updateFormTemplate(currentMapping.formTemplateId, { category_id: '' });
+        }
+
+        // Update template baru untuk menunjuk ke kategori ini
+        await formService.updateFormTemplate(mapping.formTemplateId, { category_id: mapping.categoryId });
+      } else {
+        // Jika formTemplateId kosong, artinya menghapus hubungan
+        // Cari template yang saat ini terhubung ke kategori ini dan hapus category_id-nya
+        const currentMapping = formCategoryMappings.find(m => m.categoryId === mapping.categoryId);
+        if (currentMapping && currentMapping.formTemplateId) {
+          await formService.updateFormTemplate(currentMapping.formTemplateId, { category_id: '' });
         }
       }
-
+      // Kita tidak punya API endpoint terpisah untuk update mapping, jadi kita hanya mengandalkan update template.
+      // Jika Anda memiliki endpoint terpisah, panggil di sini.
+      return Promise.resolve({}); // Mengembalikan promise kosong karena tidak ada API call langsung untuk mapping
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['formTemplatesAndMappings'] }); // Invalidasi cache
       toast({
         title: 'Kategori Berhasil Diperbarui',
-        description: `Kategori "${mapping.categoryName}" telah berhasil diperbarui.`,
+        description: `Pengaturan kategori telah berhasil diperbarui.`,
       });
-    } catch (err) {
+    },
+    onError: (err) => {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update category mapping';
       toast({
         title: 'Error',
-        description: errorMessage,
+        description: `Gagal memperbarui kategori: ${errorMessage}`,
         variant: 'destructive',
       });
-      throw err;
-    }
+    },
+  });
+
+  const updateCategoryMapping = async (mapping: FormCategoryMapping) => {
+    await updateCategoryMappingMutation.mutateAsync(mapping);
   };
+
 
   const getFormTemplateForCategory = (categoryId: string): FormTemplate | null => {
     const mapping = formCategoryMappings.find(
@@ -316,7 +314,6 @@ export const FormProvider: React.FC<{ children: React.ReactNode }> = ({ children
         deleteFormElement,
         updateCategoryMapping,
         getFormTemplateForCategory,
-        refreshData,
       }}
     >
       {children}

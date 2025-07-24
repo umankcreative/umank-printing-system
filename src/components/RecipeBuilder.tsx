@@ -238,11 +238,11 @@ const RecipeBuilder: React.FC<RecipeBuilderProps> = ({
                     console.log('Ingredient button clicked:', ingredient);
                     handleAddIngredient(ingredient);
                   }}
-                  className="flex items-center justify-between p-2 border rounded-lg bg-blue-50 hover:bg-gray-100 cursor-pointer"
+                  className="flex items-start justify-between p-2 border rounded-lg bg-blue-50 hover:bg-gray-100 cursor-pointer"
                 >
                   <div className="flex flex-col text-left">
-                    <span className="font-medium">{ingredient.name}</span>
-                    <span className="text-sm text-gray-500">{formatCurrency(ingredient.price_per_unit)} / {ingredient.unit}</span>
+                    <span className="text-sm font-medium">{ingredient.name}</span>
+                    <span className="text-xs text-gray-500">{formatCurrency(ingredient.price_per_unit)} / {ingredient.unit}</span>
                   </div>
                   <Plus size={16} />
                 </button>

@@ -9,6 +9,7 @@ import Navbar from './Navbar';
 
 const AdminLayout: React.FC = () => {
   const { user } = useAuth();
+  console.log('AdminLayout user:', user);
   
   return (
     <div className="flex h-screen bg-gray-50">

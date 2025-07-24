@@ -144,7 +144,7 @@ export const formTemplates: FormTemplate[] = [
 ];
 
 export const formCategoryMappings: FormCategoryMapping[] = PRODUCT_CATEGORIES.map(category => {
-  const template = formTemplates.find(t => t.categoryId === category);
+  const template = formTemplates.find(t => t.category?.name === category);
   return {
     categoryId: category,
     categoryName: category,

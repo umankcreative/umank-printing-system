@@ -15,6 +15,8 @@ import {
   X,
   ChevronDown,
   ArchiveRestore,
+  Printer,
+  DollarSign,
 } from 'lucide-react';
 import Logo from './Logo';
 
@@ -27,7 +29,7 @@ interface NavItem {
 }
 
 const navigation: NavItem[] = [
-{name: 'Dashboard', icon: <Home size={20} />, path: '/admin/', roles: ['admin'],},
+{name: 'Dashboard', icon: <Home size={20} />, path: '/admin/', roles: ['admin','manager toko','kasir'],},
 {name: 'Inventory',icon: <Box size={20} />,path: '/products',roles: ['admin', 'manager toko', 'admin gudang'],
     subMenu: [
         {name: 'Ingredients', icon: <Boxes size={20} />, path: '/admin/ingredients',roles: ['admin'],},
@@ -48,6 +50,18 @@ const navigation: NavItem[] = [
     icon: <ArchiveRestore size={20} />,
     path: '/admin/form-management',
     roles: ['admin'],
+    },
+  {
+    name: 'Print',
+    icon: <Printer size={20} />,
+    path: '/admin/print',
+    roles: ['admin','manager toko'],
+    },
+  {
+    name: 'Keuangan',
+    icon: <DollarSign size={20} />,
+    path: '/admin/finance',
+    roles: ['admin','manager toko','kasir'],
     },
   {
       name: 'Settings',
@@ -192,7 +206,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole, userName }) => {
             <div className="flex items-center">
               <img
                 className="w-10 h-10 rounded-full object-cover"
-                src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=150"
+                src={'https://via.placeholder.com/45'}
                 alt="User avatar"
               />
               <div className="ml-3">
