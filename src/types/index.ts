@@ -1,3 +1,4 @@
+import { Customer, Branch, OrderItem, Task, Product as ApiProduct } from './api';
 // Existing types...
 export interface TimelineEvent {
   id: string;
@@ -102,29 +103,29 @@ export interface TaskTemplate {
 }
 
 // Update existing Task interface
-export interface Task {
-  id: string;
-  title: string;
-  description: string;
-  status: TaskStatus;
-  priority: TaskPriority;
-  category: TaskCategory;
-  deadline: string | null;
-  assignee: string | null;
-  ingredient_id: string | null;
-  order_id: string | null;
-  parent_task_id: string | null;
-  estimated_time: number | null;
-  created_at: string;
-  updated_at: string;
-  ingredient: Ingredient[] | null; // Replace 'any' with proper Ingredient interface if available
-  order: Order | null;
-  parent_task: Task | null;
-  child_tasks: Task[];
-  timeline_events: TimelineEvent[];
-  task_responses: TaskResponse[];
-  task_assignments: TaskAssignment[];
-}
+// export interface Task {
+//   id: string;
+//   title: string;
+//   description: string;
+//   status: TaskStatus;
+//   priority: TaskPriority;
+//   category: TaskCategory;
+//   deadline: string | null;
+//   assignee: string | null;
+//   ingredient_id: string | null;
+//   order_id: string | null;
+//   parent_task_id: string | null;
+//   estimated_time: number | null;
+//   created_at: string;
+//   updated_at: string;
+//   ingredient: Ingredient[] | null; // Replace 'any' with proper Ingredient interface if available
+//   order: Order | null;
+//   parent_task: Task | null;
+//   child_tasks: Task[];
+//   timeline_events: TimelineEvent[];
+//   task_responses: TaskResponse[];
+//   task_assignments: TaskAssignment[];
+// }
 
 export interface TaskResponse {
   id: string;
@@ -155,52 +156,60 @@ export interface Ingredient {
 // }
 
 export interface Order {
-  customer(customer: Customer[]): unknown;
-  items(items: OrderItem[]): unknown;
   id: string;
-  customer_id: string;
-  branch_id: string;
-  total_amount: string;
-  paid_amount: string;
-  payment_status: string;
-  payment_method: string;
-  status: string;
-  order_date: string;
-  delivery_date: string;
+  customer: Customer; // Langsung gunakan Customer dari api.ts
+  branch: Branch;     // Langsung gunakan Branch dari api.ts
+  items: OrderItem[]; // Langsung gunakan OrderItem dari api.ts
+  tasks?: Task[];     // Langsung gunakan Task dari api.ts
+  total_amount: number; // Menggunakan number untuk perhitungan di frontend
+  status: 'pending' | 'processing' | 'ready' | 'delivered' | 'cancelled';
+  payment_status: 'unpaid' | 'partial' | 'paid';
+  payment_method: 'cash' | 'transfer' | 'debit' | 'credit'; // Ditambahkan 'debit' | 'credit' dari api.ts
   notes: string | null;
+  order_date: string; // Perlu memastikan ini ada jika diperlukan
+  delivery_date: string | null;
   created_at: string;
   updated_at: string;
+  branch_id: string; // Tetap dipertahankan untuk payload
+  customer_id: string; // Tetap dipertahankan untuk payload
 }
 
-export interface OrderItem {
-  id: string;
-  order_id: string;
-  product_id: string;
-  product: Product;
-  quantity: number;
-  price: number;
-  created_at?: string;
-  updated_at?: string;
-}
+// export interface OrderItem {
+//   id: string;
+//   order_id: string;
+//   product_id: string;
+//   product: Product;
+//   quantity: number;
+//   price: number;
+//   created_at?: string;
+//   updated_at?: string;
+// }
 
-export interface Customer {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  company: string;
-  contact: string;
-  address: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
+// export interface Customer {
+//   id: string;
+//   name: string;
+//   email: string;
+//   phone: string;
+//   company: string;
+//   contact: string;
+//   address: string;
+//   is_active: boolean;
+//   created_at: string;
+//   updated_at: string;
+// }
 
+// types/index.ts
+
+// Ini adalah interface 'Order' yang akan digunakan di frontend lokal Anda
+// Diselaraskan dengan definisi dari api.ts, tapi dengan penyesuaian untuk data lokal
+
+
+// Interface Product yang digunakan di frontend (mungkin berbeda sedikit dari API)
 export interface Product {
   id: string;
   name: string;
   description: string;
-  category: string;
+  category: string; // Nama kategori
   category_id: string;
   price: number;
   cost_price: number;
@@ -208,18 +217,27 @@ export interface Product {
   minOrder: number;
   isActive: boolean;
   branch_id: string;
-  thumbnail_id?: string;
-  ingredients?: RecipeIngredient[];
-  images?: ProductImage[];
-  paperType?: string | null;
-  paperGrammar?: string | null;
-  printType?: 'Black & White' | 'Full Color' | null;
-  finishingType?: 'Tanpa Finishing' | 'Doff' | 'Glossy' | 'Lainnya' | null;
-  customFinishing?: string | null;
-  productionCost?: number;
+  thumbnail_id: string;
+  paperType: string | null;
+  paperGrammar: string | null;
+  printType: 'Black & White' | 'Full Color' | null;
+  finishingType: 'Tanpa Finishing' | 'Doff' | 'Glossy' | 'Lainnya' | null;
+  customFinishing: string | null;
   created_at: string;
   updated_at: string;
 }
+
+// Gunakan definisi Task langsung dari api.ts
+// export type Task = Task;
+
+// Ini mungkin perlu disesuaikan dengan interface OrderItem dari api.ts
+// Jika OrderItem lokal Anda adalah sama persis, Anda bisa langsung menggunakannya.
+// export interface OrderItemLocal extends OrderItem {
+  // Jika ada properti tambahan di sisi lokal, tambahkan di sini
+  // Misalnya, jika 'product' di OrderItem api.ts tidak memiliki semua detail yang Anda butuhkan secara lokal
+  // Maka, Anda bisa override atau tambahkan properti di sini.
+  // Tapi berdasarkan api.ts, OrderItem sudah memiliki product: Product.
+// }
 
 export interface ProductImage {
   id: string;

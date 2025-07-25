@@ -56,7 +56,7 @@ api.interceptors.response.use(
         url: error.config?.url,
         method: error.config?.method
       });
-      return Promise.reject(new Error('Jaringan error - silahkan periksa koneksi Anda'));
+      return Promise.reject(new Error('🚨 Jaringan error 🛜 - silahkan periksa koneksi Anda'));
     }
 
     const originalRequest = error.config;

@@ -1,9 +1,13 @@
+// context/OrderContext.tsx
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { Order as LocalOrder, Task, Product as LocalProduct } from '../types';
-import { Order as ApiOrder, Product as ApiProduct } from '../types/api';
+// Import Order, Task, Product dari definisi lokal Anda, yang sekarang harus konsisten dengan api.ts
+import { Order as LocalOrder, Task, Product as LocalProduct } from '../types'; // Menggunakan LocalOrder, Task, LocalProduct
+// Import tipe dari api.ts yang spesifik untuk mapping atau payload API
+import { Order as ApiOrder, Product as ApiProduct, OrderItem as ApiOrderItem } from '../types/api';
 import { useProductContext } from './ProductContext';
 import { generateOrderTasks as generateTasks, generateTaskForProduct as generateProductTask, isValidUUID } from '../lib/utils';
-import orderService, { OrderQueryParams, CreateOrderPayload } from '../services/orderService';
+// Import CreateOrderPayload dan CreateOrderItemPayload dari orderService.ts yang baru disesuaikan
+import orderService, { OrderQueryParams, CreateOrderPayload, CreateOrderItemPayload } from '../services/orderService';
 import { toast } from 'sonner';
 import { useAuth } from './AuthContext';
 
@@ -49,7 +53,7 @@ const mapApiProductToLocal = (apiProduct: ApiProduct): LocalProduct => ({
   id: apiProduct.id,
   name: apiProduct.name,
   description: apiProduct.description || '',
-  category: apiProduct.category?.name || 'Tidak ada kategori',
+  category: apiProduct.category?.name || 'Tidak ada kategori', // Sesuaikan jika Category di API memiliki field `name`
   category_id: apiProduct.category_id,
   price: parseFloat(apiProduct.price),
   cost_price: parseFloat(apiProduct.cost_price),
@@ -67,37 +71,29 @@ const mapApiProductToLocal = (apiProduct: ApiProduct): LocalProduct => ({
   updated_at: apiProduct.updated_at || new Date().toISOString(),
 });
 
+// Mapping dari ApiOrder ke LocalOrder
 const mapApiOrderToLocal = (apiOrder: ApiOrder): LocalOrder => ({
   id: apiOrder.id,
-  customer: {
-    id: apiOrder.customer?.id || apiOrder.customer_id,
-    name: apiOrder.customer?.name || '',
-    email: apiOrder.customer?.email || '',
-    phone: apiOrder.customer?.phone || '',
-    company: apiOrder.customer?.company || '',
-    contact: apiOrder.customer?.contact || '',
-    address: apiOrder.customer?.address || '',
-    is_active: apiOrder.customer?.is_active ?? true,
-    created_at: apiOrder.customer?.created_at || apiOrder.created_at,
-    updated_at: apiOrder.customer?.updated_at || apiOrder.updated_at,
-  },
-  branch: {
+  // Menggunakan properti customer dan branch secara langsung dari apiOrder yang sudah di-eager load
+  customer: apiOrder.customer,
+  branch: { // Pastikan properti branch diisi dengan benar, api.ts punya `is_active: boolean | number`
     id: apiOrder.branch?.id || apiOrder.branch_id,
     name: apiOrder.branch?.name || '',
     location: apiOrder.branch?.location || '',
-    is_active: typeof apiOrder.branch?.is_active === 'number' 
-      ? Boolean(apiOrder.branch.is_active) 
+    is_active: typeof apiOrder.branch?.is_active === 'number'
+      ? Boolean(apiOrder.branch.is_active)
       : (apiOrder.branch?.is_active ?? true),
-    created_at: apiOrder.branch?.created_at || apiOrder.created_at,
-    updated_at: apiOrder.branch?.updated_at || apiOrder.updated_at,
+    created_at: apiOrder.branch?.created_at || apiOrder.created_at, // Gunakan order created_at jika branch tidak ada
+    updated_at: apiOrder.branch?.updated_at || apiOrder.updated_at, // Gunakan order updated_at jika branch tidak ada
   },
   items: apiOrder.items?.map(item => ({
     id: item.id,
     order_id: item.order_id,
     product_id: item.product_id,
-    product: mapApiProductToLocal(item.product),
+    product: mapApiProductToLocal(item.product), // Map product di dalam item
     quantity: item.quantity,
     price: item.price,
+    notes: item.notes, // Tambahkan notes jika ada
     created_at: item.created_at,
     updated_at: item.updated_at,
   })) || [],
@@ -115,7 +111,7 @@ const mapApiOrderToLocal = (apiOrder: ApiOrder): LocalOrder => ({
     updated_at: task.updated_at,
     subtasks: task.subtasks,
   })) || [],
-  total_amount: parseFloat(apiOrder.total_amount),
+  total_amount: parseFloat(apiOrder.total_amount), // Pastikan ini dikonversi ke number
   status: apiOrder.status,
   payment_status: apiOrder.payment_status,
   payment_method: apiOrder.payment_method,
@@ -124,6 +120,8 @@ const mapApiOrderToLocal = (apiOrder: ApiOrder): LocalOrder => ({
   created_at: apiOrder.created_at,
   updated_at: apiOrder.updated_at,
   branch_id: apiOrder.branch_id,
+  customer_id: apiOrder.customer_id, // Pastikan customer_id juga ada di sini
+  order_date: apiOrder.order_date, // Tambahkan order_date
 });
 
 export const OrderProvider: React.FC<OrderContextProps> = ({ children }) => {
@@ -171,8 +169,16 @@ export const OrderProvider: React.FC<OrderContextProps> = ({ children }) => {
 
     try {
       setLoading(true);
-      const orderTasks = generateTasks(order, products);
-      
+
+      console.log('Validasi Sisi Klien untuk Order Baru:');
+      console.log('Customer ID (input):', order.customer.id);
+      if (order.items) {
+        order.items.forEach((item, index) => {
+          console.log(`Product ID for item ${index}:`, item.product_id);
+        });
+      }
+
+      // Validasi customer ID di sisi klien.
       if (!order.customer.id || !isValidUUID(order.customer.id)) {
         throw new Error('Format customer ID tidak valid. Customer harus memiliki UUID yang valid dari database.');
       }
@@ -188,33 +194,45 @@ export const OrderProvider: React.FC<OrderContextProps> = ({ children }) => {
       if (invalidProducts.length > 0) {
         throw new Error('Satu atau lebih produk memiliki format ID tidak valid. Silahkan pastikan semua produk dipilih dari daftar.');
       }
-      
+
+      // Sesuaikan payload agar sesuai dengan CreateOrderPayload di orderService.ts
       const apiPayload: CreateOrderPayload = {
         customer_id: order.customer.id,
         branch_id: user.branch_id,
-        total_amount: order.total_amount,
+        total_amount: order.total_amount, // Pastikan ini number
         status: order.status,
-        payment_status: 'unpaid',
-        payment_method: 'cash',
+        payment_status: order.payment_status, // Gunakan payment_status dari order, bukan default 'unpaid'
+        payment_method: order.payment_method, // Gunakan payment_method dari order, bukan default 'cash'
         notes: order.notes || '',
         delivery_date: order.delivery_date,
         items: order.items.map(item => ({
           product_id: item.product_id,
           quantity: item.quantity,
           price: item.price,
+          notes: item.notes || null, // Tambahkan notes jika ada di OrderItem
         })),
       };
 
       const createdOrder = await orderService.createOrder(apiPayload);
-      
+
+      console.log('Respons API setelah Order dibuat:');
+      console.log('Created Order ID from API:', createdOrder.id);
+      console.log('Created Order Customer ID from API:', createdOrder.customer_id);
+
+      // Validasi ID yang dikembalikan oleh server.
       if (!createdOrder.id || !isValidUUID(createdOrder.id)) {
-        throw new Error('Server mengembalikan format ID pesanan tidak valid');
+        throw new Error('Server mengembalikan format ID pesanan tidak valid. Pesanan mungkin telah tersimpan, tetapi ada masalah dengan ID yang dikembalikan.');
       }
 
+      // Customer ID dari respons API juga harus UUID valid
+      // Note: Jika createdOrder.customer_id adalah UUID, ini akan lolos.
+      // Jika backend tidak mengembalikan customer_id atau mengembalikan format berbeda, ini akan gagal.
       if (!createdOrder.customer_id || !isValidUUID(createdOrder.customer_id)) {
-        throw new Error('Server mengembalikan format ID pelanggan tidak valid');
+        throw new Error('Server mengembalikan format ID pelanggan tidak valid. Pesanan mungkin telah tersimpan, tetapi ada masalah dengan ID pelanggan yang dikembalikan.');
       }
-      
+
+      // Penting: Gunakan createdOrder dari API untuk generate task, karena ID dan data lain sudah final
+      const orderTasks = generateTasks(mapApiOrderToLocal(createdOrder), products);
       const allTasks = orderTasks.reduce((acc: Task[], task) => {
         acc.push(task);
         if (task.subtasks) {
@@ -222,13 +240,15 @@ export const OrderProvider: React.FC<OrderContextProps> = ({ children }) => {
         }
         return acc;
       }, []);
-      
+
       setTasks(prevTasks => [...prevTasks, ...allTasks]);
-      
+
       await fetchOrders({ page: currentPage });
+      toast.success('Order berhasil dibuat');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Gagal membuat pesanan';
       toast.error(message);
+      console.error('Error in addOrder:', error);
       throw error;
     } finally {
       setLoading(false);
@@ -243,9 +263,10 @@ export const OrderProvider: React.FC<OrderContextProps> = ({ children }) => {
         throw new Error('Item pesanan harus berupa array');
       }
 
+      // Sesuaikan payload agar sesuai dengan Partial<CreateOrderPayload> di orderService.ts
       const apiPayload: Partial<CreateOrderPayload> = {
         customer_id: updatedOrder.customer.id,
-        total_amount: updatedOrder.total_amount,
+        total_amount: updatedOrder.total_amount, // Pastikan ini number
         status: updatedOrder.status,
         payment_status: updatedOrder.payment_status,
         payment_method: updatedOrder.payment_method,
@@ -255,15 +276,21 @@ export const OrderProvider: React.FC<OrderContextProps> = ({ children }) => {
           product_id: item.product_id,
           quantity: item.quantity,
           price: item.price,
+          notes: item.notes || null, // Tambahkan notes jika ada di OrderItem
+          // Jika update item memerlukan `id` dari order item, Anda mungkin perlu menambahkannya di sini.
+          // Tergantung bagaimana API `updateOrder` Anda menangani `items`.
+          // Beberapa API mengharapkan `id` untuk mengidentifikasi item yang ada untuk diupdate/dihapus.
+          // id: item.id, // Contoh: jika API memerlukan id item untuk update
         })),
       };
 
       await orderService.updateOrder(updatedOrder.id, apiPayload);
       await fetchOrders({ page: currentPage });
-      // toast.success('Order updated successfully');
+      toast.success('Order berhasil diperbarui');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Gagal memperbarui pesanan';
       toast.error(message);
+      console.error('Error in updateOrder:', error);
       throw error;
     } finally {
       setLoading(false);
@@ -275,10 +302,11 @@ export const OrderProvider: React.FC<OrderContextProps> = ({ children }) => {
       setLoading(true);
       await orderService.deleteOrder(id);
       await fetchOrders({ page: currentPage });
-      // toast.success('Order deleted successfully');
+      toast.success('Order berhasil dihapus');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Gagal menghapus pesanan';
       toast.error(message);
+      console.error('Error in deleteOrder:', error);
       throw error;
     } finally {
       setLoading(false);
@@ -305,11 +333,12 @@ export const OrderProvider: React.FC<OrderContextProps> = ({ children }) => {
 
   const generateTaskForProduct = (
     productId: string,
-    quantity: string,
+    quantity: string, // Perhatikan ini string, mungkin perlu diubah ke number jika untuk perhitungan
     deadline: string,
     orderId?: string,
     parentTaskId?: string
   ): Task | undefined => {
+    // Pastikan `generateProductTask` menerima tipe data yang benar (misalnya `quantity` sebagai number)
     return generateProductTask(products, productId, quantity, deadline, orderId, parentTaskId);
   };
 
@@ -320,6 +349,7 @@ export const OrderProvider: React.FC<OrderContextProps> = ({ children }) => {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Gagal mengambil pesanan';
       toast.error(message);
+      console.error('Error in getOrder:', error);
       return undefined;
     }
   }, []);

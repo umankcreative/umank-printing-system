@@ -1,37 +1,32 @@
+// services/orderService.ts
 import api from '../lib/axios';
-import { Order } from '../types/api';
+import { Order, Product as ApiProduct, OrderItem as ApiOrderItem } from '../types/api'; // Pastikan import yang benar dari api.ts
 import { AxiosError } from 'axios';
 
-interface OrderItem {
-  id: string;
-  order_id: string;
+// Gunakan ApiOrderItem langsung dari api.ts
+interface CreateOrderItemPayload {
   product_id: string;
-  quantity: number;
-  price: number;
-  customization: string | null; // JSON string
-  product: Product;
-  notes?: string;
+  quantity: number; // Pastikan ini number, bukan string
+  price: number;     // Pastikan ini number, bukan string
+  notes?: string | null; // Tambahkan jika Notes bisa dikirim saat create/update item
+  // `id`, `order_id`, `customization`, dan `product` (objek lengkap) biasanya
+  // TIDAK DIKIRIM saat membuat item baru melalui API. Backend yang akan mengaturnya.
+  // Jadi, hilangkan dari payload jika tidak diperlukan.
+  // Jika API Anda mengharapkan `customization`, Anda perlu menambahkannya kembali dan mengelolanya sebagai JSON string
+  // customization?: string | null; // Contoh jika diperlukan
 }
 
-interface Product {
-  id: string;
-  name: string;
-  category: {
-    id: string;
-    form_template_id: string | null;
-  };
-}
 
 interface CreateOrderPayload {
   customer_id: string;
   branch_id: string;
-  total_amount: string | number;
+  total_amount: number; // Ubah ke number
   status: 'pending' | 'processing' | 'ready' | 'delivered' | 'cancelled';
   payment_status: 'unpaid' | 'partial' | 'paid';
-  payment_method: 'cash' | 'transfer' | 'other';
+  payment_method: 'cash' | 'transfer' | 'debit' | 'credit'; // Sesuaikan
   notes?: string | null;
   delivery_date: string | null;
-  items: OrderItem[];
+  items: CreateOrderItemPayload[]; // Gunakan payload item yang disederhanakan
 }
 
 interface PaginatedResponse<T> {
@@ -63,10 +58,11 @@ interface OrderQueryParams {
   with_tasks?: boolean;
 }
 
-interface CustomizationData {
-  form_template_id: string;
-  values: Record<string, unknown>;
-}
+// Hapus interface ini jika tidak digunakan lagi
+// interface CustomizationData {
+//   form_template_id: string;
+//   values: Record<string, unknown>;
+// }
 
 interface OrdersResponse {
   data: Order[];
@@ -151,7 +147,8 @@ const orderService = {
   },
 
   // Update customization for an order item
-  updateOrderItemCustomization: async (orderItemId: string, customization: CustomizationData) => {
+  // Sesuaikan tipe CustomizationData jika Anda masih menggunakannya
+  updateOrderItemCustomization: async (orderItemId: string, customization: any) => {
     const response = await api.put(`/order-items/${orderItemId}/customization`, customization);
     return response.data;
   },
@@ -177,5 +174,5 @@ const orderService = {
   }
 };
 
-export type { CreateOrderPayload, OrderItem, OrderQueryParams };
-export default orderService; 
+export type { CreateOrderPayload, CreateOrderItemPayload, OrderQueryParams };
+export default orderService;

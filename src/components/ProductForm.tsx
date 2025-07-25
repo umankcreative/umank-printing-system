@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
-import { Product, RecipeIngredient } from '../types/api';
+import { Category, Product, RecipeIngredient } from '../types/api';
 import { productService } from '../services/productService';
 import RecipeBuilder from './RecipeBuilder';
 import MaterialForm from './productform/MaterialForm';
 import { formatCurrency } from '../lib/utils';
 import { ImagePlus, X, ToggleRight, ToggleLeft, FileText, Calculator, Utensils, Layers } from 'lucide-react';
 import * as categoryService from '../services/categoryService';
-import { Category } from '../types/formTypes';
 import ProductImagesUpload from './productform/ProductImagesUpload';
-// import BoxFileUpload from './box/BoxFileUpload'; // Add this import
 import { useAuth } from '../context/AuthContext';
 
 interface ProductFormProps {
@@ -77,18 +75,25 @@ const ProductForm: React.FC<ProductFormProps> = ({
   // Fetch product data if we have an ID
   // Fetch product data only when initialProduct.id changes
   useEffect(() => {
+    console.log('--- useEffect [initialProduct?.id] Triggered ---');
+  console.log('initialProduct.id:', initialProduct?.id);
+  console.log('current product.id:', product.id);
+
     const controller = new AbortController();
     let mounted = true;
 
     const fetchProduct = async () => {
       // Only fetch if we have an ID and it's a new ID (different from current product.id)
       if (initialProduct?.id && initialProduct.id !== product.id) {
+        console.log(`Fetching product with ID: ${initialProduct.id}`);
         try {
           const productData = await productService.getProduct(initialProduct.id);
+          console.log('Product data fetched successfully:', productData);
           // Only update if not aborted and still mounted
           if (!controller.signal.aborted && mounted) {
             setProduct(productData);
             onChange?.(productData);
+            console.log('Product state updated from fetched data.');
           }
         } catch (error) {
           if (!controller.signal.aborted && mounted) {
@@ -97,11 +102,15 @@ const ProductForm: React.FC<ProductFormProps> = ({
           }
         }
       } else if (initialProduct && !initialProduct.id) {
+        console.log('Initializing new product with initialProduct data:', initialProduct);
         // For new products, use initialProduct data
         setProduct(prev => ({
           ...prev,
           ...initialProduct,
         }));
+      }
+        else{
+          console.log('Skipping fetch: initialProduct.id is null or matches current product.id');
       }
     };
 
@@ -111,6 +120,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     return () => {
       mounted = false;
       controller.abort();
+      console.log('--- useEffect cleanup [initialProduct?.id] ---');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialProduct?.id]); // We only want to re-fetch when the ID changes

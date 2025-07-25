@@ -317,6 +317,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
         id: initialOrder?.id || uuidv4(), // Will be set by server for new orders
         customer: finalCustomer,
         customer_id: finalCustomer.id,
+        order_date: initialOrder?.order_date || new Date().toISOString(),
         branch: initialOrder?.branch || {
           id: user.branch_id,
           name: '',
