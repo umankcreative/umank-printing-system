@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { productService } from '../services/productService';
 import ProductForm from '../components/ProductForm';
-import { Product } from '../types/api';
+import { Product, RecipeIngredient } from '../types/api'; // Import RecipeIngredient
 import FormSection from '../components/productform/FormSection';
 import ProductPreview from '../components/ProductPreview';
 import { toast } from 'sonner';
@@ -17,7 +17,9 @@ interface ApiErrorResponse {
 const ProductEdit: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  // product state holds the "source of truth" for the form's initial data and is updated AFTER a successful save.
   const [product, setProduct] = useState<Product | null>(null);
+  // previewProduct state is updated by the onChange handler to show real-time changes without affecting the main product state immediately.
   const [previewProduct, setPreviewProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [materialEnabled, setMaterialEnabled] = useState({
@@ -34,14 +36,14 @@ const ProductEdit: React.FC = () => {
         const response = await productService.getProduct(id);
         console.log('Product response:', response);
         
-        // Ensure ingredients is always an array
-        const productWithIngredients = {
+        // Ensure ingredients is always an array, and deep copy if needed for reactivity
+        const productWithIngredients: Product = {
           ...response,
-          ingredients: response.ingredients || []
+          ingredients: response.ingredients ? [...response.ingredients] : [] // Deep copy ingredients to ensure reactivity
         };
         
-        setProduct(productWithIngredients);
-        setPreviewProduct(productWithIngredients);
+        setProduct(productWithIngredients); // Set the main product state from API
+        setPreviewProduct(productWithIngredients); // Initialize preview with the same data
         
         if (response) {
           setMaterialEnabled({
@@ -63,9 +65,9 @@ const ProductEdit: React.FC = () => {
 
   const handleSubmit = async (updatedProduct: Product) => {
     try {
-      console.log(' with ingredients:', updatedProduct.ingredients);
+      console.log('Product data submitted with ingredients:', updatedProduct.ingredients);
       
-      // Clean up the thumbnail_id if it's a URL
+      // Clean up the thumbnail_id if it's a URL (assuming backend handles URL or ID)
       const cleanedProduct = {
         ...updatedProduct,
         thumbnail_id: updatedProduct.thumbnail_id
@@ -74,6 +76,11 @@ const ProductEdit: React.FC = () => {
       const response = await productService.updateProduct(id!, cleanedProduct, ['ingredients', 'thumbnail', 'additional_images']);
       
       console.log('Product updated successfully:', response);
+      
+      // IMPORTANT: Update the main product state in ProductEdit after a successful save
+      // This ensures ProductForm receives the latest data on subsequent renders if needed
+      setProduct(response); 
+      setPreviewProduct(response); // Also update preview to match the saved data
       
       toast.success('Product updated successfully');
       navigate('/admin/products');
@@ -103,19 +110,45 @@ const ProductEdit: React.FC = () => {
     }
   };
 
-  const handleFormChange = (updatedProduct: Partial<Product>) => {
-    console.log('Form change in ProductEdit:', updatedProduct);
-    console.log('Current ingredients:', updatedProduct.ingredients);
+  // This handler is ONLY for updating the preview state and material enabled flags
+  // It does NOT update the `product` state that is passed as `initialProduct` to ProductForm.
+  const handleFormChange = (updatedProductPartial: Partial<Product>) => {
+    console.log('Form change in ProductEdit:', updatedProductPartial);
+    console.log('Current ingredients from form change:', updatedProductPartial.ingredients);
     
     setPreviewProduct(prev => {
-      if (!prev) return prev;
+      if (!prev) {
+        // If previewProduct is null, create a basic one from updatedProductPartial
+        return {
+          id: updatedProductPartial.id || '',
+          name: updatedProductPartial.name || '',
+          description: updatedProductPartial.description || '',
+          thumbnail_id: updatedProductPartial.thumbnail_id || '',
+          category_id: updatedProductPartial.category_id || '',
+          cost_price: updatedProductPartial.cost_price || '0',
+          price: updatedProductPartial.price || '0',
+          min_order: updatedProductPartial.min_order || 0,
+          stock: updatedProductPartial.stock || 0,
+          branch_id: updatedProductPartial.branch_id || '',
+          is_active: updatedProductPartial.is_active ?? true,
+          paper_type: updatedProductPartial.paper_type || null,
+          paper_grammar: updatedProductPartial.paper_grammar || null,
+          print_type: updatedProductPartial.print_type || null,
+          finishing_type: updatedProductPartial.finishing_type || 'Tanpa Finishing',
+          custom_finishing: updatedProductPartial.custom_finishing || null,
+          is_paper_enabled: updatedProductPartial.is_paper_enabled ?? false,
+          is_printing_enabled: updatedProductPartial.is_printing_enabled ?? false,
+          is_finishing_enabled: updatedProductPartial.is_finishing_enabled ?? false,
+          ingredients: (Array.isArray(updatedProductPartial.ingredients) ? updatedProductPartial.ingredients : []) as RecipeIngredient[],
+        };
+      }
       
-      // Create a complete updated preview with proper type handling for ingredients
+      // Update existing preview with proper type handling for ingredients
       const newPreview = {
         ...prev,
-        ...updatedProduct,
-        is_active: updatedProduct.is_active ?? prev.is_active,
-        ingredients: Array.isArray(updatedProduct.ingredients) ? updatedProduct.ingredients : prev.ingredients,
+        ...updatedProductPartial,
+        is_active: updatedProductPartial.is_active ?? prev.is_active,
+        ingredients: (Array.isArray(updatedProductPartial.ingredients) ? updatedProductPartial.ingredients : prev.ingredients) as RecipeIngredient[],
       };
       
       console.log('Updated preview product:', newPreview);
@@ -123,23 +156,12 @@ const ProductEdit: React.FC = () => {
       return newPreview;
     });
 
-    // Also update the main product state with proper type handling
-    setProduct(current => {
-      if (!current) return current;
-      const updatedMainProduct = {
-        ...current,
-        ...updatedProduct,
-        ingredients: Array.isArray(updatedProduct.ingredients) ? updatedProduct.ingredients : current.ingredients,
-      };
-      console.log('Updated main product:', updatedMainProduct);
-      return updatedMainProduct;
-    });
-
-    setMaterialEnabled({
-      paper: !!updatedProduct.paper_type,
-      printing: !!updatedProduct.print_type,
-      finishing: !!updatedProduct.finishing_type && updatedProduct.finishing_type !== 'Tanpa Finishing',
-    });
+    // Update material enabled flags based on the partial update
+    setMaterialEnabled(prev => ({
+      paper: updatedProductPartial.is_paper_enabled ?? prev.paper, // Use explicit enabled flag if provided
+      printing: updatedProductPartial.is_printing_enabled ?? prev.printing,
+      finishing: updatedProductPartial.is_finishing_enabled ?? prev.finishing,
+    }));
   };
 
   if (loading) {
@@ -181,9 +203,9 @@ const ProductEdit: React.FC = () => {
       <div className="flex flex-col md:flex-row gap-4 md:gap-8 justify-between">
         <div className="bg-white rounded-lg shadow-md p-6 md:w-2/3">
           <ProductForm 
-            initialProduct={product} 
+            initialProduct={product} // This is the source of truth for the form's initial load
             onSubmit={handleSubmit} 
-            onChange={handleFormChange}
+            onChange={handleFormChange} // Used for real-time preview updates in parent
           />
         </div>
         
@@ -191,7 +213,8 @@ const ProductEdit: React.FC = () => {
           <div className="sticky top-24 md:w-[400px]">
             <FormSection title="Product Preview">
               <ProductPreview
-                product={previewProduct || {
+                product={previewProduct || { // Fallback if previewProduct is null initially
+                  id: '', // Add ID here to match Product type
                   name: '',
                   description: '',
                   category_id: '',
@@ -210,6 +233,7 @@ const ProductEdit: React.FC = () => {
                   is_paper_enabled: false,
                   is_printing_enabled: false,
                   is_finishing_enabled: false,
+                  ingredients: [] // Provide an empty array for ingredients
                 }}
                 materialEnabled={materialEnabled}
               />

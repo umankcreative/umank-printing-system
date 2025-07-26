@@ -6,7 +6,7 @@ import { productService } from '../services/productService';
 import RecipeBuilder from './RecipeBuilder';
 import MaterialForm from './productform/MaterialForm';
 import { formatCurrency } from '../lib/utils';
-import { ImagePlus, X, ToggleRight, ToggleLeft, FileText, Calculator, Utensils, Layers } from 'lucide-react';
+import { X, ToggleRight, ToggleLeft, FileText, Calculator, Utensils, Layers } from 'lucide-react'; // Removed ImagePlus as it's not used directly here
 import * as categoryService from '../services/categoryService';
 import ProductImagesUpload from './productform/ProductImagesUpload';
 import { useAuth } from '../context/AuthContext';
@@ -40,7 +40,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
         setCategories(productCategories);
       } catch (error) {
         console.error('Error fetching categories:', error);
-        // toast('Gagal mengambil kategori');
+        // toast('Gagal mengambil kategori'); // Re-enable if needed
       } finally {
         setLoading(false);
       }
@@ -50,6 +50,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
   }, []);
 
   // Initialize product state with default values
+  // This initial state will be overridden by initialProduct in the useEffect below
   const [product, setProduct] = useState<Product>({
     id: '',
     name: '',
@@ -70,84 +71,124 @@ const ProductForm: React.FC<ProductFormProps> = ({
     is_paper_enabled: false,
     is_printing_enabled: false,
     is_finishing_enabled: false,
+    ingredients: [], // Ensure ingredients are initialized as an empty array
   });
 
-  // Fetch product data if we have an ID
-  // Fetch product data only when initialProduct.id changes
+  // Fetch product data if we have an ID or initialize with initialProduct
+  // This useEffect now explicitly handles setting all related states from initialProduct
   useEffect(() => {
-    console.log('--- useEffect [initialProduct?.id] Triggered ---');
-  console.log('initialProduct.id:', initialProduct?.id);
-  console.log('current product.id:', product.id);
-
     const controller = new AbortController();
     let mounted = true;
 
-    const fetchProduct = async () => {
-      // Only fetch if we have an ID and it's a new ID (different from current product.id)
-      if (initialProduct?.id && initialProduct.id !== product.id) {
-        console.log(`Fetching product with ID: ${initialProduct.id}`);
-        try {
-          const productData = await productService.getProduct(initialProduct.id);
-          console.log('Product data fetched successfully:', productData);
-          // Only update if not aborted and still mounted
-          if (!controller.signal.aborted && mounted) {
-            setProduct(productData);
-            onChange?.(productData);
-            console.log('Product state updated from fetched data.');
-          }
-        } catch (error) {
-          if (!controller.signal.aborted && mounted) {
-            console.error('Error fetching product:', error);
-            toast.error('Failed to load product data');
-          }
-        }
-      } else if (initialProduct && !initialProduct.id) {
-        console.log('Initializing new product with initialProduct data:', initialProduct);
-        // For new products, use initialProduct data
-        setProduct(prev => ({
-          ...prev,
+    const initializeProductForm = async () => {
+      // If initialProduct is provided, use it to set the form's state
+      if (initialProduct) {
+        console.log('--- useEffect [initialProduct] Triggered ---'); // Log for debugging
+        console.log('initialProduct received:', initialProduct); // Log for debugging
+
+        // Create a deep copy for ingredients to avoid mutation issues
+        const productToSet: Product = {
           ...initialProduct,
-        }));
-      }
-        else{
-          console.log('Skipping fetch: initialProduct.id is null or matches current product.id');
+          ingredients: initialProduct.ingredients ? [...initialProduct.ingredients] : [],
+        };
+
+        setProduct(productToSet);
+        onChange?.(productToSet); // Notify parent immediately with the full initial product data
+
+        // Also update all individual states derived from initialProduct
+        setRecipeIngredients(productToSet.ingredients || []);
+        setPaperType(productToSet.paper_type || null);
+        setPaperGrammar(productToSet.paper_grammar || null);
+        setIsPaperEnabled(productToSet.is_paper_enabled ?? false);
+
+        // Explicitly cast to correct type
+        setPrintType((productToSet.print_type as 'Black & White' | 'Full Color' | null) || null);
+        setIsPrintingEnabled(productToSet.is_printing_enabled ?? false);
+
+        setFinishingType((productToSet.finishing_type as 'Tanpa Finishing' | 'Doff' | 'Glossy' | 'Lainnya' | null) || null);
+        setCustomFinishing(productToSet.custom_finishing || null);
+        setIsFinishingEnabled(productToSet.is_finishing_enabled ?? false);
+
+        // Calculate and set markup
+        if (productToSet.cost_price && parseFloat(productToSet.cost_price) > 0) {
+          const modalPrice = parseFloat(productToSet.cost_price);
+          const sellingPrice = parseFloat(productToSet.price);
+          setMarkup(Math.round(((sellingPrice - modalPrice) / modalPrice) * 100));
+        } else {
+          setMarkup(100); // Default markup percentage
+        }
+      } else {
+        // If no initialProduct, reset to default form state (for new product creation, if ProductForm is reused)
+        setProduct({
+          id: '',
+          name: '',
+          description: '',
+          thumbnail_id: '',
+          category_id: '',
+          cost_price: '0',
+          price: '0',
+          min_order: 1,
+          stock: 0,
+          branch_id: user?.branch_id || '',
+          is_active: true,
+          paper_type: null,
+          paper_grammar: null,
+          print_type: 'Full Color',
+          finishing_type: 'Tanpa Finishing',
+          custom_finishing: null,
+          is_paper_enabled: false,
+          is_printing_enabled: false,
+          is_finishing_enabled: false,
+          ingredients: [],
+        });
+        // Reset dependent states for new product
+        setRecipeIngredients([]);
+        setPaperType(null);
+        setPaperGrammar(null);
+        setIsPaperEnabled(false);
+        setPrintType('Full Color');
+        setIsPrintingEnabled(false);
+        setFinishingType('Tanpa Finishing');
+        setCustomFinishing(null);
+        setIsFinishingEnabled(false);
+        setMarkup(100);
       }
     };
 
-    fetchProduct();
+    initializeProductForm();
 
     // Cleanup: abort any in-flight requests when id changes or component unmounts
     return () => {
       mounted = false;
       controller.abort();
-      console.log('--- useEffect cleanup [initialProduct?.id] ---');
+      console.log('--- useEffect cleanup [initialProduct] ---'); // Log for debugging
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialProduct?.id]); // We only want to re-fetch when the ID changes
+    // This effect runs only when initialProduct object reference changes, ensuring it syncs only when new data is provided.
+  }, [initialProduct, user?.branch_id]); 
 
-  // Material form state
+  // Material form state - initialized from initialProduct or default
   const [paperType, setPaperType] = useState<string | null>(initialProduct?.paper_type || null);
   const [paperGrammar, setPaperGrammar] = useState<string | null>(initialProduct?.paper_grammar || null);
-  const [materialCostPerCm2, setMaterialCostPerCm2] = useState(0);
+  const [materialCostPerCm2, setMaterialCostPerCm2] = useState(0); // This should probably be calculated based on input values, not initialized directly from initialProduct unless it's a fixed value in the product data itself. Assuming it's calculated.
   const [isPaperEnabled, setIsPaperEnabled] = useState(initialProduct?.is_paper_enabled ?? false);
 
   const [printType, setPrintType] = useState<'Black & White' | 'Full Color' | null>(
-    initialProduct?.print_type as 'Black & White' | 'Full Color' | null || null
+    (initialProduct?.print_type as 'Black & White' | 'Full Color' | null) || 'Full Color' // Default to Full Color
   );
-  const [printCostPerCm2, setPrintCostPerCm2] = useState(0);
+  const [printCostPerCm2, setPrintCostPerCm2] = useState(0); // Assuming calculated
   const [isPrintingEnabled, setIsPrintingEnabled] = useState(initialProduct?.is_printing_enabled ?? false);
 
   const [finishingType, setFinishingType] = useState<'Tanpa Finishing' | 'Doff' | 'Glossy' | 'Lainnya' | null>(
-    initialProduct?.finishing_type as 'Tanpa Finishing' | 'Doff' | 'Glossy' | 'Lainnya' | null || null
+    (initialProduct?.finishing_type as 'Tanpa Finishing' | 'Doff' | 'Glossy' | 'Lainnya' | null) || 'Tanpa Finishing'
   );
   const [customFinishing, setCustomFinishing] = useState<string | null>(
     initialProduct?.custom_finishing || null
   );
-  const [finishingCostPerCm2, setFinishingCostPerCm2] = useState(0);
+  const [finishingCostPerCm2, setFinishingCostPerCm2] = useState(0); // Assuming calculated
   const [isFinishingEnabled, setIsFinishingEnabled] = useState(initialProduct?.is_finishing_enabled ?? false);
 
   const [markup, setMarkup] = useState(() => {
-    if (initialProduct && initialProduct.cost_price !== '0.00') {
+    if (initialProduct && parseFloat(initialProduct.cost_price) > 0) {
       const modalPrice = parseFloat(initialProduct.cost_price);
       const sellingPrice = parseFloat(initialProduct.price);
       return Math.round(((sellingPrice - modalPrice) / modalPrice) * 100);
@@ -156,8 +197,8 @@ const ProductForm: React.FC<ProductFormProps> = ({
   });
 
   const [recipeIngredients, setRecipeIngredients] = useState<RecipeIngredient[]>(
-    initialProduct?.ingredients || []
-);
+    initialProduct?.ingredients ? [...initialProduct.ingredients] : [] // Deep copy ingredients
+  );
 
   // Calculate product costs and update state
   const updateProductCosts = () => {
@@ -200,10 +241,21 @@ const ProductForm: React.FC<ProductFormProps> = ({
       ...product,
       cost_price: totalCost.toFixed(2),
       price: sellingPrice.toFixed(2),
+      // Also update the fields that are controlled by MaterialForm and toggles
+      paper_type: isPaperEnabled ? paperType : null,
+      paper_grammar: isPaperEnabled ? paperGrammar : null,
+      print_type: isPrintingEnabled ? (printType || 'Full Color') : 'Full Color',
+      finishing_type: isFinishingEnabled ? (finishingType || 'Tanpa Finishing') : 'Tanpa Finishing',
+      custom_finishing: isFinishingEnabled && finishingType === 'Lainnya' ? customFinishing : null,
+      is_paper_enabled: isPaperEnabled,
+      is_printing_enabled: isPrintingEnabled,
+      is_finishing_enabled: isFinishingEnabled,
+      // Ensure ingredients are also part of the product state for submission
+      ingredients: recipeIngredients,
     };
 
     setProduct(updatedProduct);
-    onChange?.(updatedProduct);
+    onChange?.(updatedProduct); // Notify parent of all changes, including calculated costs and material selections
   };
 
   // Update costs when dependencies change
@@ -215,15 +267,17 @@ const ProductForm: React.FC<ProductFormProps> = ({
     finishingCostPerCm2,
     recipeIngredients,
     markup,
-    paperType,
-    paperGrammar,
-    printType,
-    finishingType,
-    customFinishing,
-    isPaperEnabled,
-    isPrintingEnabled,
-    isFinishingEnabled,
+    paperType, // Added
+    paperGrammar, // Added
+    printType, // Added
+    finishingType, // Added
+    customFinishing, // Added
+    isPaperEnabled, // Added
+    isPrintingEnabled, // Added
+    isFinishingEnabled, // Added
+    // product (remove this if it causes infinite loop, as updateProductCosts already updates product)
   ]);
+
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -231,17 +285,27 @@ const ProductForm: React.FC<ProductFormProps> = ({
     >
   ) => {
     const { name, value } = e.target;
+    let newValue: string | boolean = value;
+
+    if (name === 'is_active') {
+      newValue = (e.target as HTMLInputElement).checked;
+    } else if (['min_order', 'stock'].includes(name)) {
+      // Ensure numerical inputs are parsed as numbers
+      newValue = parseInt(value, 10) || 0; 
+    }
+
     const updatedProduct = {
       ...product,
-      [name]: name === 'is_active' ? (e.target as HTMLInputElement).checked : value,
-    };
+      [name]: newValue,
+    } as Product; // Cast to Product to satisfy type, assuming all properties are valid
+
     setProduct(updatedProduct);
-    onChange?.(updatedProduct);
+    onChange?.(updatedProduct); // Notify parent of general field changes
   };
 
   const handleMarkupChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newMarkup = parseInt(e.target.value);
-    setMarkup(newMarkup);
+    const newMarkup = parseInt(e.target.value, 10);
+    setMarkup(isNaN(newMarkup) ? 0 : newMarkup); // Ensure it's a number
   };
 
   const handleRecipeChange = (updatedIngredients: RecipeIngredient[]) => {
@@ -252,45 +316,14 @@ const ProductForm: React.FC<ProductFormProps> = ({
     const updatedProduct = {
       ...product,
       ingredients: updatedIngredients
-    };
+    } as Product; // Cast to Product
 
     // console.log('Updating product in ProductForm with new ingredients:', updatedProduct);
     setProduct(updatedProduct);
-    onChange?.(updatedProduct);
+    onChange?.(updatedProduct); // Notify parent of recipe ingredient changes
   };
 
-  
-
-  // Update costs when recipe ingredients change
-  useEffect(() => {
-    const updateProductCosts = () => {
-      if (recipeIngredients.length > 0) {
-        // console.log('Recipe ingredients changed, updating costs:', recipeIngredients);
-        let totalCost = 0;
-
-        // Calculate total cost from ingredients with null checks
-        totalCost += recipeIngredients.reduce((sum, ingredient) => {
-          if (!ingredient?.price_per_unit) {
-            // console.warn('Missing price_per_unit for ingredient:', ingredient);
-            return sum;
-          }
-          const quantity = parseFloat(ingredient.quantity?.toString() || '0') || 0;
-          const pricePerUnit = parseFloat(ingredient.price_per_unit) || 0;
-          return sum + (quantity * pricePerUnit);
-        }, 0);
-
-        // Update cost price
-        setProduct(prev => ({
-          ...prev,
-          cost_price: totalCost.toFixed(2)
-        }));
-      }
-    };
-
-    updateProductCosts();
-  }, [recipeIngredients]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmitForm = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('🟦 Form submission started');
     
@@ -304,38 +337,24 @@ const ProductForm: React.FC<ProductFormProps> = ({
     try {
       console.log('🟨 Preparing submission data:', product);
       
-      // Clean up the product data before submission
+      // The `product` state already contains the latest calculated costs and material selections
+      // due to `updateProductCosts` and `handleChange`
       const submissionData: Product = {
-        id: product.id || '', // Include existing id or empty string for new products
-        name: product.name,
-        description: product.description || '',
-        thumbnail_id: product.thumbnail_id || '', // Required by API
-        category_id: product.category_id,
+        ...product, // Use the current product state which should be fully updated
+        // Ensure numerical fields are numbers and formatted prices are strings
         cost_price: (parseFloat(product.cost_price) || 0).toFixed(2),
         price: (parseFloat(product.price) || 0).toFixed(2),
         min_order: Number(product.min_order) || 1,
-        stock: Number(product.stock) || 1,
-        branch_id: user?.branch_id || '', // Get from authenticated user
-        is_active: product.is_active,
+        stock: Number(product.stock) || 0, // Stock can be 0
+        branch_id: user?.branch_id || '', 
         
-        // Material fields
-        paper_type: isPaperEnabled ? paperType : null,
-        paper_grammar: isPaperEnabled ? paperGrammar : null,
-        print_type: isPrintingEnabled ? (printType || 'Full Color') : 'Full Color', // Default to 'Full Color'
-        finishing_type: isFinishingEnabled ? finishingType : 'Tanpa Finishing',
-        custom_finishing: isFinishingEnabled && finishingType === 'Lainnya' ? customFinishing : null,
-        
-        // Feature flags
-        is_paper_enabled: isPaperEnabled,
-        is_printing_enabled: isPrintingEnabled,
-        is_finishing_enabled: isFinishingEnabled,
-        
-        // Recipe ingredients
+        // Ensure ingredients are properly structured for API
         ingredients: recipeIngredients.map(ing => ({
-          ...ing,
-          ingredient_id: ing.id,
+          id: ing.id, // Ensure ID is passed for existing ingredients
+          ingredient_id: ing.ingredient_id || ing.id, // Use ingredient_id if available, fallback to id
           quantity: ing.quantity,
           notes: ing.notes || null,
+          // Do not include price_per_unit or ingredient_name as they are read-only from frontend perspective for submission
         })),
       };
 
@@ -352,9 +371,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
       ...product,
       is_active: !product.is_active,
       updated_at: new Date().toISOString(),
-    };
+    } as Product;
     setProduct(updatedProduct);
-    onChange?.(updatedProduct);
+    onChange?.(updatedProduct); // Notify parent of status change
   };
 
   const tabs = [
@@ -389,7 +408,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
         </nav>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmitForm} className="space-y-6">
         {/* General Tab */}
         <div className={activeTab === 'general' ? '' : 'hidden'}>
           <div className="grid grid-cols-1 gap-6">
@@ -405,7 +424,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 type="button"
                 onClick={toggleProductStatus}
                 className="text-purple-600 hover:text-purple-700"
-                
               >
                 {product.is_active ? (
                   <div className="flex items-center">
@@ -529,7 +547,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                         const updatedProduct = {
                           ...product,
                           thumbnail_id: ''
-                        };
+                        } as Product;
                         setProduct(updatedProduct);
                         onChange?.(updatedProduct);
                       }}
@@ -543,24 +561,24 @@ const ProductForm: React.FC<ProductFormProps> = ({
             </div>
 
             {/* Additional Images Upload */}
-            {product.id && (
+            {product.id && ( // Only show if product has an ID (i.e., it's an existing product)
               <div>
-                
-                {/* <BoxFileUpload/> */}
                 <ProductImagesUpload
                   productId={product.id}
                   existingImages={product.additional_images}
-                  onImagesUploaded={() => {
-                    // Refresh the product data to show newly uploaded images
-                    if (onChange) {
-                      onChange(product);
-                    }
+                  onImagesUploaded={(updatedImages) => {
+                    const updatedProduct = {
+                      ...product,
+                      additional_images: updatedImages,
+                    };
+                    setProduct(updatedProduct);
+                    onChange?.(updatedProduct); // Notify parent of image changes
                   }}
                   onSetThumbnail={(imageUrl: string) => {
                     const updatedProduct = {
                       ...product,
                       thumbnail_id: imageUrl
-                    };
+                    } as Product;
                     setProduct(updatedProduct);
                     onChange?.(updatedProduct);
                     toast.success('Thumbnail updated successfully');
@@ -704,4 +722,3 @@ const ProductForm: React.FC<ProductFormProps> = ({
 };
 
 export default ProductForm;
-
