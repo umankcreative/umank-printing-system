@@ -2,11 +2,11 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 
 const api = axios.create({
-  baseURL: 'https://373b-114-10-139-244.ngrok-free.app/api',
+  baseURL: 'https://rest.umank.com/api',
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
-    'ngrok-skip-browser-warning': 'true', // Skip ngrok browser warning
+    // 'ngrok-skip-browser-warning': 'true', // Skip ngrok browser warning
   },
   //withCredentials: true,  //Enable cookies to be sent with requests
   // timeout: 10000, // Set a timeout for requests
