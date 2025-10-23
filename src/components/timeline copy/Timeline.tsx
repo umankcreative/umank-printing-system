@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TimelineItem from './TimelineItem';
 import { PlusCircle, CheckCircle } from 'lucide-react';
 import NewEventForm from './NewEventForm';
-import { supabase } from '../../lib/supabase';
+// import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
 
 interface TimelineProps {

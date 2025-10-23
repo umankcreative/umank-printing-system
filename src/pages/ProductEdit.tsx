@@ -34,14 +34,14 @@ const ProductEdit: React.FC = () => {
       try {
         setLoading(true);
         const response = await productService.getProduct(id);
-        console.log('Product response:', response);
+        // console.log('Product response:', response);
         
         // Ensure ingredients is always an array, and deep copy if needed for reactivity
         const productWithIngredients: Product = {
           ...response,
           ingredients: response.ingredients ? [...response.ingredients] : [] // Deep copy ingredients to ensure reactivity
         };
-        
+        console.log('Fetched product with ingredients:', productWithIngredients);
         setProduct(productWithIngredients); // Set the main product state from API
         setPreviewProduct(productWithIngredients); // Initialize preview with the same data
         
@@ -113,55 +113,24 @@ const ProductEdit: React.FC = () => {
   // This handler is ONLY for updating the preview state and material enabled flags
   // It does NOT update the `product` state that is passed as `initialProduct` to ProductForm.
   const handleFormChange = (updatedProductPartial: Partial<Product>) => {
-    console.log('Form change in ProductEdit:', updatedProductPartial);
-    console.log('Current ingredients from form change:', updatedProductPartial.ingredients);
-    
     setPreviewProduct(prev => {
-      if (!prev) {
-        // If previewProduct is null, create a basic one from updatedProductPartial
-        return {
-          id: updatedProductPartial.id || '',
-          name: updatedProductPartial.name || '',
-          description: updatedProductPartial.description || '',
-          thumbnail_id: updatedProductPartial.thumbnail_id || '',
-          category_id: updatedProductPartial.category_id || '',
-          cost_price: updatedProductPartial.cost_price || '0',
-          price: updatedProductPartial.price || '0',
-          min_order: updatedProductPartial.min_order || 0,
-          stock: updatedProductPartial.stock || 0,
-          branch_id: updatedProductPartial.branch_id || '',
-          is_active: updatedProductPartial.is_active ?? true,
-          paper_type: updatedProductPartial.paper_type || null,
-          paper_grammar: updatedProductPartial.paper_grammar || null,
-          print_type: updatedProductPartial.print_type || null,
-          finishing_type: updatedProductPartial.finishing_type || 'Tanpa Finishing',
-          custom_finishing: updatedProductPartial.custom_finishing || null,
-          is_paper_enabled: updatedProductPartial.is_paper_enabled ?? false,
-          is_printing_enabled: updatedProductPartial.is_printing_enabled ?? false,
-          is_finishing_enabled: updatedProductPartial.is_finishing_enabled ?? false,
-          ingredients: (Array.isArray(updatedProductPartial.ingredients) ? updatedProductPartial.ingredients : []) as RecipeIngredient[],
-        };
-      }
-      
-      // Update existing preview with proper type handling for ingredients
+      // This should not happen if state is initialized correctly, but as a safeguard:
+      if (!prev) return null;
+
       const newPreview = {
         ...prev,
         ...updatedProductPartial,
-        is_active: updatedProductPartial.is_active ?? prev.is_active,
-        ingredients: (Array.isArray(updatedProductPartial.ingredients) ? updatedProductPartial.ingredients : prev.ingredients) as RecipeIngredient[],
       };
-      
-      console.log('Updated preview product:', newPreview);
-      console.log('Preview ingredients:', newPreview.ingredients);
+
+      // Consistently derive material enabled state from the product data itself
+      setMaterialEnabled({
+        paper: !!newPreview.paper_type,
+        printing: !!newPreview.print_type,
+        finishing: !!newPreview.finishing_type && newPreview.finishing_type !== 'Tanpa Finishing',
+      });
+
       return newPreview;
     });
-
-    // Update material enabled flags based on the partial update
-    setMaterialEnabled(prev => ({
-      paper: updatedProductPartial.is_paper_enabled ?? prev.paper, // Use explicit enabled flag if provided
-      printing: updatedProductPartial.is_printing_enabled ?? prev.printing,
-      finishing: updatedProductPartial.is_finishing_enabled ?? prev.finishing,
-    }));
   };
 
   if (loading) {
@@ -211,7 +180,7 @@ const ProductEdit: React.FC = () => {
         
         <div>
           <div className="sticky top-24 md:w-[400px]">
-            <FormSection title="Product Preview">
+            {/* <FormSection title="Product Preview">
               <ProductPreview
                 product={previewProduct || { // Fallback if previewProduct is null initially
                   id: '', // Add ID here to match Product type
@@ -237,7 +206,7 @@ const ProductEdit: React.FC = () => {
                 }}
                 materialEnabled={materialEnabled}
               />
-            </FormSection>
+            </FormSection> */}
           </div>
         </div>
       </div>

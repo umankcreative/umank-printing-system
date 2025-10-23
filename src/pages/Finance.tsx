@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card1";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import  Badge  from "../components/ui/badge";
-import { Plus, Search, Filter, TrendingUp, TrendingDown, DollarSign, Settings } from "lucide-react";
+import { Plus, Search, TrendingUp, TrendingDown, DollarSign, Settings } from "lucide-react";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { formatCurrency } from "../lib/utils";
 // import Header from "@/components/Header";
@@ -13,7 +13,7 @@ import { useToast } from "../hooks/use-toast";
 import { Link } from "react-router-dom";
 import transactionServices from '../services/transactionServices';
 import { Finance as Transaction, Category } from '../types/api';
-import api from '../lib/axios';
+// api import removed (unused)
 
 // const API_BASE_URL = "https://373b-114-10-139-244.ngrok-free.app/api";
 
@@ -59,74 +59,79 @@ const Finance = () => {
     queryKey: ['categories'],
     queryFn: async () => {
       const response = await transactionServices.getCategories();
-      setFinanceCategories(response);
-      console.log('Fetched categories:', response);
-      console.log('Categories is array:', Array.isArray(response));
-      return response;
+      const normalized = Array.isArray(response) ? response : [];
+      setFinanceCategories(normalized);
+      console.log('Fetched categories (normalized):', normalized);
+      console.log('Categories is array:', Array.isArray(normalized));
+      return normalized;
     },
     retry: false
   });
 
-  // Ensure data is always an array
-  // const safeTransactions = Array.isArray(transactions) ? transactions : [];
-  // const safeCategories = Array.isArray(categories) ? categories : [];
-  
-  console.log('Safe transactions:', transactions, 'Type:', typeof transactions);
-  console.log('Safe categories:', categories, 'Type:', typeof categories);
+  // Ensure data is always an array and provide safe defaults
+  const safeTransactions: Transaction[] = Array.isArray(transactions) ? transactions : [];
+  const safeCategories: Category[] = Array.isArray(categories) ? categories : (financeCategory ?? []);
+  // Final normalized array used for rendering to protect against unexpected shapes
+  const categoriesArray: Category[] = Array.isArray(safeCategories) ? safeCategories : [];
+
+  console.log('Safe transactions:', safeTransactions, 'Type:', typeof safeTransactions);
+  console.log('Safe categories:', safeCategories, 'Type:', typeof safeCategories);
 
   // Calculate totals using safe arrays
-  const totalIncome = transactions
-    .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + Number(t.amount), 0);
+  const totalIncome = safeTransactions
+    .filter(t => t?.type === 'income')
+    .reduce((sum, t) => sum + Number(t?.amount ?? 0), 0);
 
-  const totalExpense = transactions
-    .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + Number(t.amount), 0);
+  const totalExpense = safeTransactions
+    .filter(t => t?.type === 'expense')
+    .reduce((sum, t) => sum + Number(t?.amount ?? 0), 0);
 
   const balance = totalIncome - totalExpense;
 
   // Prepare chart data using safe arrays
-  const expenseByCategory = categories
-    .filter(cat => cat.type === 'expense')
+  const expenseByCategory = safeCategories
+    .filter(cat => cat?.type === 'expense')
     .map(cat => {
-      const total = transactions
-        .filter(t => t.type === 'expense' && t.category === cat.key)
-        .reduce((sum, t) => sum + Number(t.amount), 0);
+      const total = safeTransactions
+        .filter(t => t?.type === 'expense' && t?.category === cat?.key)
+        .reduce((sum, t) => sum + Number(t?.amount ?? 0), 0);
       return {
-        name: cat.label,
+        name: cat?.label ?? 'Unknown',
         value: total,
-        color: cat.color
+        color: cat?.color ?? '#888888'
       };
     })
-    .filter(item => item.value > 0);
+    .filter(item => (item?.value ?? 0) > 0);
 
-  const incomeByCategory = categories
-    .filter(cat => cat.type === 'income')
+  const incomeByCategory = safeCategories
+    .filter(cat => cat?.type === 'income')
     .map(cat => {
-      const total = transactions
-        .filter(t => t.type === 'income' && t.category === cat.key)
-        .reduce((sum, t) => sum + Number(t.amount), 0);
+      const total = safeTransactions
+        .filter(t => t?.type === 'income' && t?.category === cat?.key)
+        .reduce((sum, t) => sum + Number(t?.amount ?? 0), 0);
       return {
-        name: cat.label,
+        name: cat?.label ?? 'Unknown',
         value: total,
-        color: cat.color
+        color: cat?.color ?? '#888888'
       };
     })
-    .filter(item => item.value > 0);
+    .filter(item => (item?.value ?? 0) > 0);
 
   // Monthly data for bar chart using safe arrays
-  const monthlyData = transactions.reduce((acc: any, transaction) => {
-    const date = new Date(transaction.date);
+  const monthlyData = safeTransactions.reduce((acc: Record<string, { month: string; income: number; expense: number }>, transaction) => {
+    const date = transaction?.date ? new Date(transaction.date) : null;
+    if (!date || Number.isNaN(date.getTime())) return acc;
+
     const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
     
     if (!acc[monthKey]) {
       acc[monthKey] = { month: monthKey, income: 0, expense: 0 };
     }
     
-    if (transaction.type === 'income') {
-      acc[monthKey].income += Number(transaction.amount);
+    if (transaction?.type === 'income') {
+      acc[monthKey].income += Number(transaction?.amount ?? 0);
     } else {
-      acc[monthKey].expense += Number(transaction.amount);
+      acc[monthKey].expense += Number(transaction?.amount ?? 0);
     }
     
     return acc;
@@ -135,16 +140,17 @@ const Finance = () => {
   const chartData = Object.values(monthlyData).slice(-6);
 
   // Filter transactions using safe arrays
-  const filteredTransactions = transactions.filter(transaction => {
-    const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || transaction.category === selectedCategory;
-    const matchesType = selectedType === 'all' || transaction.type === selectedType;
+  const filteredTransactions = safeTransactions.filter(transaction => {
+    const desc = transaction?.description ?? '';
+    const matchesSearch = desc.toLowerCase().includes((searchTerm ?? '').toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || transaction?.category === selectedCategory;
+    const matchesType = selectedType === 'all' || transaction?.type === selectedType;
     
     return matchesSearch && matchesCategory && matchesType;
   });
 
   const getCategoryInfo = (categoryKey: string) => {
-    return categories.find(cat => cat.key === categoryKey);
+    return safeCategories.find(cat => cat?.key === categoryKey) as Category | undefined;
   };
 
   const handleTransactionAdded = () => {
@@ -326,8 +332,8 @@ const Finance = () => {
                   className="px-3 py-2 w-64 border border-input rounded-md bg-background"
                 >
                   <option value="all">Semua Kategori</option>
-                  {categories
-                  .filter((category) => category.type === selectedType)
+                  {categoriesArray
+                  .filter((category) => selectedType === 'all' || category.type === selectedType)
                   .map((category) => (
                     <option key={category.id} value={category.key}>
                       {category.label}
@@ -356,12 +362,12 @@ const Finance = () => {
                       <div>
                         <p className="font-medium text-gray-900">{transaction.description}</p>
                         <p className="text-sm text-gray-500">
-                          {new Date(transaction.date).toLocaleDateString('id-ID', {
+                          {transaction?.date ? new Date(transaction.date).toLocaleDateString('id-ID', {
                             weekday: 'long',
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric'
-                          })}
+                          }) : '-'}
                         </p>
                       </div>
                     </div>
@@ -371,9 +377,9 @@ const Finance = () => {
                         {categoryInfo?.label || transaction.category}
                       </Badge>
                       <div className={`font-bold text-lg ${
-                        transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
+                        (transaction?.type === 'income') ? 'text-green-600' : 'text-red-600'
                       }`}>
-                        {transaction.type === 'income' ? '+' : '-'}{formatCurrency(Number(transaction.amount))}
+                        {(transaction?.type === 'income') ? '+' : '-'}{formatCurrency(Number(transaction?.amount ?? 0))}
                       </div>
                     </div>
                   </div>
@@ -394,7 +400,7 @@ const Finance = () => {
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         onTransactionAdded={handleTransactionAdded}
-        categories={categories}
+        categories={safeCategories}
         // apiBaseUrl={API_BASE_URL}
       />
     </div>

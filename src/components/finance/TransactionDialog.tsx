@@ -22,6 +22,7 @@ import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { useQueryClient } from "@tanstack/react-query";
+import api from "../../lib/axios";
 
 const transactionSchema = z.object({
   description: z.string().min(1, "Deskripsi harus diisi"),
@@ -71,27 +72,19 @@ const TransactionDialog = ({
     try {
       console.log('Submitting transaction:', data);
       
-      const response = await fetch(`${apiBaseUrl}/transactions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': 'true',
-          'Authorization': 'Bearer 208|PWZoKH20GUkwbNluBWM2h25h4rOtFzmwx8PfOaYRa8a9b2e1',
-        },
-        body: JSON.stringify({
-          description: data.description,
-          amount: data.amount,
-          date: data.date,
-          type: data.type,
-          category: data.category,
-        }),
+      const response = await api.post("/transactions", {
+        description: data.description,
+        amount: data.amount,
+        date: data.date,
+        type: data.type,
+        category: data.category,
       });
 
-      if (!response.ok) {
+      if (response.status < 200 || response.status >= 300) {
         throw new Error(`Failed to create transaction: ${response.statusText}`);
       }
 
-      const result = await response.json();
+      const result = response.data;
       console.log('Transaction created:', result);
 
       await queryClient.invalidateQueries({ queryKey: ['transactions'] });

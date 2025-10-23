@@ -83,7 +83,7 @@ const UserBranchList: React.FC<UserBranchListProps> = ({ onEditUser, onDeleteUse
               onChange={(e) => handleStatusFilter(e.target.value)}
               value={usersFilters.status || ''}
             >
-              <option value="">Semuaa</option>
+              <option value="">Semua</option>
               <option value="active">Aktif</option>
               <option value="inactive">Nonaktif</option>
             </select>

@@ -106,7 +106,7 @@ export const getFormTemplate = async (id: string): Promise<FormTemplate> => {
       // });
     
     // Extract data from the wrapped response
-    const templateData = templateResponse.data.data;
+    const templateData = templateResponse.data;
     
     if (!templateData) {
       console.error('No template data received');

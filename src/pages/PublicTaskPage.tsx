@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Calendar, Clock, Share2 } from 'lucide-react';
 import { formatDistance } from 'date-fns';
-import { supabase } from '../lib/supabase';
+// import { supabase } from '../lib/supabase';
 import PublicTimeline from '../components/timeline/PublicTimeline';
 
 interface Task {

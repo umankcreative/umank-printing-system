@@ -21,7 +21,10 @@ const transactionServices = {
   
   async getFinances(): Promise<Finance[]> {
     const response = await api.get('/transactions');
-    return response.data.data || [];
+    // API may return either: [] or { data: [] }
+    if (Array.isArray(response.data)) return response.data as Finance[];
+    if (response.data && Array.isArray(response.data.data)) return response.data.data as Finance[];
+    return [];
   },
   /**
    * Adds a new transaction to the API.
@@ -44,8 +47,11 @@ const transactionServices = {
    */
   getCategories: async (): Promise<Category[]> => {
     try {
-      const response = await api.get<Category[]>('/finance-categories');
-      return response.data.data || [];
+      const response = await api.get('/finance-categories');
+      // API may return either: [] or { data: [] }
+      if (Array.isArray(response.data)) return response.data as Category[];
+      if (response.data && Array.isArray(response.data.data)) return response.data.data as Category[];
+      return [];
     } catch (error) {
       console.error('Error fetching categories:', error);
       throw error;

@@ -12,7 +12,7 @@ const AdminLayout: React.FC = () => {
   console.log('AdminLayout user:', user);
   
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gradient-to-b from-blue-100 via-green-50 to-purple-1000">
       <Sidebar userRole={user?.role ?? ''} userName={user?.name ?? ''} />
       <div className="w-full md:ml-72">
         <Navbar title="Admin Dashboard" />

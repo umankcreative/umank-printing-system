@@ -109,7 +109,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole, userName }) => {
 
       {/* Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-30 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
+        className={`fixed inset-y-0 left-0 z-30 w-64 shadow-xl transform transition-transform duration-300 ease-in-out ${
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         } md:translate-x-0`}
       >

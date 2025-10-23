@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { TaskStatus } from '../../types';
 import { Upload, X } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+// import { supabase } from '../../lib/supabase';
 import { toast } from 'sonner';
 
 interface NewEventFormProps {

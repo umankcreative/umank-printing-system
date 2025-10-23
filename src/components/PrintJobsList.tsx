@@ -1,10 +1,12 @@
-import React from "react";
-import { useQuery } from '@tanstack/react-query'; // Import useQuery
+import React, { useState } from "react";
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card1";
 import Badge from "./ui/badge";
 import { PrintJob, PrintJobStatus } from "../types/api";
-import { Clock, Printer, CheckCircle, AlertCircle, RefreshCcw } from "lucide-react";
+import { Clock, Printer, CheckCircle, AlertCircle, RefreshCcw, List, LayoutGrid } from "lucide-react";
 import { printJobService } from "../services/printJobService";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
+import { Button } from "./ui/button";
 
 // Helper functions (tetap sama)
 const getStatusIcon = (status: PrintJobStatus) => {
@@ -49,39 +51,106 @@ const formatDate = (date: Date | string) => {
 };
 
 const PrintJobsList = () => {
-  // Menggunakan useQuery dari react-query
+  const [view, setView] = useState<'card' | 'table'>('card');
+
   const {
-    data: printJobs = [], // 'data' berisi hasil dari queryFn. Beri nilai default array kosong.
-    isLoading,         // true saat data sedang diambil untuk pertama kali
-    isFetching,        // true saat data sedang diambil (termasuk refetch di latar belakang)
-    isError,           // true jika ada error saat fetching
-    error,             // Objek error jika isError true
+    data: printJobs = [],
+    isLoading,
+    isError,
+    error,
   } = useQuery<PrintJob[], Error>({
-    queryKey: ['printJobs'], // Kunci unik untuk query ini. Digunakan untuk caching dan invalidasi.
-    queryFn: printJobService.getPrintJobs, // Fungsi yang akan memanggil API
-    staleTime: 1000 * 60 * 1, // Data dianggap segar selama 1 menit (tidak akan refetch jika kurang dari ini)
-    refetchInterval: 1000 * 10, // Opsional: Refetch data setiap 10 detik untuk real-time (bisa disesuaikan)
-    refetchOnWindowFocus: true, // Opsional: Refetch saat window mendapatkan fokus kembali
+    queryKey: ['printJobs'],
+    queryFn: printJobService.getPrintJobs,
+    staleTime: 1000 * 60 * 1,
+    refetchInterval: 1000 * 10,
+    refetchOnWindowFocus: true,
     onError: (err) => {
       console.error("Failed to fetch print jobs:", err);
-      // Anda bisa menambahkan toast atau notifikasi di sini
     },
   });
 
+  const renderCardView = () => (
+    <div className="space-y-4">
+      {printJobs.map((job) => (
+        <div
+          key={job.id}
+          className="print-job-container bg-card border rounded-md p-4"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <div className="font-medium truncate max-w-[70%]">{job.name}</div>
+            {getStatusBadge(job.status)}
+          </div>
+          <div className="text-sm text-muted-foreground mb-3 truncate">
+            {job.fileName} ({job.pages} halaman)
+          </div>
+          <div className="flex justify-between items-center text-xs text-muted-foreground">
+            <div className="flex items-center gap-1">
+              {getStatusIcon(job.status)}
+              <span>
+                {job.status === "printing" ? "Sedang mencetak" :
+                 job.status === "pending" ? "Menunggu cetak" :
+                 job.status === "completed" ? "Selesai mencetak" :
+                 "Gagal mencetak"}
+              </span>
+            </div>
+            <div>
+              {job.created_at ? formatDate(new Date(job.created_at)): "Tidak diketahui"}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  const renderTableView = () => (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Nama</TableHead>
+          <TableHead>File</TableHead>
+          <TableHead className="text-center">Halaman</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead className="text-right">Waktu</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {printJobs.map((job) => (
+          <TableRow key={job.id}>
+            <TableCell className="font-medium">{job.name}</TableCell>
+            <TableCell className="text-muted-foreground">{job.fileName}</TableCell>
+            <TableCell className="text-center">{job.pages}</TableCell>
+            <TableCell>{getStatusBadge(job.status)}</TableCell>
+            <TableCell className="text-right text-muted-foreground">
+              {job.created_at ? formatDate(new Date(job.created_at)) : "Tidak diketahui"}
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+
   return (
     <Card className="w-full mt-6">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2">
           <Printer className="text-primary" size={20} />
           Pekerjaan Cetak Aktif
         </CardTitle>
+        <div className="flex items-center gap-2">
+          <Button variant={view === 'card' ? 'secondary' : 'ghost'} size="icon" onClick={() => setView('card')}>
+            <LayoutGrid className="h-4 w-4" />
+          </Button>
+          <Button variant={view === 'table' ? 'secondary' : 'ghost'} size="icon" onClick={() => setView('table')}>
+            <List className="h-4 w-4" />
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
-        {isLoading ? ( // Menggunakan isLoading dari useQuery
+        {isLoading ? (
           <div className="text-center py-6 text-muted-foreground">
             Memuat pekerjaan cetak...
           </div>
-        ) : isError ? ( // Menampilkan error jika ada
+        ) : isError ? (
           <div className="text-center py-6 text-red-500">
             Gagal memuat pekerjaan cetak: {error?.message}
           </div>
@@ -90,36 +159,7 @@ const PrintJobsList = () => {
             Tidak ada pekerjaan cetak aktif
           </div>
         ) : (
-          <div className="space-y-4">
-            {printJobs.map((job) => (
-              <div
-                key={job.id}
-                className="print-job-container bg-card border rounded-md p-4"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="font-medium truncate max-w-[70%]">{job.name}</div>
-                  {getStatusBadge(job.status)}
-                </div>
-                <div className="text-sm text-muted-foreground mb-3 truncate">
-                  {job.fileName} ({job.pages} halaman)
-                </div>
-                <div className="flex justify-between items-center text-xs text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    {getStatusIcon(job.status)}
-                    <span>
-                      {job.status === "printing" ? "Sedang mencetak" :
-                       job.status === "pending" ? "Menunggu cetak" :
-                       job.status === "completed" ? "Selesai mencetak" :
-                       "Gagal mencetak"}
-                    </span>
-                  </div>
-                  <div>
-                    {job.created_at ? formatDate(new Date(job.created_at)): "Tidak diketahui"}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          view === 'card' ? renderCardView() : renderTableView()
         )}
       </CardContent>
     </Card>

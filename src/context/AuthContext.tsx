@@ -41,47 +41,55 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already authenticated on app start
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('userData');
-    
-    if (token && userData) {
-      try {
-        const parsedUser = JSON.parse(userData);
+    // This effect runs once on mount to initialize auth state from localStorage
+    try {
+      const storedToken = localStorage.getItem('token');
+      const storedUserData = localStorage.getItem('userData');
+      console.log('AuthProvider initializing from storage. Token:', storedToken);
+
+      if (storedToken && storedUserData) {
+        const parsedUser: User = JSON.parse(storedUserData);
+        // Set state based on what was found in storage
+        setToken(storedToken);
         setUser(parsedUser);
-      } catch (error) {
-        console.error('Error parsing user data:', error);
-        localStorage.removeItem('token');
-        localStorage.removeItem('userData');
       }
+    } catch (error) {
+      console.error('Failed to parse user data from localStorage', error);
+      // Clear potentially corrupt data
+      localStorage.removeItem('token');
+      localStorage.removeItem('userData');
+    } finally {
+      // Finished loading auth state
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, []);
 
-  const login = (token: string, userData: User) => {
-    localStorage.setItem('token', token);
+  const login = (newToken: string, userData: User) => {
+    localStorage.setItem('token', newToken);
     localStorage.setItem('userData', JSON.stringify(userData));
+    setToken(newToken);
     setUser(userData);
   };
 
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('userData');
+    setToken(null);
     setUser(null);
   };
 
-  const isAuthenticated = !!user;
+  const isAuthenticated = !!token && !!user;
 
   const value: AuthContextType = {
-    // { isAuthenticated, token: null, user, login, logout: handleLogout, checkAuth, isLoading: loading }
     user,
     isAuthenticated,
     login,
     logout,
-    token: localStorage.getItem('token') || null,
+    token,
     isLoading,
   };
 

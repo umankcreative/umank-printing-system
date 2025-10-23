@@ -21,13 +21,15 @@ const Login: React.FC = () => {
     setError(null);
 
     try {
-      const response = await api.post('/login/', {
+      const response = await api.post('/login', {
         email,
         password,
       });
 
-      const { token,  user } = response.data;
+      // Destructure from response.data.data to match the server response
+      const { token,  user } = response.data.data;
       login(token, user);
+      await new Promise((r) => setTimeout(r, 100));
       navigate('/admin');
     } catch (err) {
       const error = err as AxiosError<{ message: string }>;

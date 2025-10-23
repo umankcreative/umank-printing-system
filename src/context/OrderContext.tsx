@@ -5,7 +5,8 @@ import { Order as LocalOrder, Task, Product as LocalProduct } from '../types'; /
 // Import tipe dari api.ts yang spesifik untuk mapping atau payload API
 import { Order as ApiOrder, Product as ApiProduct, OrderItem as ApiOrderItem } from '../types/api';
 import { useProductContext } from './ProductContext';
-import { generateOrderTasks as generateTasks, generateTaskForProduct as generateProductTask, isValidUUID } from '../lib/utils';
+// import { generateOrderTasks as generateTasks, generateTaskForProduct as generateProductTask, isValidUUID } from '../lib/utils';
+import { isValidUUID } from '../lib/utils';
 // Import CreateOrderPayload dan CreateOrderItemPayload dari orderService.ts yang baru disesuaikan
 import orderService, { OrderQueryParams, CreateOrderPayload, CreateOrderItemPayload } from '../services/orderService';
 import { toast } from 'sonner';
@@ -28,14 +29,14 @@ interface OrderContextType {
   addTask: (task: Task) => void;
   updateTask: (task: Task) => void;
   deleteTask: (id: string) => void;
-  generateOrderTasks: (order: LocalOrder) => Task[];
-  generateTaskForProduct: (
-    productId: string,
-    quantity: string,
-    deadline: string,
-    orderId?: string,
-    parentTaskId?: string
-  ) => Task | undefined;
+  // generateOrderTasks: (order: LocalOrder) => Task[];
+  // generateTaskForProduct: (
+  //   productId: string,
+  //   quantity: string,
+  //   deadline: string,
+  //   orderId?: string,
+  //   parentTaskId?: string
+  // ) => Task | undefined;
   getOrder: (id: string) => Promise<LocalOrder | undefined>;
   addTaskToOrder: (orderId: string, task: Task) => Promise<void>;
   updateTaskInOrder: (orderId: string, taskId: string, updatedTask: Task) => Promise<void>;
@@ -232,16 +233,16 @@ export const OrderProvider: React.FC<OrderContextProps> = ({ children }) => {
       }
 
       // Penting: Gunakan createdOrder dari API untuk generate task, karena ID dan data lain sudah final
-      const orderTasks = generateTasks(mapApiOrderToLocal(createdOrder), products);
-      const allTasks = orderTasks.reduce((acc: Task[], task) => {
-        acc.push(task);
-        if (task.subtasks) {
-          acc.push(...task.subtasks);
-        }
-        return acc;
-      }, []);
+      // const orderTasks = generateTasks(mapApiOrderToLocal(createdOrder), products);
+      // const allTasks = orderTasks.reduce((acc: Task[], task) => {
+      //   acc.push(task);
+      //   if (task.subtasks) {
+      //     acc.push(...task.subtasks);
+      //   }
+      //   return acc;
+      // }, []);
 
-      setTasks(prevTasks => [...prevTasks, ...allTasks]);
+      // setTasks(prevTasks => [...prevTasks, ...allTasks]);
 
       await fetchOrders({ page: currentPage });
       toast.success('Order berhasil dibuat');
@@ -327,20 +328,20 @@ export const OrderProvider: React.FC<OrderContextProps> = ({ children }) => {
     setTasks(prev => prev.filter(task => task.id !== id));
   };
 
-  const generateOrderTasks = (order: LocalOrder): Task[] => {
-    return generateTasks(order, products);
-  };
+  // const generateOrderTasks = (order: LocalOrder): Task[] => {
+  //   return generateTasks(order, products);
+  // };
 
-  const generateTaskForProduct = (
-    productId: string,
-    quantity: string, // Perhatikan ini string, mungkin perlu diubah ke number jika untuk perhitungan
-    deadline: string,
-    orderId?: string,
-    parentTaskId?: string
-  ): Task | undefined => {
-    // Pastikan `generateProductTask` menerima tipe data yang benar (misalnya `quantity` sebagai number)
-    return generateProductTask(products, productId, quantity, deadline, orderId, parentTaskId);
-  };
+  // const generateTaskForProduct = (
+  //   productId: string,
+  //   quantity: string, // Perhatikan ini string, mungkin perlu diubah ke number jika untuk perhitungan
+  //   deadline: string,
+  //   orderId?: string,
+  //   parentTaskId?: string
+  // ): Task | undefined => {
+  //   // Pastikan `generateProductTask` menerima tipe data yang benar (misalnya `quantity` sebagai number)
+  //   return generateProductTask(products, productId, quantity, deadline, orderId, parentTaskId);
+  // };
 
   const getOrder = useCallback(async (id: string): Promise<LocalOrder | undefined> => {
     try {
@@ -411,8 +412,8 @@ export const OrderProvider: React.FC<OrderContextProps> = ({ children }) => {
     addTask,
     updateTask,
     deleteTask,
-    generateOrderTasks,
-    generateTaskForProduct,
+    // generateOrderTasks,
+    // generateTaskForProduct,
     getOrder,
     addTaskToOrder,
     updateTaskInOrder,

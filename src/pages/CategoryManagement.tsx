@@ -19,10 +19,11 @@ const CategoryManagement = () => {
     queryKey: ['categories'],
     queryFn: async () => {
       const response = await transactionServices.getCategories();
-      setFinanceCategories(response);
-      console.log('Fetched categories:', response);
-      console.log('Categories is array:', Array.isArray(response));
-      return response;
+      const normalized = Array.isArray(response) ? response : [];
+      setFinanceCategories(normalized);
+      console.log('Fetched categories (normalized):', normalized);
+      console.log('Categories is array:', Array.isArray(normalized));
+      return normalized;
     },
     retry: false
   });
@@ -59,8 +60,10 @@ const CategoryManagement = () => {
     );
   }
 
-  const expenseCategories = categories.filter(cat => cat.type === 'expense');
-  const incomeCategories = categories.filter(cat => cat.type === 'income');
+  const categoriesArray: Category[] = Array.isArray(categories) ? categories : (financeCategory ?? []);
+
+  const expenseCategories = categoriesArray.filter(cat => cat.type === 'expense');
+  const incomeCategories = categoriesArray.filter(cat => cat.type === 'income');
 
   const handleEdit = (category: Category) => {
     setEditingCategory(category);
